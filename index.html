@@ -6,7 +6,7 @@
     <title>CG</title>
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <link rel="shortcut icon" href="favicon.ico" />
-    <link rel="stylesheet" type="text/css" href="htmlNovo/resources/main.css">
+    <link rel="stylesheet" type="text/css" href="html2/resources/main.css">
 </head>
 
 <body>
@@ -14,7 +14,7 @@
         <div id="header">
             <script>
                 function openWelcomePage() {
-                    iframe.src = "htmlNovo/welcome.html";
+                    iframe.src = "html2/welcome.html";
                     document.body.appendChild(iframe);
                 }
             </script>
@@ -47,7 +47,7 @@
 
     <iframe name="viewer"></iframe>
 
-    <script src="htmlNovo/resources/list.js"></script>
+    <script src="html2/resources/list.js"></script>
 
     <script>
         // var hash = window.location.hash.substring( 1 );
@@ -328,7 +328,7 @@
             iframe = oldIframe.cloneNode();
 
             if (hash) {
-                iframe.src = splitHash[0] + '.htmlNovo' + splitHash[1]; // MUDEI ESSA LINHA
+                iframe.src = splitHash[0] + '.html' + splitHash[1];
                 subtitle = titles[splitHash[0]] + splitHash[1] + ' – ';
             } else {
                 iframe.src = '';
