@@ -1,0 +1,8 @@
+Aula 01
+    Ex01 OK
+    Ex02 OK
+    Ex03 OK
+
+Aula 02
+    Ex01 OK
+    Ex02 OK
