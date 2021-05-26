@@ -2,9 +2,8 @@ var list = {
     "en": {
         "Projects": {
             "Aula 01": {
-                "Ex 01": "htmlNovo/aula01Ex01",
-                "Using the keyboard": "html/keyboardExampleInfo",
-                "Geometric Transformations 1": "html/geometricTransformationInfo",
+                "Ex 01": "htmlnovo/aula01Ex01",
+                "Geometric Transformations 1": "htmlnovo/geometricTransformationInfo",
                 "Geometric Transformations 2": "html/geometricTransformation2Info",
                 "Projection": "html/projectionInfo",
                 "Virtual Camera": "html/virtualCameraInfo",

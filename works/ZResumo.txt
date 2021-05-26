@@ -6,3 +6,10 @@ Aula 01
 Aula 02
     Ex01 OK
     Ex02 OK
+
+
+
+/** GIT PAGE**/
+
+* Criar arquino no diretorio htmlNovo com base no modelo
+* Colocar na lista em resources/list.js
