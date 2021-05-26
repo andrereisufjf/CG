@@ -2,10 +2,10 @@ var list = {
     "en": {
         "Projects": {
             "Old Site": {
-                "Site Base Disciplina": "/indexAntigo.html",
+                "Site Base Disciplina": "indexAntigo",
             },
             "Aula 01": {
-                "Ex 01": "htmlNovo/aula01_ex01",
+                "Ex 01": "htmlNovo/Aula01Ex01",
                 "Using the keyboard": "html/keyboardExampleInfo",
                 "Geometric Transformations 1": "html/geometricTransformationInfo",
                 "Geometric Transformations 2": "html/geometricTransformation2Info",
