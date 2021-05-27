@@ -76,11 +76,11 @@ function keyboardUpdate() {
 function showInformation() {
     // Use this to show information onscreen
     var controls = new InfoBox();
-    controls.add("Keyboard Example");
+    controls.add("Uso do Teclado:");
     controls.addParagraph();
-    controls.add("Press WASD keys to move continuously");
-    controls.add("Press arrow keys to move in discrete steps");
-    controls.add("Press SPACE to put the cube in its original position");
+    controls.add("Pressione , ou < e . ou > para rotacionar a câmera em torno do eixo Z");
+    controls.add("Pressione as setas para rotacionar a câmera para a direita/esquerda e cima/baixo");
+    controls.add("Pressione ESPAÇO para mover a câmera para frente");
     controls.show();
 }
 
