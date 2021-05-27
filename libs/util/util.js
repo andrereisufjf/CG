@@ -1,5 +1,5 @@
 import * as THREE from '../../build/three.module.js';
-import {TrackballControls} from '../../build/jsm/controls/TrackballControls.js';
+import { TrackballControls } from '../../build/jsm/controls/TrackballControls.js';
 
 /**
  * Get ASCII table code of a given character
@@ -8,36 +8,32 @@ import {TrackballControls} from '../../build/jsm/controls/TrackballControls.js';
  * @param {char} ch
  * @returns ASCII code of the caracter
  */
-export function getCode(ch)
-{
-  var code = ch.charCodeAt(0);
-  return code;
+export function getCode(ch) {
+    var code = ch.charCodeAt(0);
+    return code;
 }
 
 /**
  * Convert degrees to radians
  */
-export function degreesToRadians(degrees)
-{
-  var pi = Math.PI;
-  return degrees * (pi/180);
+export function degreesToRadians(degrees) {
+    var pi = Math.PI;
+    return degrees * (pi / 180);
 }
 
 /**
  * Convert radians to degrees
  */
-export function radiansToDegrees(radians)
-{
-  var pi = Math.PI;
-  return radians * (180/pi);
+export function radiansToDegrees(radians) {
+    var pi = Math.PI;
+    return radians * (180 / pi);
 }
 
 /**
  * Format output to show 'num' number with 'decimalPlaces' decimal places
  */
-export function formatOutput(num, decimalPlaces)
-{
-  return (Math.round(num * 100) / 100).toFixed(decimalPlaces);
+export function formatOutput(num, decimalPlaces) {
+    return (Math.round(num * 100) / 100).toFixed(decimalPlaces);
 }
 
 
@@ -45,141 +41,136 @@ export function formatOutput(num, decimalPlaces)
  Compute the max size acording to XYZ axes
  Return the maxSzie
 */
-export function getMaxSize(obj)
-{
-  var maxSize;
-  var box = new THREE.Box3().setFromObject( obj );
-  var min = box.min;
-  var max = box.max;
+export function getMaxSize(obj) {
+    var maxSize;
+    var box = new THREE.Box3().setFromObject(obj);
+    var min = box.min;
+    var max = box.max;
 
-  var size = new THREE.Box3();
-  size.x = max.x - min.x;
-  size.y = max.y - min.y;
-  size.z = max.z - min.z;
+    var size = new THREE.Box3();
+    size.x = max.x - min.x;
+    size.y = max.y - min.y;
+    size.z = max.z - min.z;
 
-  if(size.x >= size.y && size.x >= size.z)
-    maxSize = size.x;
-  else {
-    if(size.y >= size.z )
-      maxSize = size.y;
+    if (size.x >= size.y && size.x >= size.z)
+        maxSize = size.x;
     else {
-      maxSize = size.z;
+        if (size.y >= size.z)
+            maxSize = size.y;
+        else {
+            maxSize = size.z;
+        }
     }
-  }
-  return maxSize;
+    return maxSize;
 }
 
 /**
-  * Class box - show information onscreen
-  *
-  */
- export class InfoBox {
-  constructor() {
-    this.infoBox = document.createElement('div');
-    this.infoBox.id = "InfoxBox";
-    this.infoBox.style.padding = "6px 14px";
-    this.infoBox.style.position = "fixed";
-    this.infoBox.style.bottom = "0";
-    this.infoBox.style.right = "0";
-    this.infoBox.style.backgroundColor = "rgba(255,255,255,0.2)";
-    this.infoBox.style.color = "white";
-    this.infoBox.style.fontFamily = "sans-serif";
-    this.infoBox.style.userSelect = "none";
-    this.infoBox.style.textAlign = "left";
-  }
+ * Class box - show information onscreen
+ *
+ */
+export class InfoBox {
+    constructor() {
+        this.infoBox = document.createElement('div');
+        this.infoBox.id = "InfoxBox";
+        this.infoBox.style.padding = "6px 14px";
+        this.infoBox.style.position = "fixed";
+        this.infoBox.style.bottom = "0";
+        this.infoBox.style.right = "0";
+        this.infoBox.style.backgroundColor = "rgba(255,255,255,0.2)";
+        this.infoBox.style.color = "white";
+        this.infoBox.style.fontFamily = "sans-serif";
+        this.infoBox.style.userSelect = "none";
+        this.infoBox.style.textAlign = "left";
+    }
 
-  addParagraph() {
-    const paragraph = document.createElement("br")
-    this.infoBox.appendChild(paragraph);              ;
-  }
+    addParagraph() {
+        const paragraph = document.createElement("br")
+        this.infoBox.appendChild(paragraph);;
+    }
 
-  add(text) {
-    var textnode = document.createTextNode(text);
-    this.infoBox.appendChild(textnode);
-    this.addParagraph();
-  }
+    add(text) {
+        var textnode = document.createTextNode(text);
+        this.infoBox.appendChild(textnode);
+        this.addParagraph();
+    }
 
-  show() {
-    document.body.appendChild(this.infoBox);
-  }
+    show() {
+        document.body.appendChild(this.infoBox);
+    }
 }
 
 /**
-  * ...
-  *
-  */
-export class SecondaryBox
-{
-  constructor(defaultText) {
-    this.box = document.createElement('div');
-    this.box.id = "box";
-    this.box.style.padding = "6px 14px";
-    this.box.style.bottom = "0";
-    this.box.style.left= "0";
-    this.box.style.position = "fixed";
-    this.box.style.backgroundColor = "rgba(100,100,255,0.3)";
-    this.box.style.color = "white";
-    this.box.style.fontFamily = "sans-serif";
-    this.box.style.fontSize = "26px";
+ * ...
+ *
+ */
+export class SecondaryBox {
+    constructor(defaultText) {
+        this.box = document.createElement('div');
+        this.box.id = "box";
+        this.box.style.padding = "6px 14px";
+        this.box.style.bottom = "0";
+        this.box.style.left = "0";
+        this.box.style.position = "fixed";
+        this.box.style.backgroundColor = "rgba(100,100,255,0.3)";
+        this.box.style.color = "white";
+        this.box.style.fontFamily = "sans-serif";
+        this.box.style.fontSize = "26px";
 
-    this.textnode = document.createTextNode(defaultText);
-    this.box.appendChild(this.textnode);
-    document.body.appendChild(this.box);
-  }
-  changeMessage(newText) {
-    this.textnode.nodeValue = newText;
-  }
+        this.textnode = document.createTextNode(defaultText);
+        this.box.appendChild(this.textnode);
+        document.body.appendChild(this.box);
+    }
+    changeMessage(newText) {
+        this.textnode.nodeValue = newText;
+    }
 }
 
 /**
-  * Do not allow that max is lower then min
-  *
-  */
+ * Do not allow that max is lower then min
+ *
+ */
 export class MinMaxGUIHelper {
-  constructor(obj, minProp, maxProp, minDif) {
-    this.obj = obj;
-    this.minProp = minProp;
-    this.maxProp = maxProp;
-    this.minDif = minDif;
-  }
-  get min() {
-    return this.obj[this.minProp];
-  }
-  get max() {
-    return this.obj[this.maxProp];
-  }
-  set min(v) {
-    this.obj[this.minProp] = v;
-    this.obj[this.maxProp] = Math.max(this.obj[this.maxProp], v + this.minDif);
-  }
-  set max(v) {
-    this.obj[this.maxProp] = v;
-    this.min = this.min;  // this will call the min setter
-  }
+    constructor(obj, minProp, maxProp, minDif) {
+        this.obj = obj;
+        this.minProp = minProp;
+        this.maxProp = maxProp;
+        this.minDif = minDif;
+    }
+    get min() {
+        return this.obj[this.minProp];
+    }
+    get max() {
+        return this.obj[this.maxProp];
+    }
+    set min(v) {
+        this.obj[this.minProp] = v;
+        this.obj[this.maxProp] = Math.max(this.obj[this.maxProp], v + this.minDif);
+    }
+    set max(v) {
+        this.obj[this.maxProp] = v;
+        this.min = this.min; // this will call the min setter
+    }
 }
 
 /**
  * Makes a definite light follows the camera
  */
-export function lightFollowingCamera(light, camera)
-{
-  light.position.copy( camera.position );
+export function lightFollowingCamera(light, camera) {
+    light.position.copy(camera.position);
 }
 
 
 /**
  * Fix camera and renderer when window size changes
  */
-export function onWindowResize(camera, renderer){
+export function onWindowResize(camera, renderer) {
 
-    if (camera instanceof THREE.PerspectiveCamera)
-    {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize( window.innerWidth, window.innerHeight );
-    }
-    else {
-      // TODO for other cameras
+    if (camera instanceof THREE.PerspectiveCamera) {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    } else {
+        // TODO for other cameras
     }
 }
 
@@ -202,7 +193,7 @@ export function initStats(type) {
 
 /**
  * Initialize a simple default renderer and binds it to the "webgl-output" dom
-* element.
+ * element.
  *
  * @param additionalProperties Additional properties to pass into the renderer
  */
@@ -259,10 +250,10 @@ export function initDefaultLighting(scene, initialPosition) {
     spotLight.name = "spotLight"
     spotLight.position.copy(position);
     spotLight.castShadow = true;
-    spotLight.distance = 0;    
+    spotLight.distance = 0;
     spotLight.decay = 2;
     spotLight.penumbra = 0.5;
-    spotLight.angle = degreesToRadians(40);    
+    spotLight.angle = degreesToRadians(40);
     spotLight.shadow.mapSize.width = 512;
     spotLight.shadow.mapSize.height = 512;
     scene.add(spotLight);
@@ -277,16 +268,15 @@ export function initDefaultLighting(scene, initialPosition) {
 /*
  * Sphere to represent light position
  */
-export function createLightSphere(scene, radius, widthSegments, heightSegments, position)
-{
-  var geometry = new THREE.SphereGeometry(radius, widthSegments, heightSegments, 0, Math.PI * 2, 0, Math.PI);
-  var material = new THREE.MeshBasicMaterial({color:"rgb(255,255,50)"});
-  var object = new THREE.Mesh(geometry, material);
+export function createLightSphere(scene, radius, widthSegments, heightSegments, position) {
+    var geometry = new THREE.SphereGeometry(radius, widthSegments, heightSegments, 0, Math.PI * 2, 0, Math.PI);
+    var material = new THREE.MeshBasicMaterial({ color: "rgb(255,255,50)" });
+    var object = new THREE.Mesh(geometry, material);
     object.visible = true;
     object.position.copy(position);
-  scene.add(object);
+    scene.add(object);
 
-  return object;
+    return object;
 }
 
 export function initDefaultDirectionalLighting(scene, initialPosition) {
@@ -338,8 +328,8 @@ export function initTrackballControls(camera, renderer) {
  *                     this material will only be used if it is a meshnormal material.
  */
 var applyMeshStandardMaterial = function(geometry, material) {
-    if (!material || material.type !== "MeshStandardMaterial")  {
-        var material = new THREE.MeshStandardMaterial({color: 0xff0000})
+    if (!material || material.type !== "MeshStandardMaterial") {
+        var material = new THREE.MeshStandardMaterial({ color: 0xff0000 })
         material.side = THREE.DoubleSide;
     }
 
@@ -355,7 +345,7 @@ var applyMeshStandardMaterial = function(geometry, material) {
  *                     this material will only be used if it is a meshnormal material.
  */
 var applyMeshNormalMaterial = function(geometry, material) {
-    if (!material || material.type !== "MeshNormalMaterial")  {
+    if (!material || material.type !== "MeshNormalMaterial") {
         material = new THREE.MeshNormalMaterial();
         material.side = THREE.DoubleSide;
     }
@@ -410,46 +400,44 @@ export function addDefaultCubeAndSphere(scene) {
 /**
  * Create a small and simple ground plane. Width and Height are in X and Y
  */
-export function createGroundPlane(width, height, widthSegments = 10, heightSegments = 10, gcolor = null)
-{
-  if(!gcolor) gcolor = "rgb(200,200,200)";
-  // create the ground plane
-  var planeGeometry = new THREE.PlaneGeometry(width, height, widthSegments, heightSegments);
-  var planeMaterial = new THREE.MeshLambertMaterial({color:gcolor, side:THREE.DoubleSide});
-  var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+export function createGroundPlane(width, height, widthSegments = 10, heightSegments = 10, gcolor = null) {
+    if (!gcolor) gcolor = "rgb(200,200,200)";
+    // create the ground plane
+    var planeGeometry = new THREE.PlaneGeometry(width, height, widthSegments, heightSegments);
+    var planeMaterial = new THREE.MeshLambertMaterial({ color: gcolor, side: THREE.DoubleSide });
+    var plane = new THREE.Mesh(planeGeometry, planeMaterial);
     plane.receiveShadow = true;
 
-  return plane;
+    return plane;
 }
 
 /**
  * Create a ground plane that has a wireframe over it
  */
-export function createGroundPlaneWired(width, height, widthSegments = 10, heightSegments = 10, gcolor = null)
-{
-  if(!gcolor) gcolor = "rgb(60, 30, 150)";  
-  
-  //---------------------------------------------------------------------------------------
-  // create the ground plane with wireframe
-  var planeGeometry = new THREE.PlaneGeometry(width, height, widthSegments, heightSegments);
-    planeGeometry.translate(0.0, 0.0, -0.02); // To avoid conflict with the axeshelper
-  var planeMaterial = new THREE.MeshPhongMaterial({
-    color: gcolor,
-    polygonOffset: true,
-    polygonOffsetFactor: 1, // positive value pushes polygon further away
-    polygonOffsetUnits: 1
-  });
-  
-  var wireframe = new THREE.WireframeGeometry( planeGeometry );
-    var line = new THREE.LineSegments( wireframe );
-    line.material.color.setStyle( "rgb(150, 150, 150)" );  
+export function createGroundPlaneWired(width, height, widthSegments = 10, heightSegments = 10, gcolor = null) {
+    if (!gcolor) gcolor = "rgb(60, 30, 150)";
 
-  var plane = new THREE.Mesh(planeGeometry, planeMaterial);
-    plane.receiveShadow = true;  
+    //---------------------------------------------------------------------------------------
+    // create the ground plane with wireframe
+    var planeGeometry = new THREE.PlaneGeometry(width, height, widthSegments, heightSegments);
+    planeGeometry.translate(0.0, 0.0, -0.02); // To avoid conflict with the axeshelper
+    var planeMaterial = new THREE.MeshPhongMaterial({
+        color: gcolor,
+        polygonOffset: true,
+        polygonOffsetFactor: 1, // positive value pushes polygon further away
+        polygonOffsetUnits: 1
+    });
+
+    var wireframe = new THREE.WireframeGeometry(planeGeometry);
+    var line = new THREE.LineSegments(wireframe);
+    line.material.color.setStyle("rgb(150, 150, 150)");
+
+    var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+    plane.receiveShadow = true;
     plane.add(line);
-    plane.rotateX(-Math.PI/2);
-  
-  return plane;
+    plane.rotateX(-Math.PI / 2);
+
+    return plane;
 }
 
 /**
@@ -496,7 +484,7 @@ export function addLargeGroundPlane(scene, useTexture) {
         planeMaterial.map = textureLoader.load("../../assets/textures/general/floor-wood.jpg");
         planeMaterial.map.wrapS = THREE.RepeatWrapping;
         planeMaterial.map.wrapT = THREE.RepeatWrapping;
-        planeMaterial.map.repeat.set(80,80)
+        planeMaterial.map.repeat.set(80, 80)
     }
     var plane = new THREE.Mesh(planeGeometry, planeMaterial);
     plane.receiveShadow = true;
@@ -695,7 +683,7 @@ function addBasicMaterialSettings(gui, controls, material, name) {
     folder.add(controls.material, 'transparent');
     folder.add(controls.material, 'overdraw', 0, 1, 0.01);
     folder.add(controls.material, 'visible');
-    folder.add(controls.material, 'side', {FrontSide: 0, BackSide: 1, BothSides: 2}).onChange(function (side) {
+    folder.add(controls.material, 'side', { FrontSide: 0, BackSide: 1, BothSides: 2 }).onChange(function(side) {
         controls.material.side = parseInt(side)
     });
 
@@ -706,8 +694,8 @@ function addBasicMaterialSettings(gui, controls, material, name) {
     });
     folder.add(controls.material, 'premultipliedAlpha');
     folder.add(controls.material, 'dithering');
-    folder.add(controls.material, 'shadowSide', {FrontSide: 0, BackSide: 1, BothSides: 2});
-    folder.add(controls.material, 'vertexColors', {NoColors: THREE.NoColors, FaceColors: THREE.FaceColors, VertexColors: THREE.VertexColors}).onChange(function (vertexColors) {
+    folder.add(controls.material, 'shadowSide', { FrontSide: 0, BackSide: 1, BothSides: 2 });
+    folder.add(controls.material, 'vertexColors', { NoColors: THREE.NoColors, FaceColors: THREE.FaceColors, VertexColors: THREE.VertexColors }).onChange(function(vertexColors) {
         material.vertexColors = parseInt(vertexColors);
     });
     folder.add(controls.material, 'fog');
@@ -722,12 +710,12 @@ function addSpecificMaterialSettings(gui, controls, material, name) {
     var folder = gui.addFolder(folderName);
     switch (material.type) {
         case "MeshNormalMaterial":
-            folder.add(controls.material,'wireframe');
+            folder.add(controls.material, 'wireframe');
             return folder;
 
         case "MeshPhongMaterial":
             controls.specular = material.specular.getStyle();
-            folder.addColor(controls, 'specular').onChange(function (e) {
+            folder.addColor(controls, 'specular').onChange(function(e) {
                 material.specular.setStyle(e)
             });
             folder.add(material, 'shininess', 0, 100, 0.01);
@@ -735,11 +723,11 @@ function addSpecificMaterialSettings(gui, controls, material, name) {
 
         case "MeshStandardMaterial":
             controls.color = material.color.getStyle();
-            folder.addColor(controls, 'color').onChange(function (e) {
+            folder.addColor(controls, 'color').onChange(function(e) {
                 material.color.setStyle(e)
             });
             controls.emissive = material.emissive.getStyle();
-            folder.addColor(controls, 'emissive').onChange(function (e) {
+            folder.addColor(controls, 'emissive').onChange(function(e) {
                 material.emissive.setStyle(e)
             });
             folder.add(material, 'metalness', 0, 1, 0.01);
@@ -765,7 +753,7 @@ function redrawGeometryAndUpdateUI(gui, scene, controls, geomFunction) {
     scene.add(controls.mesh)
     controls.currentMaterialFolder = addBasicMaterialSettings(gui, controls, controls.mesh.material);
     controls.specificMaterialFolder = addSpecificMaterialSettings(gui, controls, controls.mesh.material);
-  }
+}
 
 /**
  * Remove a folder from the dat.gui
@@ -790,57 +778,57 @@ function guiRemoveFolder(gui, folder) {
  * @param material material for the meshes
  */
 function addMeshSelection(gui, controls, material, scene) {
-  var sphereGeometry = new THREE.SphereGeometry(10, 20, 20);
-  var cubeGeometry = new THREE.BoxGeometry(16, 16, 15);
-  var planeGeometry = new THREE.PlaneGeometry(14, 14, 4, 4);
+    var sphereGeometry = new THREE.SphereGeometry(10, 20, 20);
+    var cubeGeometry = new THREE.BoxGeometry(16, 16, 15);
+    var planeGeometry = new THREE.PlaneGeometry(14, 14, 4, 4);
 
-  var sphere = new THREE.Mesh(sphereGeometry, material);
-  var cube = new THREE.Mesh(cubeGeometry, material);
-  var plane = new THREE.Mesh(planeGeometry, material);
+    var sphere = new THREE.Mesh(sphereGeometry, material);
+    var cube = new THREE.Mesh(cubeGeometry, material);
+    var plane = new THREE.Mesh(planeGeometry, material);
 
-  sphere.position.x = 0;
-  sphere.position.y = 11;
-  sphere.position.z = 2;
+    sphere.position.x = 0;
+    sphere.position.y = 11;
+    sphere.position.z = 2;
 
-  cube.position.y = 8;
+    cube.position.y = 8;
 
-  controls.selectedMesh = "cube";
-  loadGopher(material).then(function(gopher) {
+    controls.selectedMesh = "cube";
+    loadGopher(material).then(function(gopher) {
 
-    gopher.scale.x = 5;
-    gopher.scale.y = 5;
-    gopher.scale.z = 5;
-    gopher.position.z = 0
-    gopher.position.x = -10
-    gopher.position.y = 0
+        gopher.scale.x = 5;
+        gopher.scale.y = 5;
+        gopher.scale.z = 5;
+        gopher.position.z = 0
+        gopher.position.x = -10
+        gopher.position.y = 0
 
-    gui.add(controls, 'selectedMesh', ["cube", "sphere", "plane", "gopher"]).onChange(function (e) {
+        gui.add(controls, 'selectedMesh', ["cube", "sphere", "plane", "gopher"]).onChange(function(e) {
 
-      scene.remove(controls.selected);
+            scene.remove(controls.selected);
 
-      switch (e) {
-        case "cube":
-          scene.add(cube);
-          controls.selected = cube;
-          break;
-        case "sphere":
-          scene.add(sphere);
-          controls.selected = sphere;
-          break;
-        case "plane":
-          scene.add(plane);
-          controls.selected = plane;
-          break;
-        case "gopher":
-          scene.add(gopher);
-          controls.selected = gopher;
-          break;
-      }
+            switch (e) {
+                case "cube":
+                    scene.add(cube);
+                    controls.selected = cube;
+                    break;
+                case "sphere":
+                    scene.add(sphere);
+                    controls.selected = sphere;
+                    break;
+                case "plane":
+                    scene.add(plane);
+                    controls.selected = plane;
+                    break;
+                case "gopher":
+                    scene.add(gopher);
+                    controls.selected = gopher;
+                    break;
+            }
+        });
     });
-  });
 
-  controls.selected = cube;
-  scene.add(controls.selected);
+    controls.selected = cube;
+    scene.add(controls.selected);
 }
 
 /**
@@ -852,7 +840,7 @@ function loadGopher(material) {
     var loader = new THREE.OBJLoader();
     var mesh = null;
     var p = new Promise(function(resolve) {
-        loader.load('../../assets/models/gopher/gopher.obj', function (loadedMesh) {
+        loader.load('../../assets/models/gopher/gopher.obj', function(loadedMesh) {
             // this is a group of meshes, so iterate until we reach a THREE.Mesh
             mesh = loadedMesh;
             if (material) {
@@ -871,7 +859,7 @@ function setMaterialGroup(material, group) {
     if (group instanceof THREE.Mesh) {
         group.material = material;
     } else if (group instanceof THREE.Group) {
-        group.children.forEach(function(child) {setMaterialGroup(material, child)});
+        group.children.forEach(function(child) { setMaterialGroup(material, child) });
     }
 }
 
@@ -890,6 +878,6 @@ function computeNormalsGroup(group) {
         group.geometry = tempGeom;
 
     } else if (group instanceof THREE.Group) {
-        group.children.forEach(function(child) {computeNormalsGroup(child)});
+        group.children.forEach(function(child) { computeNormalsGroup(child) });
     }
 }

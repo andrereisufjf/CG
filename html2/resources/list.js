@@ -10,6 +10,9 @@ var list = {
                 "Exercício 01": "html2/aula02Ex01",
                 "Exercício 02": "html2/aula02Ex02",
             },
+            "Aula 03": {
+                "Exercício 01": "html2/aula03Ex01",
+            },
         },
         "Projects": {
 
