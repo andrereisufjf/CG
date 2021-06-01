@@ -123,16 +123,16 @@ function buildInterface() {
     var gui = new GUI();
     gui.add(controls, 'joint1', 0, 360)
         .onChange(function(e) { controls.rotate() })
-        .name("First Joint at Z");
+        .name("First Joint on Z");
     gui.add(controls, 'joint4', 0, 360)
         .onChange(function(e) { controls.rotate() })
-        .name("First Joint at Y");
+        .name("First Joint on Y");
     gui.add(controls, 'joint2', 0, 360)
         .onChange(function(e) { controls.rotate() })
-        .name("Second Joint at Z");
+        .name("Second Joint on Z");
     gui.add(controls, 'joint3', 0, 360)
         .onChange(function(e) { controls.rotate() })
-        .name("Third Joint at Z");
+        .name("Third Joint on Z");
 
 }
 

@@ -13,6 +13,10 @@ var list = {
             "Aula 03": {
                 "Exercício 01": "html2/aula03Ex01",
             },
+            "Aula 04": {
+                "Exercício 01": "html2/aula04Ex01",
+                "Exercício 02": "html2/aula04Ex02",
+            },
         },
         "Projects": {
 
