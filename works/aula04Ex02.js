@@ -80,7 +80,7 @@ scene.add(ball);
 //variavel de controle
 var pause = false;
 
-
+//funcao para realizar o translado
 function draw() {
     // Drawing code goes here
     if (pause) {
@@ -109,14 +109,13 @@ function move() {
     var fatorconversao = 50;
 
     if (vector.length() > 0.3)
-        vector.divideScalar(fatorconversao); // cria o vetor deslocamento agora
+        vector.divideScalar(fatorconversao); // cria o vetor deslocamento agora, com tamanho reduzido
     //console.log(vector);
-    //console.log('Fator conversão:' + fatorconversao);
 
-
-    move2(vector);
+    move2(vector); // funcao q realmente translada
 }
 
+//funcao para deslocalar na direçao e tamanho do vetor passado
 function move2(vector) {
     //console.log('move2');
     if (earth.position.distanceTo(ball.position) > 0.1) {
@@ -127,9 +126,6 @@ function move2(vector) {
         pause = false;
     }
 }
-
-
-
 
 // Listen window size changes
 window.addEventListener('resize', function() { onWindowResize(camera, renderer) }, false);
