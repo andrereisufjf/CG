@@ -2,6 +2,8 @@
 import * as THREE from '../build/three.module.js';
 import { VRButton } from '../build/jsm/webxr/VRButton.js';
 import {onWindowResize} from "../libs/util/util.js";
+import {setLookNonVRBehavior,
+		updateLookNonVRBehavior} from "../libs/util/utilVR.js";
 
 //-----------------------------------------------------------------------------------------------
 //-- MAIN SCRIPT --------------------------------------------------------------------------------
@@ -27,12 +29,16 @@ let scene = new THREE.Scene();
 let camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 30 );
 
 //-- Create VR button and settings ---------------------------------------------------------------
+document.body.appendChild( renderer.domElement );
 document.body.appendChild( VRButton.createButton( renderer ) );
+
+// To be used outside a VR environment (Desktop, for example)
+setLookNonVRBehavior(camera, renderer, "On desktop, press 'Q' or 'E' to change orientation","Dragging functions are available only in VR mode.");
 
 // controllers
 let controller1 = renderer.xr.getController( 0 );
-controller1.addEventListener( 'selectstart', onSelectStart );
-controller1.addEventListener( 'selectend', onSelectEnd );
+	controller1.addEventListener( 'selectstart', onSelectStart );
+	controller1.addEventListener( 'selectend', onSelectEnd );
 scene.add( controller1 );
 
 // VR Camera Rectile
@@ -111,6 +117,7 @@ function animate() {
 }
 
 function render() {
+	updateLookNonVRBehavior(); 	
 	cleanIntersected();
 	intersectObjects( controller1 );
 	renderer.render( scene, camera );
@@ -128,13 +135,10 @@ function createScene()
 	scene.add( new THREE.HemisphereLight( 0x808080, 0x606060 ) );
 
 	const floorGeometry = new THREE.PlaneGeometry( 10, 10 );
-	const floorMaterial = new THREE.MeshStandardMaterial( {
-		color: 0xeeeeee,
-		roughness: 1.0,
-		metalness: 0.0
-	} );
+	const floorMaterial = new THREE.MeshLambertMaterial( {color: "rgb(80, 80, 80)"} );
 	const floor = new THREE.Mesh( floorGeometry, floorMaterial );
 	floor.rotation.x = -Math.PI / 2;
+	floor.position.y -= 0.2;
 	floor.receiveShadow = true;
 	scene.add( floor );
 
