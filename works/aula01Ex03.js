@@ -49,12 +49,26 @@ function addObject(x, y, z, obj) {
 }
 
 //Adicionando sólidos a cena
-{
-    for (var i = -12; i < 13; i += 12) {
-        for (var j = -12; j < 13; j += 12) {
-            //console.log(j + "," + i);
-            addSolidGeometry(j, i, 3, new THREE.BoxGeometry(6, 6, 6));
+// {
+//     for (var i = -12; i < 13; i += 12) {
+//         for (var j = -12; j < 13; j += 12) {
+//             //console.log(j + "," + i);
+//             addSolidGeometry(j, i, 3, new THREE.BoxGeometry(6, 6, 6));
 
+//         }
+//     }
+
+// }
+
+//parametros
+let dist = 12;
+let tam = 6;
+
+//Adicionando sólidos a cena
+{
+    for (var i = -1; i < 2; i++) {
+        for (var j = -1; j < 2; j++) {
+            addSolidGeometry(dist * j, dist * i, tam / 2, new THREE.BoxGeometry(tam, tam, tam));
         }
     }
 
