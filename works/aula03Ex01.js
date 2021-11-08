@@ -23,9 +23,9 @@ camera.position.set(0.0, 2.0, 0.0);
 camera.up.set(0, 1, 0);
 
 var cameraHolder = new THREE.Object3D();
-cameraHolder.position.set(0.0, 2.0, 0.0);
-cameraHolder.lookAt(0, 0, 0);
-cameraHolder.up.set(0, 1, 0);
+// cameraHolder.position.set(0.0, 2.0, 0.0);
+// cameraHolder.lookAt(0, 0, 0);
+// cameraHolder.up.set(0, 1, 0);
 scene.add(cameraHolder);
 cameraHolder.add(camera);
 
@@ -46,7 +46,7 @@ var axesHelper = new THREE.AxesHelper(12);
 scene.add(axesHelper);
 
 // create the Wired ground plane
-var groundPlaneWired = createGroundPlaneWired(500, 500, 1000, 500, "rgb(96,10,127)");
+var groundPlaneWired = createGroundPlaneWired(100, 100, 100, 100, "rgb(96,10,127)");
 scene.add(groundPlaneWired);
 
 // Listen window size changes
@@ -57,7 +57,7 @@ render();
 function keyboardUpdate() {
 
     keyboard.update();
-    var angle = degreesToRadians(1);
+    var angle = degreesToRadians(0.7);
     var rotX = new THREE.Vector3(1, 0, 0); // Set X axis
     var rotY = new THREE.Vector3(0, 1, 0); // Set Y axis
     var rotZ = new THREE.Vector3(0, 0, 1); // Set Z axis
