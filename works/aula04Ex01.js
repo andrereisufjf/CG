@@ -5,7 +5,7 @@ import { TrackballControls } from '../build/jsm/controls/TrackballControls.js';
 import {
     initRenderer,
     initCamera,
-    initDefaultLighting,
+    initDefaultBasicLight,
     degreesToRadians,
     lightFollowingCamera,
     onWindowResize
@@ -15,8 +15,9 @@ var stats = new Stats(); // To show FPS information
 var scene = new THREE.Scene(); // Create main scene
 var renderer = initRenderer(); // View function in util/utils
 var camera = initCamera(new THREE.Vector3(5, 5, 7)); // Init camera in this position
-var light = initDefaultLighting(scene, new THREE.Vector3(0, 0, 15));
+//var light = initDefaultLighting(scene, new THREE.Vector3(0, 0, 15));
 var trackballControls = new TrackballControls(camera, renderer.domElement);
+initDefaultBasicLight(scene);
 
 // Set angles of rotation
 var angle = 0;

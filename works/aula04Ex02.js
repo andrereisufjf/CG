@@ -4,9 +4,7 @@ import { GUI } from '../build/jsm/libs/dat.gui.module.js';
 import { TrackballControls } from '../build/jsm/controls/TrackballControls.js';
 import {
     initRenderer,
-    initCamera,
-    initDefaultLighting,
-    degreesToRadians,
+    initDefaultBasicLight,
     lightFollowingCamera,
     onWindowResize
 } from "../libs/util/util.js";
@@ -18,8 +16,9 @@ var scene = new THREE.Scene(); // Create main scene
 var renderer = initRenderer(); // View function in util/utils
 var camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 1000);
 //var camera = initCamera(new THREE.Vector3(0, 0, 4)); // Init camera in this position
-var light = initDefaultLighting(scene, new THREE.Vector3(0, 0, 15));
+//var light = initDefaultLighting(scene, new THREE.Vector3(0, 0, 15));
 var trackballControls = new TrackballControls(camera, renderer.domElement);
+initDefaultBasicLight(scene);
 
 camera.lookAt(0, 0, 3);
 camera.position.set(20, -50, 30);
