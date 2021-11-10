@@ -127,7 +127,7 @@ function render() {
     stats.update(); // Update FPS
     trackballControls.update();
     rotateCylinder();
-    lightFollowingCamera(light, camera);
+    //lightFollowingCamera(light, camera);
     requestAnimationFrame(render);
     renderer.render(scene, camera) // Render scene
 }

@@ -181,7 +181,7 @@ function render() {
     // rotate the planet/earth
     earth.rotation.y += .005;
     //move();
-    lightFollowingCamera(light, camera);
+    //lightFollowingCamera(light, camera);
     requestAnimationFrame(render);
     renderer.render(scene, camera) // Render scene
 }
