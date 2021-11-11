@@ -5,7 +5,6 @@ import { TrackballControls } from '../build/jsm/controls/TrackballControls.js';
 import {
     initRenderer,
     initDefaultBasicLight,
-    lightFollowingCamera,
     onWindowResize
 } from "../libs/util/util.js";
 
@@ -21,8 +20,8 @@ var trackballControls = new TrackballControls(camera, renderer.domElement);
 initDefaultBasicLight(scene);
 
 camera.lookAt(0, 0, 3);
-camera.position.set(20, -50, 30);
-camera.up.set(0, 1, 3);
+camera.position.set(30, 50, 30);
+camera.up.set(0, 0, 1);
 
 var moveOn = false; // control if animation is on or of
 
@@ -83,11 +82,8 @@ var pause = false;
 function draw() {
     // Drawing code goes here
     if (pause) {
-        //console.log('teste');
         move();
         requestAnimationFrame(draw);
-    } else {
-        console.log('Sem Movimento');
     }
 }
 
@@ -95,29 +91,24 @@ draw();
 
 //Funcao para mover
 function move() {
-    //if (moveOn) {
     var vector = new THREE.Vector3(position[0], position[1], position[2]);
 
     if (!vector.equals(earth.position)) {
         vector.sub(earth.position);
-        //console.log('entrei');
     }
 
-    //console.log(vector);
-    //console.log('criando deslocamento');
     var fatorconversao = 50;
+    var minLegnht = 0;
 
-    if (vector.length() > 0.3)
+    if (vector.length() > 0.35)
         vector.divideScalar(fatorconversao); // cria o vetor deslocamento agora, com tamanho reduzido
-    //console.log(vector);
 
     move2(vector); // funcao q realmente translada
 }
 
 //funcao para deslocalar na direçao e tamanho do vetor passado
 function move2(vector) {
-    //console.log('move2');
-    if (earth.position.distanceTo(ball.position) > 0.1) {
+    if (earth.position.distanceTo(ball.position) > 0.02) {
         earth.position.add(vector);
     } else {
         earth.position.set(position[0], position[1], position[2]);
