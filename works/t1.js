@@ -9,13 +9,15 @@ import {
     initDefaultBasicLight,
     initCamera,
 } from "../libs/util/util.js";
-import { createCarBody, } from "./carBody.js"
-import { keyboardUpdate, movePlane, initMov } from "./carMovimentation.js";
+import { createCarBody, definePosition, keyboardUpdate, initMov } from "./carBody.js"
+import { addPlanElements, getInicialPosition } from "./plano.js"
+//import { keyboardUpdate, movePlane, initMov } from "./carMovimentation.js";
+
 
 var stats = new Stats(); // To show FPS information
 var scene = new THREE.Scene(); // Create main scene
 var renderer = initRenderer(); // View function in util/utils
-var camera = initCamera(new THREE.Vector3(0, 40, 120)); // Init camera in this position
+var camera = initCamera(new THREE.Vector3(0, -200, 300)); // Init camera in this position
 initDefaultBasicLight(scene, true);
 camera.name = 'camera';
 var modoCamera = { simulacao: true };
@@ -27,10 +29,22 @@ var trackballControls = new TrackballControls(camera, renderer.domElement);
 var axesHelper = new THREE.AxesHelper(12);
 scene.add(axesHelper);
 
+// // create the ground plane
+// var plane = createGroundPlaneWired(100, 100, 100, 100);
+// // add the plane to the scene
+// scene.add(plane);
+
 // create the ground plane
-var plane = createGroundPlaneWired(100, 100, 100, 100);
+// var planeGeometry = new THREE.PlaneGeometry(20, 20);
+// planeGeometry.translate(0.0, 0.0, -0.02); // To avoid conflict with the axeshelper
+// var planeMaterial = new THREE.MeshBasicMaterial({
+//     color: "rgba(150, 150, 150)",
+//     side: THREE.DoubleSide,
+// });
+
+// var plane = new THREE.Mesh(planeGeometry, planeMaterial);
 // add the plane to the scene
-scene.add(plane);
+//scene.add(plane);
 
 var car = createCarBody();
 car.name = 'car';
@@ -42,27 +56,36 @@ scene.add(objetoVirtual);
 
 // Use this to show information onscreen
 var controls = new InfoBox();
-controls.add("Trabalho 1 - André Reis e Guilherme Machado");
+controls.add("Trabalho 1:");
+controls.add("André Luiz dos Reis");
+controls.add("Lucca Oliveira Schroder");
+controls.add("Rafael Freesz Resende Correa");
 controls.addParagraph();
 controls.add("Use o teclado para interagir:");
 controls.add("* Espaço altera o modo de câmera");
 controls.add("* No modo Simulação utiliza as setas para movimentar e");
 controls.add("* 'q' e 'a' para acelerar/desacelerar o avião");
 controls.add("* No modo Inspeção, utilize o mouse para movimentar a câmera");
-controls.show();
+//controls.show();
 
 // Listen window size changes
 window.addEventListener('resize', function() { onWindowResize(camera, renderer) }, false);
-initMov(objetoVirtual, modoCamera, scene, plane, axesHelper);
+
+//adiciona elementos de plano e cenário à cena
+addPlanElements(scene);
+
+//possibilita modo de inspeção
+initMov(modoCamera, getInicialPosition());
 
 render();
 
 function render() {
     stats.update(); // Update FPS
-    if (!modoCamera.simulacao)
-        trackballControls.update(); // Enable mouse movements
+    //if (!modoCamera.simulacao)
+    trackballControls.update(); // Enable mouse movements
     requestAnimationFrame(render);
+    definePosition();
     keyboardUpdate();
-    movePlane();
+    //movePlane();
     renderer.render(scene, camera); // Render scene
 }
