@@ -1,6 +1,7 @@
 import * as THREE from '../build/three.module.js';
 import Stats from '../build/jsm/libs/stats.module.js';
 import { TrackballControls } from '../build/jsm/controls/TrackballControls.js';
+import KeyboardState from '../libs/util/KeyboardState.js';
 import {
     initRenderer,
     initCamera,
@@ -13,11 +14,14 @@ var scene = new THREE.Scene(); // Create main scene
 var renderer = initRenderer(); // View function in util/utils
 var camera = initCamera(new THREE.Vector3(0, -180, 100)); // Init camera in this position
 
+// To use the keyboard
+var keyboard = new KeyboardState();
+
 // Enable mouse rotation, pan, zoom etc.
 var trackballControls = new TrackballControls(camera, renderer.domElement);
 
 // create the ground plane
-let lado = 90;
+let lado = 95; //lado must be odd
 var planeGeometry = new THREE.PlaneGeometry(lado * 2.1, lado * 2.1);
 planeGeometry.translate(0.0, 0.0, -0.02); // To avoid conflict with the axeshelper
 var planeMaterial = new THREE.MeshBasicMaterial({
@@ -30,6 +34,9 @@ scene.add(plane);
 
 const tam = 10;
 const delta = 0.9;
+const z = 4;
+const quant = (2 * lado)/tam - 1;
+
 
 class Blocks{
     constructor(x = 0, y = 0, z = 2, tam, isInicial = false){
@@ -64,31 +71,130 @@ let blocks = [];
 
 for(let i = -lado; i < lado; i = i + tam)
 {
-    blocks.push(new Blocks(i + tam/2, -lado + tam/2, 4, tam * delta, false)); 
+    if(i === -tam/2)
+    {
+        blocks.push(new Blocks(i + tam/2, -lado + tam/2, 4, tam * delta, true));     
+    }
+    else
+    {
+        blocks.push(new Blocks(i + tam/2, -lado + tam/2, 4, tam * delta, false)); 
+    }
 }
 
-for(let i = -lado; i < lado; i = i + tam)
+for(let i = -lado + tam; i < lado; i = i + tam)
 {
     blocks.push(new Blocks(lado - tam/2, i + tam/2, 4, tam * delta, false)); 
 }
 
-for(let i = lado; i > -lado; i = i - tam)
+for(let i = lado - tam; i > -lado; i = i - tam)
 {
     blocks.push(new Blocks(i - tam/2, lado - tam/2, 4, tam * delta, false)); 
 }
 
-for(let i = lado; i > -lado; i = i - tam)
+for(let i = lado - tam; i > -lado + tam; i = i - tam)
 {
-    blocks.push(new Blocks(- lado + tam/2, i - tam/2, 4, tam * delta, false)); 
+   blocks.push(new Blocks(- lado + tam/2, i - tam/2, 4, tam * delta, false)); 
 }
 
-let quant = (2 * lado)/tam - 1;
-console.log(Math.round(quant/2 + quant));
 
 // scene.add(blocks);
 blocks.forEach(block=>scene.add(block));
-blocks[Math.round(quant + quant/2)].position.set(0 + tam/2, 0 - tam/2, 4); // descomentar
+//blocks[Math.round(quant / 2)].material.color = "";
+console.log(quant)
 
+function keyboardUpdate() {
+
+keyboard.update();
+
+
+if (keyboard.down("2")) 
+{
+    let start = Math.round(quant + quant/2) + 1;
+    let end = Math.round(2 * quant + quant/2);
+
+    let fator = Math.round((end-start)/2);
+
+    //console.log("ola");
+    //console.log(Math.round((end-start)/2));
+    //console.log(end - start);
+
+    for(let i = start; i < end; i++)
+    {
+        let x, y;
+        x = blocks[i].position.x;
+        y = blocks[i].position.y;
+        
+        if(x === y)
+        {
+            fator = 0;
+            blocks[i].position.set(tam*fator, tam*fator, z);
+        } 
+        else if(x > y)
+        {
+            fator--;
+            blocks[i].position.set(tam*fator, 0, z);
+        } 
+        else
+        {
+            fator++;
+            blocks[i].position.set(0, tam*fator, z);
+        }
+        
+        /*blocks[Math.round(quant + quant/2) + 1].position.set(tam*3, 0, 4);
+        blocks[Math.round(quant + quant/2) + 2].position.set(tam*2, 0, 4);
+        blocks[Math.round(quant + quant/2) + 3].position.set(tam, 0, 4);
+        blocks[Math.round(quant + quant/2) + 4].position.set(0, 0, 4);
+        blocks[Math.round(quant + quant/2) + 5].position.set(0, tam, 4);
+        blocks[Math.round(quant + quant/2) + 6].position.set(0, tam*2, 4);
+        blocks[Math.round(quant + quant/2) + 7].position.set(0, tam*3, 4); */
+    }
+}
+
+if (keyboard.down("1")) 
+{
+    let start = Math.round(quant + quant/2) + 1;
+    let end = Math.round(2 * quant + quant/2);
+
+    let fator = Math.round((end-start)/2);
+
+    //console.log("ola");
+    //console.log(Math.round((end-start)/2));
+    //console.log(end - start);
+
+    for(let i = start; i < end; i++)
+    {
+        let x, y;
+        x = blocks[i].position.x;
+        y = blocks[i].position.y;
+        
+        if(x === y)
+        {
+            fator = 0;
+            blocks[i].position.set(lado - tam/2, lado - tam/2, z);
+        } 
+        else if(x > y)
+        {
+            fator--;
+            blocks[i].position.set(lado - tam/2, lado - tam/2 - x, z);
+        } 
+        else
+        {
+            fator++;
+            blocks[i].position.set(lado - tam/2 - y, lado - tam/2, z);
+        }
+        
+        /*blocks[Math.round(quant + quant/2) + 1].position.set(tam*3, 0, 4);
+        blocks[Math.round(quant + quant/2) + 2].position.set(tam*2, 0, 4);
+        blocks[Math.round(quant + quant/2) + 3].position.set(tam, 0, 4);
+        blocks[Math.round(quant + quant/2) + 4].position.set(0, 0, 4);
+        blocks[Math.round(quant + quant/2) + 5].position.set(0, tam, 4);
+        blocks[Math.round(quant + quant/2) + 6].position.set(0, tam*2, 4);
+        blocks[Math.round(quant + quant/2) + 7].position.set(0, tam*3, 4); */
+    }
+
+}
+
+}
 // blocks.forEach(block=>scene.add(block));
 
 
@@ -101,6 +207,7 @@ render();
 function render() {
     stats.update(); // Update FPS
     trackballControls.update(); // Enable mouse movements
+    keyboardUpdate();
     requestAnimationFrame(render);
     renderer.render(scene, camera) // Render scene
 }
