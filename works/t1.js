@@ -10,7 +10,7 @@ import {
     initCamera,
 } from "../libs/util/util.js";
 import { createCarBody, definePosition, keyboardUpdate, initMov } from "./carBody.js"
-import { addPlanElements, getInicialPosition } from "./plano.js"
+import { addPlanElements, getInicialPosition, changeLane } from "./plano.js"
 //import { keyboardUpdate, movePlane, initMov } from "./carMovimentation.js";
 
 
@@ -86,6 +86,7 @@ function render() {
     requestAnimationFrame(render);
     definePosition();
     keyboardUpdate();
+    //changeLane();
     //movePlane();
     renderer.render(scene, camera); // Render scene
 }

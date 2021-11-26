@@ -10,6 +10,7 @@ import {
 } from "../libs/util/util.js";
 
 import KeyboardState from '../libs/util/KeyboardState.js';
+import { changeLane } from "./plano.js"
 
 // To use the keyboard
 var keyboard = new KeyboardState();
@@ -238,9 +239,17 @@ export function keyboardUpdate() {
         }
     }
 
+    if (keyboard.down("1")) {
+        changeLane(1);
+    } else if (keyboard.down("2")) {
+        changeLane(2);
+    }
+
     if (keyboard.down("space")) {
         modoCamera.simulacao = !modoCamera.simulacao;
     }
+
+
 
     //console.log(speed);
 }

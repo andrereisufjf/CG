@@ -1,17 +1,22 @@
 import * as THREE from '../build/three.module.js';
-
+import KeyboardState from '../libs/util/KeyboardState.js';
 
 // add the plane to the scene
 //scene.add(plane);
 
-const lado = 90;
+const lado = 45;
 const tam = 10;
 const delta = 0.9;
 const quant = (2 * lado) / tam - 1;
 const z = -0.75;
 
+let actualLane = 1;
+
 // create the ground plane
 var plane = createPlane();
+
+// To use the keyboard
+var keyboard = new KeyboardState();
 
 let blocks = [];
 
@@ -38,30 +43,27 @@ function createPlane() {
 
 }
 
-//console.log(Math.round(quant/2 + quant));
-
-// scene.add(blocks);
-//blocks.forEach(block => scene.add(block));
-//blocks[Math.round(quant + quant / 2)].position.set(0 + tam / 2, 0 - tam / 2, 4); // descomentar
-
-// blocks.forEach(block=>scene.add(block));
-
 function createBlocks() {
     for (let i = -lado; i < lado; i = i + tam) {
-        blocks.push(new Blocks(i + tam / 2, -lado + tam / 2, z, tam * delta, false));
+        if (i === -tam / 2) {
+            blocks.push(new Blocks(i + tam / 2, -lado + tam / 2, z, tam * delta, true));
+        } else {
+            blocks.push(new Blocks(i + tam / 2, -lado + tam / 2, z, tam * delta, false));
+        }
     }
 
-    for (let i = -lado; i < lado; i = i + tam) {
+    for (let i = -lado + tam; i < lado; i = i + tam) {
         blocks.push(new Blocks(lado - tam / 2, i + tam / 2, z, tam * delta, false));
     }
 
-    for (let i = lado; i > -lado; i = i - tam) {
+    for (let i = lado - tam; i > -lado; i = i - tam) {
         blocks.push(new Blocks(i - tam / 2, lado - tam / 2, z, tam * delta, false));
     }
 
-    for (let i = lado; i > -lado; i = i - tam) {
+    for (let i = lado - tam; i > -lado + tam; i = i - tam) {
         blocks.push(new Blocks(-lado + tam / 2, i - tam / 2, z, tam * delta, false));
     }
+
 
 }
 
@@ -72,6 +74,65 @@ export function addPlanElements(scene) {
 }
 
 export function getInicialPosition() {
-    blocks[Math.round(quant / 2)].material.color = "";
+    //blocks[Math.round(quant / 2)].material.color = "";
     return blocks[Math.round(quant / 2)].position;
+}
+
+
+
+export function changeLane(key) {
+
+    //keyboard.update();
+
+    if (key === 2 && actualLane === 1) {
+        let start = Math.round(quant + quant / 2) + 1;
+        let end = Math.round(2 * quant + quant / 2);
+        let fator = Math.round((end - start) / 2);
+
+        for (let i = start; i < end; i++) {
+            let x, y;
+            x = blocks[i].position.x;
+            y = blocks[i].position.y;
+
+            if (x === y) {
+                fator = 0;
+                blocks[i].position.set(tam * fator, tam * fator, z);
+            } else if (x > y) {
+                fator--;
+                blocks[i].position.set(tam * fator, 0, z);
+            } else {
+                fator++;
+                blocks[i].position.set(0, tam * fator, z);
+            }
+        }
+        actualLane = 2;
+    } else if (key === 1 && actualLane === 2) {
+        let start = Math.round(quant + quant / 2) + 1;
+        let end = Math.round(2 * quant + quant / 2);
+
+        let fator = Math.round((end - start) / 2);
+
+        //console.log("ola");
+        //console.log(Math.round((end-start)/2));
+        //console.log(end - start);
+
+        for (let i = start; i < end; i++) {
+            let x, y;
+            x = blocks[i].position.x;
+            y = blocks[i].position.y;
+
+            if (x === y) {
+                fator = 0;
+                blocks[i].position.set(lado - tam / 2, lado - tam / 2, z);
+            } else if (x > y) {
+                fator--;
+                blocks[i].position.set(lado - tam / 2, lado - tam / 2 - x, z);
+            } else {
+                fator++;
+                blocks[i].position.set(lado - tam / 2 - y, lado - tam / 2, z);
+            }
+
+        }
+        actualLane = 1;
+    }
 }
