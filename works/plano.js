@@ -136,3 +136,8 @@ export function changeLane(key) {
         actualLane = 1;
     }
 }
+
+//returna true ou false se a posição passada se encontra na psita ou não
+export function isOnLane(position) {
+
+}

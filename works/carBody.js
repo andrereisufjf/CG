@@ -25,6 +25,21 @@ var angleLimit = degreesToRadians(5);
 //controle da camera
 var modoCamera;
 
+//Modo Inspeção
+var modoInsp = {
+    posicao: new THREE.Vector3(0, 0, 0), // posição padrao de inspeção
+    posicaoAnterior: new THREE.Vector3(), // posição anterior a inspeção
+    rotationAviao: new THREE.Euler(-1.5707963267948963, 0, 0), //rotação padrão do modo de inspeção
+    rotationObj: new THREE.Euler(0, 0, 0), //rotação padrão do modo de inspeção
+    rotationAntAviao: new THREE.Euler(), //rotação anterior ao modo de inspeção
+    rotationAntObj: new THREE.Euler(), //rotação anterior ao modo de inspeção
+    rotationCam: new THREE.Euler(-0.3217505543966422, 0, 0),
+    rotationAntCam: new THREE.Euler(),
+    posicaoCam: new THREE.Vector3(0, 40, 120),
+    posicaoAntCam: new THREE.Vector3(),
+    vel: 0,
+}
+
 //Fuselagem
 
 var fuselageGeometry = new THREE.ConeGeometry(1.0, 3.0, 3, 3);
@@ -245,8 +260,33 @@ export function keyboardUpdate() {
         changeLane(2);
     }
 
+
+    /** PENDENTE - ALTERNAR ENTRE OS MODOS */
     if (keyboard.down("space")) {
         modoCamera.simulacao = !modoCamera.simulacao;
+        if (modoCamera.simulacao) { // sai do modo de inspeção e retoma parametros
+            // plane.visible = true;
+            // objeto.position.copy(modoInsp.posicaoAnterior);
+            // camera.position.copy(modoInsp.posicaoAntCam);
+            // objeto.rotation.copy(modoInsp.rotationAntObj);
+            // aviao.rotation.copy(modoInsp.rotationAntAviao);
+            // camera.rotation.copy(modoInsp.rotationAntCam);
+            // vel = modoInsp.vel;
+        } else { //entra no modo de inspeção, guarda e seta parametros
+            // modoInsp.posicaoAnterior.copy(objeto.position);
+            // objeto.position.copy(modoInsp.posicao);
+            // modoInsp.rotationAntCam.copy(camera.rotation);
+            // modoInsp.posicaoAntCam.copy(camera.position);
+            // camera.rotation.copy(modoInsp.rotationCam);
+            // camera.position.copy(modoInsp.posicaoCam);
+            // modoInsp.rotationAntObj.copy(objeto.rotation);
+            // modoInsp.rotationAntAviao.copy(aviao.rotation);
+            // objeto.rotation.copy(modoInsp.rotationObj);
+            // aviao.rotation.copy(modoInsp.rotationAviao);
+            // modoInsp.vel = vel; // correção a ser colocada
+            // vel = 0;
+            // plane.visible = false;
+        }
     }
 
 
