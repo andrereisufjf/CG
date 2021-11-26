@@ -293,3 +293,8 @@ export function keyboardUpdate() {
 
     //console.log(speed);
 }
+
+//retornar em qual quadrante o carro se encontra baseado no 0,0    
+function quadrantNumber() {
+
+}
