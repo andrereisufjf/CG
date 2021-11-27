@@ -10,7 +10,7 @@ import {
 } from "../libs/util/util.js";
 
 import KeyboardState from '../libs/util/KeyboardState.js';
-import { changeLane } from "./plano.js"
+import { changeLane, changeVisible } from "./plano.js"
 
 // To use the keyboard
 var keyboard = new KeyboardState();
@@ -25,19 +25,28 @@ var angleLimit = degreesToRadians(5);
 //controle da camera
 var modoCamera;
 
+//camera
+var camera;
+let oldcameraModel = -1;
+let cameraModel = 3;
+
+
 //Modo Inspeção
 var modoInsp = {
     posicao: new THREE.Vector3(0, 0, 0), // posição padrao de inspeção
     posicaoAnterior: new THREE.Vector3(), // posição anterior a inspeção
-    rotationAviao: new THREE.Euler(-1.5707963267948963, 0, 0), //rotação padrão do modo de inspeção
+    //rotationAviao: new THREE.Euler(-1.5707963267948963, 0, 0), //rotação padrão do modo de inspeção
     rotationObj: new THREE.Euler(0, 0, 0), //rotação padrão do modo de inspeção
-    rotationAntAviao: new THREE.Euler(), //rotação anterior ao modo de inspeção
+    //rotationAntAviao: new THREE.Euler(), //rotação anterior ao modo de inspeção
     rotationAntObj: new THREE.Euler(), //rotação anterior ao modo de inspeção
-    rotationCam: new THREE.Euler(-0.3217505543966422, 0, 0),
+    rotationCam: new THREE.Euler(0.50, 0, 0),
     rotationAntCam: new THREE.Euler(),
-    posicaoCam: new THREE.Vector3(0, 40, 120),
+    posicaoCam: new THREE.Vector3(0, -40, 50),
     posicaoAntCam: new THREE.Vector3(),
+    cameraUp: new THREE.Vector3(0, 1, 0), // camera up padrao de inspeção
+    cameraUpAnt: new THREE.Vector3(), //camera up anterior ao modo de inspeção
     vel: 0,
+    angle: 0,
 }
 
 //Fuselagem
@@ -50,6 +59,7 @@ fuselage.translateZ(0.6);
 
 var fuselageAxesHelper = new THREE.AxesHelper(5);
 fuselage.add(fuselageAxesHelper);
+fuselageAxesHelper.visible = false;
 
 var windshieldGeometry = new THREE.ConeGeometry(0.3, 0.9, 3, 3);
 var windshieldMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('grey'), });
@@ -67,7 +77,6 @@ fuselage.add(airfoil);
 var rearAxleGeometry = new THREE.CylinderGeometry(0.05, 0.05, 2, 8); //Eixo traseiro
 var rearAxleMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('grey'), });
 var rearAxle = new THREE.Mesh(rearAxleGeometry, rearAxleMaterial);
-
 fuselage.add(rearAxle);
 
 var rightRearWheelGeometry = new THREE.TorusGeometry(0.25, 0.1, 20, 20); //Roda direita do eixo traseiro
@@ -125,12 +134,15 @@ var leftFrontAxle = new THREE.Mesh(leftFrontAxleGeometry, leftFrontAxleMaterial)
 
 leftFrontWheel.add(leftFrontAxle);
 
+const car = fuselage;
+
 export function createCarBody() {
     return fuselage;
 }
 
-export function initMov(modoCameraAux, inicialPosition) {
+export function initMov(modoCameraAux, inicialPosition, cameraAux) {
     modoCamera = modoCameraAux;
+    camera = cameraAux;
     //console.log(inicialPosition);
     fuselage.position.copy(inicialPosition);
     fuselage.position.z = 0;
@@ -233,59 +245,44 @@ export function keyboardUpdate() {
 
     keyboard.update();
 
-    if (keyboard.pressed("X")) speed = Math.min(speed + 2 * deltaSpeed, speedLimit);
-    if (keyboard.pressed("down")) speed = Math.max(speed - 2 * deltaSpeed, -speedLimit);
-    if (keyboard.pressed("left")) angle = Math.min(angle + deltaAngle, angleLimit);
-    if (keyboard.pressed("right")) angle = Math.max(angle - deltaAngle, -angleLimit);
+    if (modoCamera.simulacao) {
+        if (keyboard.pressed("X")) speed = Math.min(speed + 2 * deltaSpeed, speedLimit);
+        if (keyboard.pressed("down")) speed = Math.max(speed - 2 * deltaSpeed, -speedLimit);
+        if (keyboard.pressed("left")) angle = Math.min(angle + deltaAngle, angleLimit);
+        if (keyboard.pressed("right")) angle = Math.max(angle - deltaAngle, -angleLimit);
 
-    if (!keyboard.pressed("X") && !keyboard.pressed("down")) {
-        if (speed > 0) {
-            speed = Math.max(speed - deltaSpeed, 0);
-        } else if (speed < 0) {
-            speed = Math.min(speed + deltaSpeed, 0);
+        if (!keyboard.pressed("X") && !keyboard.pressed("down")) {
+            if (speed > 0) {
+                speed = Math.max(speed - deltaSpeed, 0);
+            } else if (speed < 0) {
+                speed = Math.min(speed + deltaSpeed, 0);
+            }
+        }
+
+        if (!keyboard.pressed("left") && !keyboard.pressed("right")) {
+            if (angle > 0) {
+                angle = Math.max(angle - deltaAngle, 0);
+            } else if (angle < 0) {
+                angle = Math.min(angle + deltaAngle, 0);
+            }
+        }
+
+        if (keyboard.down("1")) {
+            changeLane(1);
+        } else if (keyboard.down("2")) {
+            changeLane(2);
         }
     }
-
-    if (!keyboard.pressed("left") && !keyboard.pressed("right")) {
-        if (angle > 0) {
-            angle = Math.max(angle - deltaAngle, 0);
-        } else if (angle < 0) {
-            angle = Math.min(angle + deltaAngle, 0);
-        }
-    }
-
-    if (keyboard.down("1")) {
-        changeLane(1);
-    } else if (keyboard.down("2")) {
-        changeLane(2);
-    }
-
 
     /** PENDENTE - ALTERNAR ENTRE OS MODOS */
     if (keyboard.down("space")) {
         modoCamera.simulacao = !modoCamera.simulacao;
         if (modoCamera.simulacao) { // sai do modo de inspeção e retoma parametros
-            // plane.visible = true;
-            // objeto.position.copy(modoInsp.posicaoAnterior);
-            // camera.position.copy(modoInsp.posicaoAntCam);
-            // objeto.rotation.copy(modoInsp.rotationAntObj);
-            // aviao.rotation.copy(modoInsp.rotationAntAviao);
-            // camera.rotation.copy(modoInsp.rotationAntCam);
-            // vel = modoInsp.vel;
+            restoreParameters();
+            changeVisible(true);
         } else { //entra no modo de inspeção, guarda e seta parametros
-            // modoInsp.posicaoAnterior.copy(objeto.position);
-            // objeto.position.copy(modoInsp.posicao);
-            // modoInsp.rotationAntCam.copy(camera.rotation);
-            // modoInsp.posicaoAntCam.copy(camera.position);
-            // camera.rotation.copy(modoInsp.rotationCam);
-            // camera.position.copy(modoInsp.posicaoCam);
-            // modoInsp.rotationAntObj.copy(objeto.rotation);
-            // modoInsp.rotationAntAviao.copy(aviao.rotation);
-            // objeto.rotation.copy(modoInsp.rotationObj);
-            // aviao.rotation.copy(modoInsp.rotationAviao);
-            // modoInsp.vel = vel; // correção a ser colocada
-            // vel = 0;
-            // plane.visible = false;
+            saveParameters();
+            changeVisible(false);
         }
     }
 
@@ -296,5 +293,74 @@ export function keyboardUpdate() {
 
 //retornar em qual quadrante o carro se encontra baseado no 0,0    
 function quadrantNumber() {
+    if (fuselage.position.x >= 0) { // lado direito
+        return fuselage.position.y >= 0 ? 1 : 4;
+    } else { // x < 0 - lado esquerdo
+        return fuselage.position.y >= 0 ? 2 : 3;
+    }
+}
+
+//seta a pposição da camera baseado no quadrante atual
+
+const cameraConfiguration = {
+    "1": {
+        "position": "",
+        "outra": "",
+        "outra": ""
+    },
+}
+
+export function cameraMovement() {
+    // let oldcameraModel = -1;
+    // let cameraModel = 3;    
+    cameraModel = quadrantNumber();
+    if (oldcameraModel !== cameraModel)
+        setCamera(cameraModel)
+}
+
+function setCamera(quadrantNumber) {
+    let configuration = cameraConfiguration[quadrantNumber];
+    //aplicar as configurações da camera aqui
+}
+
+//salva os parametros ao entrar no modo de insperação e seta os valores padrões
+function saveParameters() {
+    //car
+    modoInsp.posicaoAnterior.copy(car.position);
+    car.position.copy(modoInsp.posicao);
+    modoInsp.rotationAntObj.copy(car.rotation);
+    car.rotation.copy(modoInsp.rotationObj);
+
+    //camera
+    //console.log(camera.up)
+    modoInsp.rotationAntCam.copy(camera.rotation);
+    modoInsp.posicaoAntCam.copy(camera.position);
+    modoInsp.cameraUpAnt.copy(camera.up);
+    camera.position.copy(modoInsp.posicaoCam);
+    camera.rotation.copy(modoInsp.rotationCam);
+    camera.up.copy(modoInsp.cameraUp);
+    //modoInsp.rotationAntAviao.copy(aviao.rotation);
+    car.rotation.copy(modoInsp.rotationObj);
+    //aviao.rotation.copy(modoInsp.rotationAviao);
+    modoInsp.vel = speed; // correção a ser colocada
+    speed = 0;
+    modoInsp.angle = angle;
+    angle = 0;
+    //plane.visible = false;
+}
+
+//restaura os parametros ao sair do modo de insperação
+function restoreParameters() {
+    //plane.visible = true;
+    car.position.copy(modoInsp.posicaoAnterior);
+    camera.position.copy(modoInsp.posicaoAntCam);
+    //console.log(modoInsp.cameraUpAnt)
+    camera.up.copy(modoInsp.cameraUpAnt);
+    car.rotation.copy(modoInsp.rotationAntObj);
+    //aviao.rotation.copy(modoInsp.rotationAntAviao);
+    camera.rotation.copy(modoInsp.rotationAntCam);
+    speed = modoInsp.vel;
+    angle = modoInsp.angle;
+
 
 }

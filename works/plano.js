@@ -14,6 +14,7 @@ let actualLane = 1;
 
 // create the ground plane
 var plane = createPlane();
+var axesHelper = new THREE.AxesHelper(12);
 
 // To use the keyboard
 var keyboard = new KeyboardState();
@@ -71,6 +72,8 @@ export function addPlanElements(scene) {
     createBlocks();
     blocks.forEach(block => scene.add(block));
     scene.add(plane);
+    axesHelper.visible = false;
+    scene.add(axesHelper);
 }
 
 export function getInicialPosition() {
@@ -140,4 +143,10 @@ export function changeLane(key) {
 //returna true ou false se a posição passada se encontra na psita ou não
 export function isOnLane(position) {
 
+}
+
+export function changeVisible(visibility) {
+    blocks.forEach(block => block.visible = visibility);
+    plane.visible = visibility;
+    axesHelper.visible = !visibility;
 }

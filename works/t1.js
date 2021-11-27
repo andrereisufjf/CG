@@ -9,7 +9,7 @@ import {
     initDefaultBasicLight,
     initCamera,
 } from "../libs/util/util.js";
-import { createCarBody, definePosition, keyboardUpdate, initMov } from "./carBody.js"
+import { createCarBody, definePosition, keyboardUpdate, initMov, cameraMovement } from "./carBody.js"
 import { addPlanElements, getInicialPosition, changeLane } from "./plano.js"
 //import { keyboardUpdate, movePlane, initMov } from "./carMovimentation.js";
 
@@ -17,16 +17,19 @@ import { addPlanElements, getInicialPosition, changeLane } from "./plano.js"
 var stats = new Stats(); // To show FPS information
 var scene = new THREE.Scene(); // Create main scene
 var renderer = initRenderer(); // View function in util/utils
-var camera = initCamera(new THREE.Vector3(0, -200, 300)); // Init camera in this position
+var camera = initCamera(new THREE.Vector3(0, -100, 200)); // Init camera in this position
 initDefaultBasicLight(scene, true);
 camera.name = 'camera';
 var modoCamera = { simulacao: true };
+
+//console.log(camera.up)
 
 // Enable mouse rotation, pan, zoom etc.
 var trackballControls = new TrackballControls(camera, renderer.domElement);
 
 // Show axes (parameter is size of each axis)
 var axesHelper = new THREE.AxesHelper(12);
+axesHelper.visible = false;
 scene.add(axesHelper);
 
 // // create the ground plane
@@ -75,7 +78,7 @@ window.addEventListener('resize', function() { onWindowResize(camera, renderer) 
 addPlanElements(scene);
 
 //possibilita modo de inspeção
-initMov(modoCamera, getInicialPosition());
+initMov(modoCamera, getInicialPosition(), camera);
 
 render();
 
@@ -83,10 +86,13 @@ function render() {
     stats.update(); // Update FPS
     //if (!modoCamera.simulacao)
     trackballControls.update(); // Enable mouse movements
-    requestAnimationFrame(render);
+    //colocar no else os restantes do movimentos
+    //else{ cameraMovement()}    
+
     definePosition();
     keyboardUpdate();
     //changeLane();
     //movePlane();
+    requestAnimationFrame(render);
     renderer.render(scene, camera); // Render scene
 }
