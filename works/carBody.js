@@ -38,6 +38,10 @@ let time = -1,
     timer;
 var secondBox = new SecondaryBox("Iniciando...");
 
+//controle da aplicação de retardo
+var inLane = true;
+var alterSpeed = false;
+
 
 //Modo Inspeção
 var modoInsp = {
@@ -196,6 +200,16 @@ export function definePosition() {
     fuselage.translateY(speed);
 
     //console.log(isOnLane(car.position));
+    inLane = isOnLane(car.position); // verifica se o carro está na pista
+    if (!inLane && !alterSpeed) { // se o carro estiver fora e o retardo não tive sido aplicado
+        // (!(inlane || alter)) é a mesma coisa???
+        speed *= 0.5;
+        alterSpeed = true;
+        //console.log("sai e retardo");
+    } else if (inLane && alterSpeed) { //se o carro voltou pra pista é preciso restaurar o controle de retardo
+        alterSpeed = false;
+        //console.log("entrei e flag");
+    }
 
     if (speed >= speedLimit * 0.05) {
         fuselage.rotateZ(angle);
