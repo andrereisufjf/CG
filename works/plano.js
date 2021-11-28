@@ -218,6 +218,6 @@ export function changeVisible(visibility) {
 }
 
 function changeColor(obj) {
-    let color = getTurn() % 2 ? "rgb(200, 129, 0)" : "rgba(128, 128, 128)";
+    let color = getTurn() % 2 ? "rgb(16, 75, 205)" : "rgba(128, 128, 128)";
     obj.material.color.set(color);
 }

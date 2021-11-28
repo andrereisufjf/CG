@@ -21,9 +21,9 @@ initDefaultBasicLight(scene, true);
 camera.name = 'camera';
 var modoCamera = { simulacao: true };
 
-console.log(camera.position)
-console.log(camera.rotation)
-console.log(camera.up)
+// console.log(camera.position)
+// console.log(camera.rotation)
+// console.log(camera.up)
 
 
 // Enable mouse rotation, pan, zoom etc.

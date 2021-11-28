@@ -299,6 +299,7 @@ export function keyboardUpdate() {
             updateTurn();
         }
 
+        cameraMovement();
 
 
     }
@@ -356,8 +357,15 @@ export function cameraMovement() {
     if (oldcameraModel !== cameraModel) {
 
     }
+
+    //console.log(radians_to_degrees(car.rotation.z));
     //setCamera(cameraModel)
     //console.log("Quad:" + cameraModel)
+}
+
+function radians_to_degrees(radians) {
+    var pi = Math.PI;
+    return radians * (180 / pi);
 }
 
 function setCamera(quadrantNumber) {
