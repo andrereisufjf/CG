@@ -195,6 +195,8 @@ export function definePosition() {
 
     fuselage.translateY(speed);
 
+    //console.log(isOnLane(car.position));
+
     if (speed >= speedLimit * 0.05) {
         fuselage.rotateZ(angle);
     } else if (speed < -speedLimit * 0.05) {

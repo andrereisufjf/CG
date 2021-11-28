@@ -10,6 +10,9 @@ const delta = 0.9;
 const quant = (2 * lado) / tam - 1;
 const z = -0.75;
 
+const limiteInterno = lado - tam;
+
+
 let actualLane = 1;
 
 // create the ground plane
@@ -142,7 +145,17 @@ export function changeLane(key) {
 
 //returna true ou false se a posição passada se encontra na psita ou não
 export function isOnLane(position) {
-    return true;
+    let carAbsX = Math.abs(position.x);
+    let carAbsY = Math.abs(position.y);
+    //verifica retangulo horizontal
+    if (carAbsX >= 0 && carAbsX <= lado && carAbsY >= limiteInterno && carAbsY <= lado) {
+        return true;
+        //verifica retangulo vertical
+    } else if (carAbsX >= limiteInterno && carAbsX <= lado && carAbsY >= 0 && carAbsY <= limiteInterno) {
+        return true;
+    }
+
+    return false;
 }
 
 export function changeVisible(visibility) {
