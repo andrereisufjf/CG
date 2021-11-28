@@ -2,10 +2,7 @@ import * as THREE from '../build/three.module.js';
 import KeyboardState from '../libs/util/KeyboardState.js';
 import { updateTurn, getTurn } from './carBody.js';
 
-// add the plane to the scene
-//scene.add(plane);
-
-const lado = 45; //Tamanho do quadrado inferior
+export const lado = 45; //Tamanho do quadrado inferior
 const tam = 10; //Tamanho dos quadrados da pista
 const delta = 0.95; //Distancia entre os quadrados?
 const quant = (2 * lado) / tam - 1; //quantidade de blocos por aresta da pista
@@ -21,15 +18,15 @@ var plane = createPlane();
 var axesHelper = new THREE.AxesHelper(12);
 
 // To use the keyboard
-var keyboard = new KeyboardState();
+//var keyboard = new KeyboardState();
 
+//blocos da pista
 let blocks = [];
 
-//NOVOS
-let squares = [];
+//controle de voltas
+//let squares = [];
 let beginIndex = 0;
 let indexAtual = 0;
-//export let turn=0;
 
 //Classe dos blocos da corrida
 class Blocks {
@@ -95,44 +92,32 @@ export function addPlanElements(scene) {
 }
 
 export function getInicialPosition() {
-    //blocks[Math.round(quant / 2)].material.color = "";
     return blocks[Math.round(quant / 2)].position;
 }
 
 export function atualizarQuadrante(x, y) {
-    //console.log(indexAtual, getTurn(), inicialArrayPosition);
-    //console.log(x, y, blocks[indexAtual].position.x, blocks[indexAtual].position.y, beginIndex)
+
     if (x <= ((blocks[indexAtual].position.x) + tamReal / 2) && x >= ((blocks[indexAtual].position.x) - tamReal / 2) && y <= ((blocks[indexAtual].position.y) + tamReal / 2) && y >= ((blocks[indexAtual].position.y) - tamReal / 2)) {
-        //console.log("entrei");
-        //mudar cor do bloco
-        //xxconsole.log(indexAtual, getTurn());
         if (indexAtual !== inicialArrayPosition) {
-            //console.log("entrei");
+
             changeColor(blocks[indexAtual]);
         }
 
         if (indexAtual == 0) {
             indexAtual = blocks.length - 1;
         } else {
-            indexAtual = (indexAtual - 1); //%blocks.length;
-            //console.log("Entrei" + indexAtual);
+            indexAtual = (indexAtual - 1);
 
         }
         if (indexAtual === beginIndex) {
-            //turn += 1;
             updateTurn();
         }
     }
-    //changeColor(blocks[quant / 2]);
-    //console.log(quant / 2);
-    //console.log(indexAtual, getTurn());
 }
 
 
 
 export function changeLane(key) {
-
-    //keyboard.update();
 
     if (key === 2 && actualLane === 1) {
         let start = Math.round(quant + quant / 2) + 1;
@@ -161,10 +146,6 @@ export function changeLane(key) {
         let end = Math.round(2 * quant + quant / 2);
 
         let fator = Math.round((end - start) / 2);
-
-        //console.log("ola");
-        //console.log(Math.round((end-start)/2));
-        //console.log(end - start);
 
         for (let i = start; i < end; i++) {
             let x, y;
@@ -237,11 +218,6 @@ export function changeVisible(visibility) {
 }
 
 function changeColor(obj) {
-
-    // if (getTurn() % 2) {
-    //     console.log("true");
-    // } else console.log("false");
     let color = getTurn() % 2 ? "rgb(200, 129, 0)" : "rgba(128, 128, 128)";
     obj.material.color.set(color);
-
 }

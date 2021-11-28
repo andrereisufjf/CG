@@ -1,14 +1,6 @@
 import * as THREE from '../build/three.module.js';
-import Stats from '../build/jsm/libs/stats.module.js';
 import { degreesToRadians } from "../libs/util/util.js";
-import {
-    initRenderer,
-    initCamera,
-    InfoBox,
-    onWindowResize,
-    initDefaultBasicLight,
-    SecondaryBox,
-} from "../libs/util/util.js";
+import { SecondaryBox } from "../libs/util/util.js";
 
 import KeyboardState from '../libs/util/KeyboardState.js';
 import { changeLane, changeVisible, isOnLane, atualizarQuadrante } from "./plano.js"
@@ -307,6 +299,8 @@ export function keyboardUpdate() {
             updateTurn();
         }
 
+
+
     }
 
     if (keyboard.down("space")) {
@@ -337,13 +331,13 @@ export function keyboardUpdate() {
 }
 
 //retornar em qual quadrante o carro se encontra baseado no 0,0    
-function quadrantNumber() {
-    if (fuselage.position.x >= 0) { // lado direito
-        return fuselage.position.y >= 0 ? 1 : 4;
-    } else { // x < 0 - lado esquerdo
-        return fuselage.position.y >= 0 ? 2 : 3;
-    }
-}
+// function quadrantNumber() {
+//     if (fuselage.position.x >= 0) { // lado direito
+//         return fuselage.position.y >= 0 ? 1 : 4;
+//     } else { // x < 0 - lado esquerdo
+//         return fuselage.position.y >= 0 ? 2 : 3;
+//     }
+// }
 
 //seta a pposição da camera baseado no quadrante atual
 
@@ -358,7 +352,7 @@ const cameraConfiguration = {
 export function cameraMovement() {
     // let oldcameraModel = -1;
     // let cameraModel = 3;    
-    cameraModel = quadrantNumber();
+    //cameraModel = quadrantNumber();
     if (oldcameraModel !== cameraModel) {
 
     }
