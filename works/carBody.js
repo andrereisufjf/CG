@@ -6,11 +6,12 @@ import {
     initCamera,
     InfoBox,
     onWindowResize,
-    initDefaultBasicLight
+    initDefaultBasicLight,
+    SecondaryBox,
 } from "../libs/util/util.js";
 
 import KeyboardState from '../libs/util/KeyboardState.js';
-import { changeLane, changeVisible } from "./plano.js"
+import { changeLane, changeVisible, isOnLane } from "./plano.js"
 
 // To use the keyboard
 var keyboard = new KeyboardState();
@@ -30,6 +31,13 @@ var camera;
 let oldcameraModel = -1;
 let cameraModel = 3;
 
+//contador de time e voltas
+let time = -1,
+    timeActualTurn = -1,
+    turns = 1,
+    timer;
+var secondBox = new SecondaryBox("Iniciando...");
+
 
 //Modo Inspeção
 var modoInsp = {
@@ -48,6 +56,7 @@ var modoInsp = {
     vel: 0,
     angle: 0,
 }
+
 
 //Fuselagem
 
@@ -136,6 +145,7 @@ leftFrontWheel.add(leftFrontAxle);
 
 const car = fuselage;
 
+
 export function createCarBody() {
     return fuselage;
 }
@@ -147,6 +157,7 @@ export function initMov(modoCameraAux, inicialPosition, cameraAux) {
     fuselage.position.copy(inicialPosition);
     fuselage.position.z = 0;
     fuselage.rotateZ(degreesToRadians(90));
+    timer = setInterval(updateTime, 1000);
 }
 
 
@@ -271,18 +282,26 @@ export function keyboardUpdate() {
             changeLane(1);
         } else if (keyboard.down("2")) {
             changeLane(2);
+        } else if (keyboard.down("3")) { // TESTAR AUMENTAR AS VOLTAS
+            updateTurn();
         }
+
     }
 
     /** PENDENTE - ALTERNAR ENTRE OS MODOS */
     if (keyboard.down("space")) {
         modoCamera.simulacao = !modoCamera.simulacao;
         if (modoCamera.simulacao) { // sai do modo de inspeção e retoma parametros
+            secondBox.changeMessage("Volta Atual: " + timeActualTurn + "s || " + "Tempo: " + time + "s || Voltas: " + turns);
+            timer = setInterval(updateTime, 1000); // volta o cronometro
             restoreParameters();
             changeVisible(true);
+            secondBox.visible = false;
         } else { //entra no modo de inspeção, guarda e seta parametros
             saveParameters();
             changeVisible(false);
+            clearInterval(timer); // para o cronometro
+            secondBox.changeMessage("MODO DE INSPEÇÃO");
         }
     }
 
@@ -314,8 +333,11 @@ export function cameraMovement() {
     // let oldcameraModel = -1;
     // let cameraModel = 3;    
     cameraModel = quadrantNumber();
-    if (oldcameraModel !== cameraModel)
-        setCamera(cameraModel)
+    if (oldcameraModel !== cameraModel) {
+
+    }
+    //setCamera(cameraModel)
+    //console.log("Quad:" + cameraModel)
 }
 
 function setCamera(quadrantNumber) {
@@ -361,6 +383,19 @@ function restoreParameters() {
     camera.rotation.copy(modoInsp.rotationAntCam);
     speed = modoInsp.vel;
     angle = modoInsp.angle;
+}
 
+function updateTime() {
+    time++;
+    timeActualTurn++;
+    secondBox.changeMessage("Volta Atual: " + timeActualTurn + "s || " + "Tempo: " + time + "s || Voltas: " + turns);
+}
 
+function updateTurn() {
+    timeActualTurn = 0;
+    turns++;
+    if (turns == 5) {
+        clearInterval(timer);
+        secondBox.changeMessage("FIM DE JOGO! Tempo total: " + time + "s")
+    }
 }

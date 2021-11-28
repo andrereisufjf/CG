@@ -142,7 +142,7 @@ export function changeLane(key) {
 
 //returna true ou false se a posição passada se encontra na psita ou não
 export function isOnLane(position) {
-
+    return true;
 }
 
 export function changeVisible(visibility) {

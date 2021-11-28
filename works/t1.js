@@ -58,17 +58,17 @@ objetoVirtual.add(car);
 scene.add(objetoVirtual);
 
 // Use this to show information onscreen
-var controls = new InfoBox();
-controls.add("Trabalho 1:");
-controls.add("André Luiz dos Reis");
-controls.add("Lucca Oliveira Schroder");
-controls.add("Rafael Freesz Resende Correa");
-controls.addParagraph();
-controls.add("Use o teclado para interagir:");
-controls.add("* Espaço altera o modo de câmera");
-controls.add("* No modo Simulação utiliza as setas para movimentar e");
-controls.add("* 'q' e 'a' para acelerar/desacelerar o avião");
-controls.add("* No modo Inspeção, utilize o mouse para movimentar a câmera");
+// var controls = new InfoBox();
+// controls.add("Trabalho 1:");
+// controls.add("André Luiz dos Reis");
+// controls.add("Lucca Oliveira Schroder");
+// controls.add("Rafael Freesz Resende Correa");
+// controls.addParagraph();
+// controls.add("Use o teclado para interagir:");
+// controls.add("* Espaço altera o modo de câmera");
+// controls.add("* No modo Simulação utiliza as setas para movimentar e");
+// controls.add("* 'q' e 'a' para acelerar/desacelerar o avião");
+// controls.add("* No modo Inspeção, utilize o mouse para movimentar a câmera");
 //controls.show();
 
 // Listen window size changes
@@ -78,9 +78,22 @@ window.addEventListener('resize', function() { onWindowResize(camera, renderer) 
 addPlanElements(scene);
 
 //possibilita modo de inspeção
-initMov(modoCamera, getInicialPosition(), camera);
+initMov(modoCamera, getInicialPosition(), camera, );
 
 render();
+
+// Use this to show information onscreen
+// var controls = new InfoBox();
+// controls.add("Trabalho 1 - André Reis e Guilherme Machado");
+// controls.addParagraph();
+// controls.add("Use o teclado para interagir:");
+// controls.add("* Espaço altera o modo de câmera");
+// controls.add("* No modo Simulação utiliza as setas para movimentar e");
+// controls.add("* 'q' e 'a' para acelerar/desacelerar o avião");
+// controls.add("* No modo Inspeção, utilize o mouse para movimentar a câmera");
+// controls.show();
+
+//console.log(controls);
 
 function render() {
     stats.update(); // Update FPS
@@ -88,6 +101,7 @@ function render() {
     trackballControls.update(); // Enable mouse movements
     //colocar no else os restantes do movimentos
     //else{ cameraMovement()}    
+    cameraMovement();
 
     definePosition();
     keyboardUpdate();
