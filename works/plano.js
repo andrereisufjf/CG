@@ -9,6 +9,7 @@ const tam = 10;
 const delta = 0.9;
 const quant = (2 * lado) / tam - 1;
 const z = -0.75;
+const tamReal = tam * delta;
 
 const limiteInterno = lado - tam;
 
@@ -75,7 +76,7 @@ export function addPlanElements(scene) {
     createBlocks();
     blocks.forEach(block => scene.add(block));
     scene.add(plane);
-    axesHelper.visible = false;
+    //axesHelper.visible = false;
     scene.add(axesHelper);
 }
 
@@ -147,12 +148,40 @@ export function changeLane(key) {
 export function isOnLane(position) {
     let carAbsX = Math.abs(position.x);
     let carAbsY = Math.abs(position.y);
-    //verifica retangulo horizontal
-    if (carAbsX >= 0 && carAbsX <= lado && carAbsY >= limiteInterno && carAbsY <= lado) {
-        return true;
-        //verifica retangulo vertical
-    } else if (carAbsX >= limiteInterno && carAbsX <= lado && carAbsY >= 0 && carAbsY <= limiteInterno) {
-        return true;
+    let x = position.x;
+    let y = position.y;
+
+    //pista quadrada
+    if (actualLane === 1) {
+        //verifica retangulo horizontal
+        if (carAbsX >= 0 && carAbsX <= lado && carAbsY >= limiteInterno && carAbsY <= lado) {
+            return true;
+            //verifica retangulo vertical
+        } else if (carAbsX >= limiteInterno && carAbsX <= lado && carAbsY >= 0 && carAbsY <= limiteInterno) {
+            return true;
+        }
+    } else if (actualLane === 2) {
+
+        //verifica retangulo horizontal inferior
+        if (carAbsX >= 0 && carAbsX <= lado && y >= -lado && y <= -limiteInterno) {
+            //console.log("entrei");
+            return true;
+            //verifica retangulo vertical esquerdo
+        } else if (x <= -limiteInterno && x >= -lado && carAbsY >= 0 && carAbsY <= limiteInterno) {
+            return true;
+            //horizontal superior
+        } else if (x <= tamReal && x >= -lado && y >= limiteInterno && y <= lado) {
+            return true;
+            // horizontal meio
+        } else if (x <= lado && x >= -tamReal && y >= -tamReal && y <= tamReal) {
+            return true;
+            // vertical meio
+        } else if (x <= tamReal && x >= -tamReal && y >= -tamReal && y <= lado) {
+            return true;
+        } // vertical direita
+        else if (x <= lado && x >= limiteInterno && y >= -lado && y <= tamReal) {
+            return true;
+        }
     }
 
     return false;
