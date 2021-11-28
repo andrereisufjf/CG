@@ -11,7 +11,7 @@ import {
 } from "../libs/util/util.js";
 
 import KeyboardState from '../libs/util/KeyboardState.js';
-import { changeLane, changeVisible, isOnLane } from "./plano.js"
+import { changeLane, changeVisible, isOnLane, atualizarQuadrante } from "./plano.js"
 
 // To use the keyboard
 var keyboard = new KeyboardState();
@@ -275,6 +275,9 @@ export function keyboardUpdate() {
     keyboard.update();
 
     if (modoCamera.simulacao && playing) {
+
+        atualizarQuadrante(car.position.x, car.position.y);
+
         if (keyboard.pressed("X")) speed = Math.min(speed + 2 * deltaSpeed, speedLimit);
         if (keyboard.pressed("down")) speed = Math.max(speed - 2 * deltaSpeed, -speedLimit);
         if (keyboard.pressed("left")) angle = Math.min(angle + deltaAngle, angleLimit);
@@ -414,7 +417,7 @@ function updateTime() {
     secondBox.changeMessage("Volta Atual: " + timeActualTurn + "s || " + "Tempo: " + time + "s || Voltas: " + turns);
 }
 
-function updateTurn() {
+export function updateTurn() {
     timeActualTurn = 0;
     turns++;
     if (turns > 4) {
@@ -423,4 +426,8 @@ function updateTurn() {
         playing = false;
         speed = 0;
     }
+}
+
+export function getTurn() {
+    return turns;
 }

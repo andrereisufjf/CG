@@ -1,20 +1,20 @@
 import * as THREE from '../build/three.module.js';
 import KeyboardState from '../libs/util/KeyboardState.js';
+import { updateTurn, getTurn } from './carBody.js';
 
 // add the plane to the scene
 //scene.add(plane);
 
-const lado = 45;
-const tam = 10;
-const delta = 0.9;
-const quant = (2 * lado) / tam - 1;
-const z = -0.75;
-const tamReal = tam * delta;
+const lado = 45; //Tamanho do quadrado inferior
+const tam = 10; //Tamanho dos quadrados da pista
+const delta = 0.95; //Distancia entre os quadrados?
+const quant = (2 * lado) / tam - 1; //quantidade de blocos por aresta da pista
+const z = -0.75; // Z do quadrado
+const inicialArrayPosition = quant / 2; //posição do bloco inicial
+const tamReal = tam * delta; //tamanho real do bloco a ser usado
+const limiteInterno = lado - tam; //limite interior do bloco
 
-const limiteInterno = lado - tam;
-
-
-let actualLane = 1;
+let actualLane = 1; //pista selecionado
 
 // create the ground plane
 var plane = createPlane();
@@ -25,10 +25,17 @@ var keyboard = new KeyboardState();
 
 let blocks = [];
 
+//NOVOS
+let squares = [];
+let beginIndex = 0;
+let indexAtual = 0;
+//export let turn=0;
+
+//Classe dos blocos da corrida
 class Blocks {
-    constructor(x = 0, y = 0, z, tam, isInicial = false) {
+    constructor(x = 0, y = 0, z, tamBloco, isInicial = false) {
         let color = isInicial ? { color: "rgba(255, 69, 0)" } : { color: "rgba(128, 128, 128)" };
-        var cubeGeometry = new THREE.BoxGeometry(tam, tam, 0.3);
+        var cubeGeometry = new THREE.BoxGeometry(tamBloco, tamBloco, 0.3);
         var cubeMaterial = new THREE.MeshBasicMaterial(color);
         var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
         cube.position.set(x, y, z);
@@ -37,6 +44,7 @@ class Blocks {
     }
 }
 
+//Cria o plano inferior
 function createPlane() {
     var planeGeometry = new THREE.PlaneGeometry(lado * 2.1, lado * 2.1);
     planeGeometry.translate(0.0, 0.0, -2); // To avoid conflict with the axeshelper
@@ -49,26 +57,32 @@ function createPlane() {
 }
 
 function createBlocks() {
+
     for (let i = -lado; i < lado; i = i + tam) {
         if (i === -tam / 2) {
-            blocks.push(new Blocks(i + tam / 2, -lado + tam / 2, z, tam * delta, true));
+            beginIndex = indexAtual - 1;
+            blocks.push(new Blocks(i + tam / 2, -lado + tam / 2, z, tamReal, true));
         } else {
-            blocks.push(new Blocks(i + tam / 2, -lado + tam / 2, z, tam * delta, false));
+            blocks.push(new Blocks(i + tam / 2, -lado + tam / 2, z, tamReal, false));
         }
+        indexAtual += 1;
     }
 
     for (let i = -lado + tam; i < lado; i = i + tam) {
-        blocks.push(new Blocks(lado - tam / 2, i + tam / 2, z, tam * delta, false));
+        indexAtual += 1;
+        blocks.push(new Blocks(lado - tam / 2, i + tam / 2, z, tamReal, false));
     }
 
     for (let i = lado - tam; i > -lado; i = i - tam) {
-        blocks.push(new Blocks(i - tam / 2, lado - tam / 2, z, tam * delta, false));
+        indexAtual += 1;
+        blocks.push(new Blocks(i - tam / 2, lado - tam / 2, z, tamReal, false));
     }
 
     for (let i = lado - tam; i > -lado + tam; i = i - tam) {
-        blocks.push(new Blocks(-lado + tam / 2, i - tam / 2, z, tam * delta, false));
+        indexAtual += 1;
+        blocks.push(new Blocks(-lado + tam / 2, i - tam / 2, z, tamReal, false));
     }
-
+    indexAtual = beginIndex;
 
 }
 
@@ -83,6 +97,35 @@ export function addPlanElements(scene) {
 export function getInicialPosition() {
     //blocks[Math.round(quant / 2)].material.color = "";
     return blocks[Math.round(quant / 2)].position;
+}
+
+export function atualizarQuadrante(x, y) {
+    //console.log(indexAtual, getTurn(), inicialArrayPosition);
+    //console.log(x, y, blocks[indexAtual].position.x, blocks[indexAtual].position.y, beginIndex)
+    if (x <= ((blocks[indexAtual].position.x) + tamReal / 2) && x >= ((blocks[indexAtual].position.x) - tamReal / 2) && y <= ((blocks[indexAtual].position.y) + tamReal / 2) && y >= ((blocks[indexAtual].position.y) - tamReal / 2)) {
+        //console.log("entrei");
+        //mudar cor do bloco
+        //xxconsole.log(indexAtual, getTurn());
+        if (indexAtual !== inicialArrayPosition) {
+            //console.log("entrei");
+            changeColor(blocks[indexAtual]);
+        }
+
+        if (indexAtual == 0) {
+            indexAtual = blocks.length - 1;
+        } else {
+            indexAtual = (indexAtual - 1); //%blocks.length;
+            //console.log("Entrei" + indexAtual);
+
+        }
+        if (indexAtual === beginIndex) {
+            //turn += 1;
+            updateTurn();
+        }
+    }
+    //changeColor(blocks[quant / 2]);
+    //console.log(quant / 2);
+    //console.log(indexAtual, getTurn());
 }
 
 
@@ -191,4 +234,14 @@ export function changeVisible(visibility) {
     blocks.forEach(block => block.visible = visibility);
     plane.visible = visibility;
     axesHelper.visible = !visibility;
+}
+
+function changeColor(obj) {
+
+    // if (getTurn() % 2) {
+    //     console.log("true");
+    // } else console.log("false");
+    let color = getTurn() % 2 ? "rgb(200, 129, 0)" : "rgba(128, 128, 128)";
+    obj.material.color.set(color);
+
 }

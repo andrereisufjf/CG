@@ -27,7 +27,7 @@ var modoCamera = { simulacao: true };
 // Enable mouse rotation, pan, zoom etc.
 var trackballControls = new TrackballControls(camera, renderer.domElement);
 
-// Show axes (parameter is size of each axis)
+// Show axes (parameter is size of each axis) The X axis is red. The Y axis is green. The Z axis is blue
 var axesHelper = new THREE.AxesHelper(12);
 axesHelper.visible = false;
 scene.add(axesHelper);
@@ -104,6 +104,10 @@ function render() {
     cameraMovement();
 
     definePosition();
+
+    //atualizarQuadrante(car.position.x, car.position.y);
+    //keyboardUpdate(turn);
+
     keyboardUpdate();
     //changeLane();
     //movePlane();
