@@ -42,6 +42,8 @@ var secondBox = new SecondaryBox("Iniciando...");
 var inLane = true;
 var alterSpeed = false;
 
+//controla se o jogo está rodando
+var playing = true;
 
 //Modo Inspeção
 var modoInsp = {
@@ -272,7 +274,7 @@ export function keyboardUpdate() {
 
     keyboard.update();
 
-    if (modoCamera.simulacao) {
+    if (modoCamera.simulacao && playing) {
         if (keyboard.pressed("X")) speed = Math.min(speed + 2 * deltaSpeed, speedLimit);
         if (keyboard.pressed("down")) speed = Math.max(speed - 2 * deltaSpeed, -speedLimit);
         if (keyboard.pressed("left")) angle = Math.min(angle + deltaAngle, angleLimit);
@@ -308,8 +310,14 @@ export function keyboardUpdate() {
     if (keyboard.down("space")) {
         modoCamera.simulacao = !modoCamera.simulacao;
         if (modoCamera.simulacao) { // sai do modo de inspeção e retoma parametros
-            secondBox.changeMessage("Volta Atual: " + timeActualTurn + "s || " + "Tempo: " + time + "s || Voltas: " + turns);
-            timer = setInterval(updateTime, 1000); // volta o cronometro
+
+            if (playing) {
+                secondBox.changeMessage("Volta Atual: " + timeActualTurn + "s || " + "Tempo: " + time + "s || Voltas: " + turns);
+                timer = setInterval(updateTime, 1000); // volta o cronometro
+            } else {
+                secondBox.changeMessage("FIM DE JOGO! Tempo total: " + time + "s");
+            }
+
             restoreParameters();
             changeVisible(true);
             secondBox.visible = false;
@@ -410,8 +418,10 @@ function updateTime() {
 function updateTurn() {
     timeActualTurn = 0;
     turns++;
-    if (turns == 5) {
+    if (turns > 4) {
         clearInterval(timer);
         secondBox.changeMessage("FIM DE JOGO! Tempo total: " + time + "s")
+        playing = false;
+        speed = 0;
     }
 }
