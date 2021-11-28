@@ -76,7 +76,7 @@ export function addPlanElements(scene) {
     createBlocks();
     blocks.forEach(block => scene.add(block));
     scene.add(plane);
-    //axesHelper.visible = false;
+    axesHelper.visible = false;
     scene.add(axesHelper);
 }
 

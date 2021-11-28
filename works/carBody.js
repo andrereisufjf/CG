@@ -20,8 +20,8 @@ var speed = 0.0;
 var deltaSpeed = 0.003;
 var speedLimit = 0.50;
 var angle = 0.0;
-var deltaAngle = degreesToRadians(0.5);
-var angleLimit = degreesToRadians(5);
+var deltaAngle = degreesToRadians(0.4);
+var angleLimit = degreesToRadians(4);
 
 //controle da camera
 var modoCamera;
@@ -300,13 +300,12 @@ export function keyboardUpdate() {
             changeLane(1);
         } else if (keyboard.down("2")) {
             changeLane(2);
-        } else if (keyboard.down("3")) { // TESTAR AUMENTAR AS VOLTAS
+        } else if (keyboard.down("5")) { // TESTAR AUMENTAR AS VOLTAS
             updateTurn();
         }
 
     }
 
-    /** PENDENTE - ALTERNAR ENTRE OS MODOS */
     if (keyboard.down("space")) {
         modoCamera.simulacao = !modoCamera.simulacao;
         if (modoCamera.simulacao) { // sai do modo de inspeção e retoma parametros
