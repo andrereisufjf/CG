@@ -41,9 +41,7 @@ var playing = true;
 var modoInsp = {
     posicao: new THREE.Vector3(0, 0, 0), // posição padrao de inspeção
     posicaoAnterior: new THREE.Vector3(), // posição anterior a inspeção
-    //rotationAviao: new THREE.Euler(-1.5707963267948963, 0, 0), //rotação padrão do modo de inspeção
     rotationObj: new THREE.Euler(0, 0, 0), //rotação padrão do modo de inspeção
-    //rotationAntAviao: new THREE.Euler(), //rotação anterior ao modo de inspeção
     rotationAntObj: new THREE.Euler(), //rotação anterior ao modo de inspeção
     rotationCam: new THREE.Euler(0.50, 0, 0),
     rotationAntCam: new THREE.Euler(),
@@ -57,11 +55,9 @@ var modoInsp = {
 
 
 //Fuselagem
-
 var fuselageGeometry = new THREE.ConeGeometry(1.0, 3.0, 3, 3);
 var fuselageMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('yellow'), });
 var fuselage = new THREE.Mesh(fuselageGeometry, fuselageMaterial);
-//scene.add(fuselage);
 fuselage.translateZ(0.6);
 
 var fuselageAxesHelper = new THREE.AxesHelper(5);
@@ -151,17 +147,23 @@ export function createCarBody() {
 export function initMov(modoCameraAux, inicialPosition, cameraAux) {
     modoCamera = modoCameraAux;
     camera = cameraAux;
-    //console.log(inicialPosition);
     fuselage.position.copy(inicialPosition);
     fuselage.position.z = 0;
     fuselage.rotateZ(degreesToRadians(90));
     camera.rotateZ(degreesToRadians(90));
     timer = setInterval(updateTime, 1000);
+    fuselage.add(cameraAux);
 }
 
 
 //Update das posições
 export function definePosition() {
+
+    if (modoCamera.simulacao){
+        camera.matrixAutoUpdate = false;
+    }else{
+        camera.matrixAutoUpdate = true;
+    }
 
     windshield.matrixAutoUpdate = false;
     airfoil.matrixAutoUpdate = false;
@@ -175,6 +177,9 @@ export function definePosition() {
     leftRearAxle.matrixAutoUpdate = false;
     rightFrontAxle.matrixAutoUpdate = false;
     leftFrontAxle.matrixAutoUpdate = false;
+
+
+
 
     var mat4 = new THREE.Matrix4();
 
@@ -191,19 +196,16 @@ export function definePosition() {
     leftRearAxle.matrix.identity();
     rightFrontAxle.matrix.identity();
     leftFrontAxle.matrix.identity();
+    camera.matrix.identity();
 
     fuselage.translateY(speed);
 
-    //console.log(isOnLane(car.position));
     inLane = isOnLane(car.position); // verifica se o carro está na pista
     if (!inLane && !alterSpeed) { // se o carro estiver fora e o retardo não tive sido aplicado
-        // (!(inlane || alter)) é a mesma coisa???
         speed *= 0.5;
         alterSpeed = true;
-        //console.log("sai e retardo");
     } else if (inLane && alterSpeed) { //se o carro voltou pra pista é preciso restaurar o controle de retardo
         alterSpeed = false;
-        //console.log("entrei e flag");
     }
 
     if (speed >= speedLimit * 0.05) {
@@ -214,6 +216,14 @@ export function definePosition() {
 
     // Will execute T1 and then R1
     windshield.matrix.multiply(mat4.makeTranslation(0.0, 0.5, 0.2)); // T1
+    
+    // Will execute T1 and then R1
+    if (modoCamera.simulacao){
+        camera.matrix.multiply(mat4.makeRotationY(-(degreesToRadians(60)))); // R1
+        camera.matrix.multiply(mat4.makeRotationZ(-(degreesToRadians(90)))); // R1
+        camera.matrix.multiply(mat4.makeRotationX(-(degreesToRadians(15)))); // R1
+        camera.matrix.multiply(mat4.makeTranslation(-30, 0, 70)); // T1
+    }
 
     // Will execute T1 and then R1
     airfoil.matrix.multiply(mat4.makeTranslation(0.0, -1.2, 0.8)); // T1
@@ -259,7 +269,6 @@ export function definePosition() {
 
     // Will execute T1 and then R1
     leftFrontAxle.matrix.multiply(mat4.makeTranslation(0, 0, 0)); // T1
-
 }
 
 //Configuração do teclado
@@ -302,7 +311,8 @@ export function keyboardUpdate() {
 
         cameraMovement();
 
-
+    }else{
+        speed=0.0;
     }
 
     if (keyboard.down("space")) {
@@ -327,19 +337,7 @@ export function keyboardUpdate() {
         }
     }
 
-
-
-    //console.log(speed);
 }
-
-//retornar em qual quadrante o carro se encontra baseado no 0,0    
-// function quadrantNumber() {
-//     if (fuselage.position.x >= 0) { // lado direito
-//         return fuselage.position.y >= 0 ? 1 : 4;
-//     } else { // x < 0 - lado esquerdo
-//         return fuselage.position.y >= 0 ? 2 : 3;
-//     }
-// }
 
 //seta a pposição da camera baseado no quadrante atual
 
@@ -352,12 +350,6 @@ const cameraConfiguration = {
 }
 
 export function cameraMovement() {
-    // let oldcameraModel = -1;
-    // let cameraModel = 3;    
-    //cameraModel = quadrantNumber();
-    // if (oldcameraModel !== cameraModel) {
-
-    // }
 
     camera.translateZ(-speed);
 
@@ -381,44 +373,35 @@ function radians_to_degrees(radians) {
 
 function setCamera(quadrantNumber) {
     let configuration = cameraConfiguration[quadrantNumber];
-    //aplicar as configurações da camera aqui
 }
 
 //salva os parametros ao entrar no modo de insperação e seta os valores padrões
 function saveParameters() {
-    //car
     modoInsp.posicaoAnterior.copy(car.position);
     car.position.copy(modoInsp.posicao);
     modoInsp.rotationAntObj.copy(car.rotation);
     car.rotation.copy(modoInsp.rotationObj);
 
     //camera
-    //console.log(camera.up)
     modoInsp.rotationAntCam.copy(camera.rotation);
     modoInsp.posicaoAntCam.copy(camera.position);
     modoInsp.cameraUpAnt.copy(camera.up);
     camera.position.copy(modoInsp.posicaoCam);
     camera.rotation.copy(modoInsp.rotationCam);
     camera.up.copy(modoInsp.cameraUp);
-    //modoInsp.rotationAntAviao.copy(aviao.rotation);
     car.rotation.copy(modoInsp.rotationObj);
-    //aviao.rotation.copy(modoInsp.rotationAviao);
     modoInsp.vel = speed; // correção a ser colocada
     speed = 0;
     modoInsp.angle = angle;
     angle = 0;
-    //plane.visible = false;
 }
 
 //restaura os parametros ao sair do modo de insperação
 function restoreParameters() {
-    //plane.visible = true;
     car.position.copy(modoInsp.posicaoAnterior);
     camera.position.copy(modoInsp.posicaoAntCam);
-    //console.log(modoInsp.cameraUpAnt)
     camera.up.copy(modoInsp.cameraUpAnt);
     car.rotation.copy(modoInsp.rotationAntObj);
-    //aviao.rotation.copy(modoInsp.rotationAntAviao);
     camera.rotation.copy(modoInsp.rotationAntCam);
     speed = modoInsp.vel;
     angle = modoInsp.angle;
@@ -434,10 +417,10 @@ export function updateTurn() {
     timeActualTurn = 0;
     turns++;
     if (turns > 4) {
+        speed = 0;
         clearInterval(timer);
         secondBox.changeMessage("FIM DE JOGO! Tempo total: " + time + "s")
         playing = false;
-        speed = 0;
     }
 }
 
