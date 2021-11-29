@@ -155,6 +155,7 @@ export function initMov(modoCameraAux, inicialPosition, cameraAux) {
     fuselage.position.copy(inicialPosition);
     fuselage.position.z = 0;
     fuselage.rotateZ(degreesToRadians(90));
+    camera.rotateZ(degreesToRadians(90));
     timer = setInterval(updateTime, 1000);
 }
 
@@ -354,9 +355,19 @@ export function cameraMovement() {
     // let oldcameraModel = -1;
     // let cameraModel = 3;    
     //cameraModel = quadrantNumber();
-    if (oldcameraModel !== cameraModel) {
+    // if (oldcameraModel !== cameraModel) {
 
-    }
+    // }
+
+    camera.translateZ(-speed);
+
+    // if (speed >= speedLimit * 0.05) {
+    //     camera.rotateY(angle);
+    // } else if (speed < -speedLimit * 0.05) {
+    //     camera.rotateY(-angle);
+    // }
+
+
 
     //console.log(radians_to_degrees(car.rotation.z));
     //setCamera(cameraModel)

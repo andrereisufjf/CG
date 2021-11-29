@@ -14,9 +14,9 @@ var stats = new Stats(); // To show FPS information
 var scene = new THREE.Scene(); // Create main scene
 var renderer = initRenderer(); // View function in util/utils
 
-var camera = initCamera(new THREE.Vector3(0, -2 * lado, lado / 3)); // Init camera in this position
+var camera = initCamera(new THREE.Vector3(0, 0, lado / 3)); // Init camera in this position
 //camera.rotation = "";
-camera.lookAt(100, -lado, lado);
+//camera.lookAt(100, -lado, lado);
 initDefaultBasicLight(scene, true);
 camera.name = 'camera';
 var modoCamera = { simulacao: true };
