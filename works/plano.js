@@ -115,8 +115,6 @@ export function atualizarQuadrante(x, y) {
     }
 }
 
-
-
 export function changeLane(key) {
 
     if (key === 2 && actualLane === 1) {
@@ -220,4 +218,52 @@ export function changeVisible(visibility) {
 function changeColor(obj) {
     let color = getTurn() % 2 ? "rgb(16, 75, 205)" : "rgba(128, 128, 128)";
     obj.material.color.set(color);
+}
+
+
+//function initAuxCamera() {
+
+var lookAtVec = new THREE.Vector3(0.0, 0.0, 0.0);
+var camPosition = new THREE.Vector3(0, 0, 100);
+var upVec = new THREE.Vector3(0.0, 1.0, 0.0);
+var vcWidth = 200;
+var vcHeidth = 200;
+var projectionChanged = false;
+var virtualCamera = new THREE.PerspectiveCamera(53, vcWidth / vcHeidth, 100, 110.0);
+virtualCamera.position.copy(camPosition);
+virtualCamera.up.copy(upVec);
+virtualCamera.lookAt(lookAtVec);
+
+const cameraHelper = new THREE.CameraHelper(virtualCamera);
+
+export function addHelper(scene) {
+    scene.add(cameraHelper);
+}
+
+
+//}
+
+
+
+export function controlledRender(renderer, camera, scene) {
+    var width = window.innerWidth;
+    var height = window.innerHeight;
+
+    //Set main viewport
+    renderer.setViewport(0, 0, width, height); // Reset viewport    
+    renderer.setScissorTest(false); // Disable scissor to paint the entire window
+    renderer.setClearColor("rgb(80, 70, 170)");
+    renderer.clear(); // Clean the window
+    renderer.render(scene, camera);
+
+    // Set virtual camera viewport 
+    var offset = 20;
+    var offsetX = width - vcHeidth - offset / 2;
+    var offsetY = 2 * height / 3 - offset;
+    renderer.setViewport(offsetX, height - vcHeidth - offsetY, vcWidth, vcHeidth); // Set virtual camera viewport  
+    renderer.setScissor(offsetX, height - vcHeidth - offsetY, vcWidth, vcHeidth); // Set scissor with the same size as the viewport
+    renderer.setScissorTest(true); // Enable scissor to paint only the scissor are (i.e., the small viewport)
+    renderer.setClearColor("rgb(0, 0, 0)"); // Use a darker clear color in the small viewport 
+    renderer.clear(); // Clean the small viewport
+    renderer.render(scene, virtualCamera); // Render scene of the virtual camera
 }

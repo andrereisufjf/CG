@@ -8,7 +8,7 @@ import {
     initCamera,
 } from "../libs/util/util.js";
 import { createCarBody, definePosition, keyboardUpdate, initMov } from "./carBody.js"
-import { addPlanElements, getInicialPosition, lado } from "./plano.js"
+import { addPlanElements, getInicialPosition, lado, controlledRender, addHelper } from "./plano.js"
 
 var stats = new Stats(); // To show FPS information
 var scene = new THREE.Scene(); // Create main scene
@@ -19,6 +19,9 @@ initDefaultBasicLight(scene, true);
 camera.name = 'camera';
 var modoCamera = { simulacao: true };
 
+
+
+/** TESTE MINI MAPA */
 
 // Enable mouse rotation, pan, zoom etc.
 var trackballControls = new TrackballControls(camera, renderer.domElement);
@@ -45,6 +48,12 @@ addPlanElements(scene);
 //possibilita modo de inspeção
 initMov(modoCamera, getInicialPosition(), camera, );
 
+
+
+//TESTE MINI MPA
+//addHelper(scene);
+//FIM TESTE MINI MAPA
+
 render();
 
 function render() {
@@ -62,6 +71,12 @@ function render() {
     definePosition();
     keyboardUpdate();
 
+    //teste mini mapa
     requestAnimationFrame(render);
-    renderer.render(scene, camera); // Render scene
+    controlledRender(renderer, camera, scene);
+
+    //renderer.render(scene, camera);
+
+    //requestAnimationFrame(render);
+    //renderer.render(scene, camera); // Render scene
 }

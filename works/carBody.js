@@ -1,9 +1,10 @@
 import * as THREE from '../build/three.module.js';
 import { degreesToRadians } from "../libs/util/util.js";
-import { SecondaryBox } from "../libs/util/util.js";
+import { SecondaryBox, initRenderer } from "../libs/util/util.js";
 
 import KeyboardState from '../libs/util/KeyboardState.js';
 import { changeLane, changeVisible, isOnLane, atualizarQuadrante } from "./plano.js"
+
 
 // To use the keyboard
 var keyboard = new KeyboardState();
@@ -24,8 +25,7 @@ let oldcameraModel = -1;
 let cameraModel = 3;
 
 //contador de time e voltas
-let time = -1,
-    timeActualTurn = -1,
+let timeActualTurn = -1,
     turns = 1,
     timer;
 var secondBox = new SecondaryBox("Iniciando...");
@@ -159,9 +159,10 @@ export function initMov(modoCameraAux, inicialPosition, cameraAux) {
 //Update das posições
 export function definePosition() {
 
-    if (modoCamera.simulacao){
+    if (modoCamera.simulacao) {
+        //TESTES
         camera.matrixAutoUpdate = false;
-    }else{
+    } else {
         camera.matrixAutoUpdate = true;
     }
 
@@ -216,9 +217,9 @@ export function definePosition() {
 
     // Will execute T1 and then R1
     windshield.matrix.multiply(mat4.makeTranslation(0.0, 0.5, 0.2)); // T1
-    
+
     // Will execute T1 and then R1
-    if (modoCamera.simulacao){
+    if (modoCamera.simulacao) {
         camera.matrix.multiply(mat4.makeRotationY(-(degreesToRadians(60)))); // R1
         camera.matrix.multiply(mat4.makeRotationZ(-(degreesToRadians(90)))); // R1
         camera.matrix.multiply(mat4.makeRotationX(-(degreesToRadians(15)))); // R1
@@ -309,10 +310,12 @@ export function keyboardUpdate() {
             updateTurn();
         }
 
+        //atualiza a velocidade
+        speedometer.changeText("Velocidade: " + (20 * speed).toFixed(1) + "m/s");
         cameraMovement();
 
-    }else{
-        speed=0.0;
+    } else {
+        speed = 0.0;
     }
 
     if (keyboard.down("space")) {
@@ -320,10 +323,10 @@ export function keyboardUpdate() {
         if (modoCamera.simulacao) { // sai do modo de inspeção e retoma parametros
 
             if (playing) {
-                secondBox.changeMessage("Volta Atual: " + timeActualTurn + "s || " + "Tempo: " + time + "s || Voltas: " + turns);
+                secondBox.changeMessage(time.stringify());
                 timer = setInterval(updateTime, 1000); // volta o cronometro
             } else {
-                secondBox.changeMessage("FIM DE JOGO! Tempo total: " + time + "s");
+                secondBox.changeMessage("FIM DE JOGO! Tempo total: " + time.stringifyTime());
             }
 
             restoreParameters();
@@ -334,6 +337,7 @@ export function keyboardUpdate() {
             changeVisible(false);
             clearInterval(timer); // para o cronometro
             secondBox.changeMessage("MODO DE INSPEÇÃO");
+            speedometer.changeText("MODO DE INSPEÇÃO");
         }
     }
 
@@ -407,19 +411,108 @@ function restoreParameters() {
     angle = modoInsp.angle;
 }
 
+
+// CONTROLE DE TEMPO E VELOCIDADE
+
+class InfoBox {
+    constructor() {
+        this.infoBox = document.createElement('div');
+        this.infoBox.id = "InfoxBox";
+        this.infoBox.style.padding = "6px 14px";
+        this.infoBox.style.position = "fixed";
+        this.infoBox.style.bottom = "0";
+        this.infoBox.style.right = "0";
+        this.infoBox.style.backgroundColor = "rgba(255,255,255,0.2)";
+        this.infoBox.style.color = "white";
+        this.infoBox.style.fontFamily = "sans-serif";
+        this.infoBox.style.userSelect = "none";
+        this.infoBox.style.textAlign = "left";
+        var textnode;
+    }
+
+    changeText(text) {
+        this.textnode.nodeValue = text;
+    }
+
+    add(text) {
+        this.textnode = document.createTextNode(text);
+        this.infoBox.appendChild(this.textnode);
+    }
+
+    show() {
+        document.body.appendChild(this.infoBox);
+    }
+}
+
+var speedometer = new InfoBox();
+speedometer.add("Velocidade: " + speed + "m/s");
+speedometer.show();
+//speedometer.changeText("Ok");
+
+var time = {
+    minute: 0,
+    second: -1,
+
+    minuteActual: 0,
+    secondActual: -1,
+
+    best: "~~:~~",
+
+    updateTime: function() { // Método que ira mostrar o tipo de Animal
+        if ((this.second += 1) == 60) {
+            this.second = 0;
+            this.minute++;
+        }
+
+        if ((this.secondActual += 1) == 60) {
+            this.secondActual = 0;
+            this.minuteActual++;
+        }
+    },
+
+    stringifyTime: function() { // retorna o tempo total 
+        return padL(this.minute) + ":" + padL(this.second);
+    },
+
+    stringify: function() { // retorna as métricas gerais (durante o jogo)
+        return "Tempo Total: " + padL(this.minute) + ":" + padL(this.second) + " || " + "Volta Atual: " + padL(this.minuteActual) + ":" + padL(this.secondActual) + " || Melhor Volta: " + this.best + " || Voltas: " + turns;
+        //return padL(this.minute) + ":" + padL(this.second);
+    },
+
+    updateTurn: function() { // atualiza as variáveis de voltas
+
+        let actual = padL(this.minuteActual) + ":" + padL(this.secondActual);
+        if ((actual) < this.best)
+            this.best = actual;
+        //console.log(actual < this.best);
+        this.secondActual = 0;
+        this.minuteActual = 0;
+    },
+}
+
+
+//gera o 0 a esquerda, se necessário, por padrão retorna tamanho 2 completado com 0
+function padL(a, b = 2, c = '0') { //string/number, length, char
+    return (new Array(b).join(c) + a).slice(-b)
+}
+
+
 function updateTime() {
-    time++;
+    time.updateTime();
+    //time++;
     timeActualTurn++;
-    secondBox.changeMessage("Volta Atual: " + timeActualTurn + "s || " + "Tempo: " + time + "s || Voltas: " + turns);
+    secondBox.changeMessage(time.stringify());
+    //secondBox.changeMessage("Volta Atual: " + timeActualTurn + "s || " + "Tempo: " + time + "s || Voltas: " + turns);
 }
 
 export function updateTurn() {
     timeActualTurn = 0;
+    time.updateTurn();
     turns++;
     if (turns > 4) {
         speed = 0;
         clearInterval(timer);
-        secondBox.changeMessage("FIM DE JOGO! Tempo total: " + time + "s")
+        secondBox.changeMessage("FIM DE JOGO! Tempo total: " + time.stringifyTime());
         playing = false;
     }
 }
