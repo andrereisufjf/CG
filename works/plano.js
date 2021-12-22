@@ -224,12 +224,12 @@ function changeColor(obj) {
 //function initAuxCamera() {
 
 var lookAtVec = new THREE.Vector3(0.0, 0.0, 0.0);
-var camPosition = new THREE.Vector3(0, 0, 100);
+var camPosition = new THREE.Vector3(0, 0, 80);
 var upVec = new THREE.Vector3(0.0, 1.0, 0.0);
 var vcWidth = 200;
 var vcHeidth = 200;
 var projectionChanged = false;
-var virtualCamera = new THREE.PerspectiveCamera(53, vcWidth / vcHeidth, 100, 110.0);
+var virtualCamera = new THREE.PerspectiveCamera(65, vcWidth / vcHeidth, 60, 100);
 virtualCamera.position.copy(camPosition);
 virtualCamera.up.copy(upVec);
 virtualCamera.lookAt(lookAtVec);

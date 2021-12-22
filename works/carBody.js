@@ -12,6 +12,7 @@ var keyboard = new KeyboardState();
 var speed = 0.0;
 var deltaSpeed = 0.003;
 var speedLimit = 0.50;
+var speedLimitConst = speedLimit; // usado para evitar acesso e operações simultaneas em speedLimit ao controlar a saida da pista
 var angle = 0.0;
 var deltaAngle = degreesToRadians(0.4);
 var angleLimit = degreesToRadians(4);
@@ -203,10 +204,11 @@ export function definePosition() {
 
     inLane = isOnLane(car.position); // verifica se o carro está na pista
     if (!inLane && !alterSpeed) { // se o carro estiver fora e o retardo não tive sido aplicado
-        speed *= 0.5;
+        speedLimit = 0.5 * speedLimitConst;
         alterSpeed = true;
     } else if (inLane && alterSpeed) { //se o carro voltou pra pista é preciso restaurar o controle de retardo
         alterSpeed = false;
+        speedLimit = speedLimitConst;
     }
 
     if (speed >= speedLimit * 0.05) {
