@@ -46,7 +46,7 @@ window.addEventListener('resize', function() { onWindowResize(camera, renderer) 
 addPlanElements(scene);
 
 //possibilita modo de inspeção
-initMov(modoCamera, getInicialPosition(), camera, );
+initMov(modoCamera, getInicialPosition(), camera, scene);
 
 
 

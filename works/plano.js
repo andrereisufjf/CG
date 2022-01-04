@@ -6,6 +6,7 @@ export const lado = 45; //Tamanho do quadrado inferior
 const tam = 10; //Tamanho dos quadrados da pista
 const delta = 0.95; //Distancia entre os quadrados?
 const quant = (2 * lado) / tam - 1; //quantidade de blocos por aresta da pista
+const tamMatriz = 9;
 const z = -0.75; // Z do quadrado
 const inicialArrayPosition = quant / 2; //posição do bloco inicial
 const tamReal = tam * delta; //tamanho real do bloco a ser usado
@@ -44,7 +45,7 @@ class Blocks {
 //Cria o plano inferior
 function createPlane() {
     var planeGeometry = new THREE.PlaneGeometry(lado * 2.1, lado * 2.1);
-    planeGeometry.translate(0.0, 0.0, -2); // To avoid conflict with the axeshelper
+    planeGeometry.translate(45, 45, -2); // To avoid conflict with the axeshelper
     var planeMaterial = new THREE.MeshBasicMaterial({
         color: "rgba(255, 160, 122)",
         side: THREE.DoubleSide,
@@ -54,32 +55,32 @@ function createPlane() {
 }
 
 function createBlocks() {
+    createTrack(1);
+    // for (let i = -lado; i < lado; i = i + tam) {
+    //     if (i === -tam / 2) {
+    //         beginIndex = indexAtual - 1;
+    //         blocks.push(new Blocks(i + tam / 2, -lado + tam / 2, z, tamReal, true));
+    //     } else {
+    //         blocks.push(new Blocks(i + tam / 2, -lado + tam / 2, z, tamReal, false));
+    //     }
+    //     indexAtual += 1;
+    // }
 
-    for (let i = -lado; i < lado; i = i + tam) {
-        if (i === -tam / 2) {
-            beginIndex = indexAtual - 1;
-            blocks.push(new Blocks(i + tam / 2, -lado + tam / 2, z, tamReal, true));
-        } else {
-            blocks.push(new Blocks(i + tam / 2, -lado + tam / 2, z, tamReal, false));
-        }
-        indexAtual += 1;
-    }
+    // for (let i = -lado + tam; i < lado; i = i + tam) {
+    //     indexAtual += 1;
+    //     blocks.push(new Blocks(lado - tam / 2, i + tam / 2, z, tamReal, false));
+    // }
 
-    for (let i = -lado + tam; i < lado; i = i + tam) {
-        indexAtual += 1;
-        blocks.push(new Blocks(lado - tam / 2, i + tam / 2, z, tamReal, false));
-    }
+    // for (let i = lado - tam; i > -lado; i = i - tam) {
+    //     indexAtual += 1;
+    //     blocks.push(new Blocks(i - tam / 2, lado - tam / 2, z, tamReal, false));
+    // }
 
-    for (let i = lado - tam; i > -lado; i = i - tam) {
-        indexAtual += 1;
-        blocks.push(new Blocks(i - tam / 2, lado - tam / 2, z, tamReal, false));
-    }
-
-    for (let i = lado - tam; i > -lado + tam; i = i - tam) {
-        indexAtual += 1;
-        blocks.push(new Blocks(-lado + tam / 2, i - tam / 2, z, tamReal, false));
-    }
-    indexAtual = beginIndex;
+    // for (let i = lado - tam; i > -lado + tam; i = i - tam) {
+    //     indexAtual += 1;
+    //     blocks.push(new Blocks(-lado + tam / 2, i - tam / 2, z, tamReal, false));
+    // }
+    // indexAtual = beginIndex;
 
 }
 
@@ -115,55 +116,127 @@ export function atualizarQuadrante(x, y) {
     }
 }
 
-export function changeLane(key) {
 
-    if (key === 2 && actualLane === 1) {
-        let start = Math.round(quant + quant / 2) + 1;
-        let end = Math.round(2 * quant + quant / 2);
-        let fator = Math.round((end - start) / 2);
+var tracks = {
+    1: [
+        [1, 1, 1, 1, 1, 1, 1, 1, 1], 
+        [1, 0, 0, 0, 0, 0, 0, 0, 1], 
+        [1, 0, 0, 0, 0, 0, 0, 0, 1], 
+        [1, 0, 0, 0, 0, 0, 0, 0, 1], 
+        [2, 0, 0, 0, 0, 0, 0, 0, 1], 
+        [1, 0, 0, 0, 0, 0, 0, 0, 1], 
+        [1, 0, 0, 0, 0, 0, 0, 0, 1], 
+        [1, 0, 0, 0, 0, 0, 0, 0, 1], 
+        [1, 1, 1, 1, 1, 1, 1, 1, 1] 
+    ],
+    2: [
+        [1, 1, 1, 1, 1, 0, 0, 0, 0], 
+        [1, 1, 1, 1, 1, 0, 0, 0, 0], 
+        [1, 1, 1, 1, 1, 0, 0, 0, 0], 
+        [1, 1, 1, 1, 1, 0, 0, 0, 0], 
+        [2, 1, 1, 1, 1, 1, 1, 1, 1], 
+        [1, 1, 1, 1, 1, 1, 1, 1, 1], 
+        [1, 1, 1, 1, 1, 1, 1, 1, 1], 
+        [1, 1, 1, 1, 1, 1, 1, 1, 1], 
+        [1, 1, 1, 1, 1, 1, 1, 1, 1] 
+    ],
+    3: [
+        [1, 1, 1, 1, 1, 1, 1, 1, 1], 
+        [1, 1, 1, 1, 1, 1, 1, 1, 1], 
+        [1, 1, 1, 1, 1, 1, 1, 1, 1], 
+        [1, 1, 1, 1, 1, 1, 1, 1, 1], 
+        [2, 1, 1, 1, 1, 1, 1, 1, 1], 
+        [1, 1, 1, 1, 1, 1, 1, 1, 1], 
+        [1, 1, 1, 1, 1, 1, 1, 1, 1], 
+        [1, 1, 1, 1, 1, 1, 1, 1, 1], 
+        [0, 0, 1, 1, 1, 1, 1, 1, 1] 
+    ],
+    4: [
+        [1, 1, 1, 1, 1, 1, 1, 0, 0], 
+        [1, 1, 1, 1, 1, 1, 1, 1, 1], 
+        [1, 1, 1, 1, 1, 1, 1, 1, 1], 
+        [1, 1, 1, 1, 1, 1, 1, 1, 1], 
+        [2, 1, 1, 1, 1, 1, 1, 1, 1], 
+        [1, 1, 1, 1, 1, 1, 1, 1, 1], 
+        [1, 1, 1, 1, 1, 1, 1, 1, 1], 
+        [1, 1, 1, 1, 1, 1, 1, 1, 1], 
+        [1, 1, 1, 1, 1, 1, 1, 1, 1] 
+    ]
 
-        for (let i = start; i < end; i++) {
-            let x, y;
-            x = blocks[i].position.x;
-            y = blocks[i].position.y;
+}
 
-            if (x === y) {
-                fator = 0;
-                blocks[i].position.set(tam * fator, tam * fator, z);
-            } else if (x > y) {
-                fator--;
-                blocks[i].position.set(tam * fator, 0, z);
-            } else {
-                fator++;
-                blocks[i].position.set(0, tam * fator, z);
+function createTrack(key) {
+    let pista = tracks[key];
+    for (let i = 0; i < tamMatriz; i++) {
+        for (let j = 0; j < tamMatriz; j++) {
+            // pista[i][j];
+            // console.log(pista[i][j]);
+            if(pista[i][j] === 1) {
+                blocks.push(new Blocks(tam * i + 5, tam * j + 5, z, tamReal, false));
+            } else if(pista[i][j] === 2) {
+                blocks.push(new Blocks(tam * i + 5, tam * j + 5, z, tamReal, true));
             }
-        }
-        actualLane = 2;
-    } else if (key === 1 && actualLane === 2) {
-        let start = Math.round(quant + quant / 2) + 1;
-        let end = Math.round(2 * quant + quant / 2);
-
-        let fator = Math.round((end - start) / 2);
-
-        for (let i = start; i < end; i++) {
-            let x, y;
-            x = blocks[i].position.x;
-            y = blocks[i].position.y;
-
-            if (x === y) {
-                fator = 0;
-                blocks[i].position.set(lado - tam / 2, lado - tam / 2, z);
-            } else if (x > y) {
-                fator--;
-                blocks[i].position.set(lado - tam / 2, lado - tam / 2 - x, z);
-            } else {
-                fator++;
-                blocks[i].position.set(lado - tam / 2 - y, lado - tam / 2, z);
-            }
 
         }
-        actualLane = 1;
+        
     }
+}
+
+
+export function changeLane(key, scene) {
+    blocks.forEach(block => block.visible = false);
+    blocks = [];
+    createTrack(key);
+    blocks.forEach(block => scene.add(block));
+    actualLane = key;
+    
+    // if (key === 2 && actualLane === 1) {
+    //     let start = Math.round(quant + quant / 2) + 1;
+    //     let end = Math.round(2 * quant + quant / 2);
+    //     let fator = Math.round((end - start) / 2);
+
+    //     for (let i = start; i < end; i++) {
+    //         let x, y;
+    //         x = blocks[i].position.x;
+    //         y = blocks[i].position.y;
+
+    //         if (x === y) {
+    //             fator = 0;
+    //             blocks[i].position.set(tam * fator, tam * fator, z);
+    //         } else if (x > y) {
+    //             fator--;
+    //             blocks[i].position.set(tam * fator, 0, z);
+    //         } else {
+    //             fator++;
+    //             blocks[i].position.set(0, tam * fator, z);
+    //         }
+    //     }
+    //     actualLane = 2;
+    // } else if (key === 1 && actualLane === 2) {
+    //     let start = Math.round(quant + quant / 2) + 1;
+    //     let end = Math.round(2 * quant + quant / 2);
+
+    //     let fator = Math.round((end - start) / 2);
+
+    //     for (let i = start; i < end; i++) {
+    //         let x, y;
+    //         x = blocks[i].position.x;
+    //         y = blocks[i].position.y;
+
+    //         if (x === y) {
+    //             fator = 0;
+    //             blocks[i].position.set(lado - tam / 2, lado - tam / 2, z);
+    //         } else if (x > y) {
+    //             fator--;
+    //             blocks[i].position.set(lado - tam / 2, lado - tam / 2 - x, z);
+    //         } else {
+    //             fator++;
+    //             blocks[i].position.set(lado - tam / 2 - y, lado - tam / 2, z);
+    //         }
+
+    //     }
+    //     actualLane = 1;
+    // }
 }
 
 //returna true ou false se a posição passada se encontra na psita ou não
@@ -223,13 +296,13 @@ function changeColor(obj) {
 
 //function initAuxCamera() {
 
-var lookAtVec = new THREE.Vector3(0.0, 0.0, 0.0);
-var camPosition = new THREE.Vector3(0, 0, 80);
+var lookAtVec = new THREE.Vector3(45, 45, 0.0);
+var camPosition = new THREE.Vector3(45, 45, 80);
 var upVec = new THREE.Vector3(0.0, 1.0, 0.0);
 var vcWidth = 200;
 var vcHeidth = 200;
 var projectionChanged = false;
-var virtualCamera = new THREE.PerspectiveCamera(65, vcWidth / vcHeidth, 60, 100);
+var virtualCamera = new THREE.PerspectiveCamera(65, vcWidth / vcHeidth, 1, 100);
 virtualCamera.position.copy(camPosition);
 virtualCamera.up.copy(upVec);
 virtualCamera.lookAt(lookAtVec);

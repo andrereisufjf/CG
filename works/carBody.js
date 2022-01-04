@@ -16,6 +16,7 @@ var speedLimitConst = speedLimit; // usado para evitar acesso e operações simu
 var angle = 0.0;
 var deltaAngle = degreesToRadians(0.4);
 var angleLimit = degreesToRadians(4);
+var scene;
 
 //controle da camera
 var modoCamera;
@@ -145,7 +146,7 @@ export function createCarBody() {
     return fuselage;
 }
 
-export function initMov(modoCameraAux, inicialPosition, cameraAux) {
+export function initMov(modoCameraAux, inicialPosition, cameraAux, sceneAux) {
     modoCamera = modoCameraAux;
     camera = cameraAux;
     fuselage.position.copy(inicialPosition);
@@ -154,6 +155,7 @@ export function initMov(modoCameraAux, inicialPosition, cameraAux) {
     camera.rotateZ(degreesToRadians(90));
     timer = setInterval(updateTime, 1000);
     fuselage.add(cameraAux);
+    scene = sceneAux;
 }
 
 
@@ -305,9 +307,13 @@ export function keyboardUpdate() {
         }
 
         if (keyboard.down("1")) {
-            changeLane(1);
+            changeLane(1, scene);
         } else if (keyboard.down("2")) {
-            changeLane(2);
+            changeLane(2, scene);
+        } else if (keyboard.down("3")) {
+            changeLane(3, scene);
+        } else if (keyboard.down("4")) {
+            changeLane(4, scene);
         } else if (keyboard.down("5")) { // TESTAR AUMENTAR AS VOLTAS
             updateTurn();
         }
