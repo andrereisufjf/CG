@@ -3,7 +3,7 @@ import { createGroundPlane, degreesToRadians } from "../libs/util/util.js";
 import { SecondaryBox, initRenderer } from "../libs/util/util.js";
 
 import KeyboardState from '../libs/util/KeyboardState.js';
-import { changeLane, changeVisible, isOnLane, atualizarQuadrante } from "./plano.js"
+import { changeLane, changeVisible, isOnLane, atualizarQuadrante, getInicialPosition } from "./plano.js"
 
 
 // To use the keyboard
@@ -291,6 +291,8 @@ export function keyboardUpdate() {
 
         if (keyboard.down("1")) {
             changeLane(1, scene);
+            //carCg.position.copy(getInicialPosition);
+            //carCg.rotateZ(degreesToRadians(90));
         } else if (keyboard.down("2")) {
             changeLane(2, scene);
         } else if (keyboard.down("3")) {
