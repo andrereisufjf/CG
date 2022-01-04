@@ -7,7 +7,7 @@ import {
     initDefaultBasicLight,
     initCamera,
 } from "../libs/util/util.js";
-import { createCarBody, definePosition, keyboardUpdate, initMov } from "./carBody.js"
+import { createCarBody, definePosition, keyboardUpdate, initMov, defineCamPosition } from "./carBody.js"
 import { addPlanElements, getInicialPosition, lado, controlledRender, addHelper } from "./plano.js"
 
 var stats = new Stats(); // To show FPS information
@@ -34,10 +34,20 @@ scene.add(axesHelper);
 var car = createCarBody();
 car.name = 'car';
 
-var objetoVirtual = new THREE.Object3D();
-objetoVirtual.add(camera);
-objetoVirtual.add(car);
-scene.add(objetoVirtual);
+var camSup = new THREE.Object3D();
+scene.add(camSup);
+var camSupAxesHelper = new THREE.AxesHelper(12);
+camSupAxesHelper.visible = true;
+camSup.add(camSupAxesHelper);
+camSup.add(camera);
+scene.add(car);
+var carAux = new THREE.Object3D();
+car.add(carAux);
+carAux.translateY(10);
+var carAuxAxesHelper = new THREE.AxesHelper(12);
+carAuxAxesHelper.visible = false;
+carAux.add(carAuxAxesHelper);
+
 
 // Listen window size changes
 window.addEventListener('resize', function() { onWindowResize(camera, renderer) }, false);
@@ -69,6 +79,7 @@ function render() {
     //PARA TESTES
     trackballControls.update();
     definePosition();
+    defineCamPosition(camSup, carAux);
     keyboardUpdate();
 
     //teste mini mapa
