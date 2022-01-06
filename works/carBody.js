@@ -17,6 +17,7 @@ var angle = 0.0;
 var deltaAngle = degreesToRadians(0.4);
 var angleLimit = degreesToRadians(4);
 var scene;
+var camSup, carAux;
 
 //controle da camera
 var modoCamera;
@@ -26,7 +27,7 @@ var camera;
 let oldcameraModel = -1;
 let cameraModel = 3;
 
-//contador de time e voltas
+//contador de time e voltas 
 let timeActualTurn = -1,
     turns = 1,
     timer;
@@ -51,6 +52,7 @@ var modoInsp = {
     posicaoAntCam: new THREE.Vector3(),
     cameraUp: new THREE.Vector3(0, 1, 0), // camera up padrao de inspeção
     cameraUpAnt: new THREE.Vector3(), //camera up anterior ao modo de inspeção
+    cameraAuxPosition: new THREE.Vector3(),
     vel: 0,
     angle: 0,
 }
@@ -138,7 +140,7 @@ export function createCarBody() {
     return carCg;
 }
 
-export function initMov(modoCameraAux, inicialPosition, cameraAux, sceneAux) {
+export function initMov(modoCameraAux, inicialPosition, cameraAux, sceneAux, camSupAux, carAuxParameter) {
     modoCamera = modoCameraAux;
     camera = cameraAux;
     carCg.position.copy(inicialPosition);
@@ -147,9 +149,11 @@ export function initMov(modoCameraAux, inicialPosition, cameraAux, sceneAux) {
     //camera.rotateZ(degreesToRadians(90));
     timer = setInterval(updateTime, 1000);
     // carCg.add(cameraAux); //AQUI
-    timer = setInterval(updateTime, 1000);
+    //timer = setInterval(updateTime, 1000);
     //fuselage.add(cameraAux);
     scene = sceneAux;
+    camSup = camSupAux;
+    carAux = carAuxParameter;
 }
 
 
@@ -202,7 +206,15 @@ export function definePosition() {
 
     // fuselage.translateY(speed);
 
-    carCg.translateY(speed);
+    if (modoCamera.simulacao && playing) {
+        carCg.translateY(speed);
+
+        if (speed >= speedLimit * 0.05) {
+            carCg.rotateZ(angle);
+        } else if (speed < -speedLimit * 0.05) {
+            carCg.rotateZ(-angle);
+        }
+    }
 
     inLane = isOnLane(car.position); // verifica se o carro está na pista
     if (!inLane && !alterSpeed) { // se o carro estiver fora e o retardo não tive sido aplicado
@@ -213,11 +225,7 @@ export function definePosition() {
         speedLimit = speedLimitConst;
     }
 
-    if (speed >= speedLimit * 0.05) {
-        carCg.rotateZ(angle);
-    } else if (speed < -speedLimit * 0.05) {
-        carCg.rotateZ(-angle);
-    }
+
 
     // Will execute T1 and then R1
     fuselage.matrix.multiply(mat4.makeTranslation(1.25, 0.0, 1.5)); // T1
@@ -264,7 +272,8 @@ export function keyboardUpdate() {
 
     keyboard.update();
 
-    if (modoCamera.simulacao && playing) {
+
+    if (modoCamera.simulacao && playing) { // CONTROLE JOGO 
 
         atualizarQuadrante(car.position.x, car.position.y);
 
@@ -291,14 +300,16 @@ export function keyboardUpdate() {
 
         if (keyboard.down("1")) {
             changeLane(1, scene);
-            //carCg.position.copy(getInicialPosition);
-            //carCg.rotateZ(degreesToRadians(90));
+            carInicialParameters();
         } else if (keyboard.down("2")) {
             changeLane(2, scene);
+            carInicialParameters();
         } else if (keyboard.down("3")) {
             changeLane(3, scene);
+            carInicialParameters();
         } else if (keyboard.down("4")) {
             changeLane(4, scene);
+            carInicialParameters();
         } else if (keyboard.down("5")) { // TESTAR AUMENTAR AS VOLTAS
             updateTurn();
         }
@@ -307,8 +318,28 @@ export function keyboardUpdate() {
         speedometer.changeText("Velocidade: " + (20 * speed).toFixed(1) + "m/s");
         //cameraMovement();
 
-    } else {
-        speed = 0.0;
+    } else { // CONTROLE NO MODO DE SIMULAÇÃO
+        //xspeed = 0.0;
+        if (keyboard.pressed("X")) speed = Math.min(speed + 2 * deltaSpeed, speedLimit);
+        if (keyboard.pressed("down")) speed = Math.max(speed - 2 * deltaSpeed, -speedLimit);
+        if (keyboard.pressed("left")) angle = Math.min(angle + deltaAngle, angleLimit);
+        if (keyboard.pressed("right")) angle = Math.max(angle - deltaAngle, -angleLimit);
+
+        if (!keyboard.pressed("X") && !keyboard.pressed("down")) {
+            if (speed > 0) {
+                speed = Math.max(speed - deltaSpeed, 0);
+            } else if (speed < 0) {
+                speed = Math.min(speed + deltaSpeed, 0);
+            }
+        }
+
+        if (!keyboard.pressed("left") && !keyboard.pressed("right")) {
+            if (angle > 0) {
+                angle = Math.max(angle - deltaAngle, 0);
+            } else if (angle < 0) {
+                angle = Math.min(angle + deltaAngle, 0);
+            }
+        }
     }
 
     if (keyboard.down("space")) {
@@ -323,12 +354,12 @@ export function keyboardUpdate() {
             }
 
             restoreParameters();
-            changeVisible(true);
+            changeVisible(true, scene);
             secondBox.visible = false;
         } else { //entra no modo de inspeção, guarda e seta parametros
             saveParameters();
-            changeVisible(false);
             clearInterval(timer); // para o cronometro
+            changeVisible(false);
             secondBox.changeMessage("MODO DE INSPEÇÃO");
             speedometer.changeText("MODO DE INSPEÇÃO");
         }
@@ -338,41 +369,36 @@ export function keyboardUpdate() {
 
 //seta a pposição da camera baseado no quadrante atual
 
-const cameraConfiguration = {
-    "1": {
-        "position": "",
-        "outra": "",
-        "outra": ""
-    },
+function carInicialParameters() {
+    speed = 0;
+    angle = 0;
+    carCg.position.copy(getInicialPosition());
+    //carCg.rotateZ(degreesToRadians(90));
+    turns = 1;
+    time.reset();
+    //FALTA ARRUMAR A ROTAÇÃO
 }
 
 //Traslação da camera de acordo com o movimento do carro
-export function defineCamPosition(camSup, carAux) {
-    if (modoCamera.simulacao) {
+export function defineCamPosition() {
+    if (modoCamera.simulacao) { //
         camera.matrixAutoUpdate = false;
+        var mat4Cam = new THREE.Matrix4();
+        camera.matrix.identity();
+        // Will execute T1 and then R1
+        if (modoCamera.simulacao) {
+            camera.matrix.multiply(mat4Cam.makeRotationZ(degreesToRadians(50))); // R1
+            camera.matrix.multiply(mat4Cam.makeRotationX(degreesToRadians(50))); // R1
+        }
+        //camSup.position.set(carCg.position.x + 30,carCg.position.y - 30,carCg.position.z + 30);
+        var cwd = new THREE.Vector3();
+        carAux.getWorldPosition(cwd);
+        camSup.position.set(cwd.x + 30, cwd.y - 30, cwd.z + 30);
     } else {
         camera.matrixAutoUpdate = true;
     }
-    var mat4Cam = new THREE.Matrix4();
-    camera.matrix.identity();
-    // Will execute T1 and then R1
-    if (modoCamera.simulacao) {
-        camera.matrix.multiply(mat4Cam.makeRotationZ(degreesToRadians(50))); // R1
-        camera.matrix.multiply(mat4Cam.makeRotationX(degreesToRadians(50))); // R1
-    }
-    //camSup.position.set(carCg.position.x + 30,carCg.position.y - 30,carCg.position.z + 30);
-    var cwd = new THREE.Vector3();
-    carAux.getWorldPosition(cwd);
-    camSup.position.set(cwd.x + 30, cwd.y - 30, cwd.z + 30);
-}
 
-function radians_to_degrees(radians) {
-    var pi = Math.PI;
-    return radians * (180 / pi);
-}
 
-function setCamera(quadrantNumber) {
-    let configuration = cameraConfiguration[quadrantNumber];
 }
 
 //salva os parametros ao entrar no modo de insperação e seta os valores padrões
@@ -394,10 +420,19 @@ function saveParameters() {
     speed = 0;
     modoInsp.angle = angle;
     angle = 0;
+
+    //teste camera
+    camSup.position.copy(modoInsp.cameraAuxPosition);
 }
 
 //restaura os parametros ao sair do modo de insperação
 function restoreParameters() {
+    //teste camera
+    modoInsp.posicaoCam.copy(camera.position);
+    modoInsp.rotationCam.copy(camera.rotation);
+    modoInsp.cameraUp.copy(camera.up);
+
+    //old
     car.position.copy(modoInsp.posicaoAnterior);
     camera.position.copy(modoInsp.posicaoAntCam);
     camera.up.copy(modoInsp.cameraUpAnt);
@@ -405,6 +440,9 @@ function restoreParameters() {
     camera.rotation.copy(modoInsp.rotationAntCam);
     speed = modoInsp.vel;
     angle = modoInsp.angle;
+
+
+    //modoInsp.cameraAuxPosition.copy(camSup.position);
 }
 
 
@@ -484,6 +522,14 @@ var time = {
         this.secondActual = 0;
         this.minuteActual = 0;
     },
+
+    reset: function() {
+        this.minute = 0;
+        this.second = -1;
+        this.minuteActual = 0;
+        this.secondActual = -1;
+        this.best = "~~:~~";
+    }
 }
 
 

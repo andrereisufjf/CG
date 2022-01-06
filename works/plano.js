@@ -31,13 +31,14 @@ let indexAtual = 0;
 
 //Classe dos blocos da corrida
 class Blocks {
-    constructor(x = 0, y = 0, z, tamBloco, isInicial = false) {
+    constructor(x = 0, y = 0, z, tamBloco, isInicial = false, visibility = true) {
         let color = isInicial ? { color: "rgba(255, 69, 0)" } : { color: "rgba(128, 128, 128)" };
         var cubeGeometry = new THREE.BoxGeometry(tamBloco, tamBloco, 0.3);
         var cubeMaterial = new THREE.MeshBasicMaterial(color);
         var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
         cube.position.set(x, y, z);
         // scene.add(cube);
+        cube.visible = visibility;
         return cube;
     }
 }
@@ -98,69 +99,90 @@ export function getInicialPosition() {
 
 export function atualizarQuadrante(x, y) {
 
-    if (x <= ((blocks[indexAtual].position.x) + tamReal / 2) && x >= ((blocks[indexAtual].position.x) - tamReal / 2) && y <= ((blocks[indexAtual].position.y) + tamReal / 2) && y >= ((blocks[indexAtual].position.y) - tamReal / 2)) {
-        if (indexAtual !== inicialArrayPosition) {
+    x = parseInt(x / 10);
+    y = parseInt(y / 10);
 
-            changeColor(blocks[indexAtual]);
-        }
-
-        if (indexAtual == 0) {
-            indexAtual = blocks.length - 1;
-        } else {
-            indexAtual = (indexAtual - 1);
-
-        }
-        if (indexAtual === beginIndex) {
-            updateTurn();
+    if (x > 8) return;
+    // // vamos achar a posição na matriz, se existir
+    let onLand = tracks[actualLane][x][y] || 0;
+    // //[x][y];
+    // //console.log(pista, x, y);
+    // return onLand == 0 ? false : true;
+    if (onLand != 0) {
+        let index = x * (tam - 1) + y;
+        //console.log(index);
+        if (index != 45) { // bloco não inicial
+            changeColor(blocks[index]);
+        } else if (index == 45) { // bloco inicial
+            //validar se houve uma volta e 
+            //updateTurn();
         }
     }
+    return;
+
+    // if (x <= ((blocks[indexAtual].position.x) + tamReal / 2) && x >= ((blocks[indexAtual].position.x) - tamReal / 2) && y <= ((blocks[indexAtual].position.y) + tamReal / 2) && y >= ((blocks[indexAtual].position.y) - tamReal / 2)) {
+    //     if (indexAtual !== inicialArrayPosition) {
+
+    //         changeColor(blocks[indexAtual]);
+    //     }
+
+    //     if (indexAtual == 0) {
+    //         indexAtual = blocks.length - 1;
+    //     } else {
+    //         indexAtual = (indexAtual - 1);
+
+    //     }
+    //     if (indexAtual === beginIndex) {
+
+    //     }
+    // }
 }
 
 
 var tracks = {
     1: [
-        [1, 1, 1, 1, 1, 1, 1, 1, 1], 
-        [1, 0, 0, 0, 0, 0, 0, 0, 1], 
-        [1, 0, 0, 0, 0, 0, 0, 0, 1], 
-        [1, 0, 0, 0, 0, 0, 0, 0, 1], 
-        [1, 0, 0, 0, 0, 0, 0, 0, 1], 
-        [2, 0, 0, 0, 0, 0, 0, 0, 1], 
-        [1, 0, 0, 0, 0, 0, 0, 0, 1], 
-        [1, 0, 0, 0, 0, 0, 0, 0, 1], 
-        [1, 1, 1, 1, 1, 1, 1, 1, 1] 
+        [1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 1],
+        [2, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1]
     ],
     2: [
-        [1, 1, 1, 1, 1, 1, 1, 1, 1], 
-        [1, 0, 0, 0, 0, 0, 0, 0, 1], 
-        [1, 0, 0, 0, 0, 0, 0, 0, 1], 
-        [1, 0, 0, 0, 0, 0, 0, 0, 1], 
-        [1, 0, 0, 0, 1, 1, 1, 1, 1], 
-        [2, 0, 0, 0, 1, 0, 0, 0, 0], 
-        [1, 0, 0, 0, 1, 0, 0, 0, 0], 
-        [1, 0, 0, 0, 1, 0, 0, 0, 0], 
-        [1, 1, 1, 1, 1, 0, 0, 0, 0] 
+        [1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 1, 1, 1, 1, 1],
+        [2, 0, 0, 0, 1, 0, 0, 0, 0],
+        [1, 0, 0, 0, 1, 0, 0, 0, 0],
+        [1, 0, 0, 0, 1, 0, 0, 0, 0],
+        [1, 1, 1, 1, 1, 0, 0, 0, 0]
     ],
     3: [
-        [0, 0, 1, 1, 1, 1, 1, 1, 1], 
-        [0, 0, 1, 0, 0, 0, 0, 0, 1], 
-        [0, 0, 1, 0, 0, 0, 0, 0, 1], 
-        [0, 0, 1, 0, 0, 1, 1, 1, 1], 
-        [1, 1, 1, 0, 0, 1, 0, 0, 1], 
-        [2, 0, 0, 0, 0, 1, 0, 0, 1], 
-        [1, 0, 0, 0, 0, 1, 0, 0, 1], 
-        [1, 0, 0, 0, 0, 1, 0, 0, 1], 
-        [1, 1, 1, 1, 1, 1, 1, 1, 1] 
+        [0, 0, 1, 1, 1, 1, 1, 1, 1],
+        [0, 0, 1, 0, 0, 0, 0, 0, 1],
+        [0, 0, 1, 0, 0, 0, 0, 0, 1],
+        [0, 0, 1, 0, 0, 1, 1, 1, 1],
+        [1, 1, 1, 0, 0, 1, 0, 0, 1],
+        [2, 0, 0, 0, 0, 1, 0, 0, 1],
+        [1, 0, 0, 0, 0, 1, 0, 0, 1],
+        [1, 0, 0, 0, 0, 1, 0, 0, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1]
     ],
     4: [
-        [0, 0, 0, 0, 0, 0, 1, 1, 1], 
-        [0, 0, 0, 0, 0, 0, 1, 0, 1], 
-        [0, 0, 0, 0, 1, 1, 1, 1, 1], 
-        [0, 0, 0, 0, 1, 0, 1, 0, 0], 
-        [1, 1, 1, 1, 1, 1, 1, 0, 0], 
-        [2, 0, 0, 0, 1, 0, 0, 0, 0], 
-        [1, 0, 0, 0, 1, 0, 0, 0, 0], 
-        [1, 0, 0, 0, 1, 0, 0, 0, 0], 
-        [1, 1, 1, 1, 1, 0, 0, 0, 0] 
+        [0, 0, 0, 0, 0, 0, 1, 1, 1],
+        [0, 0, 0, 0, 0, 0, 1, 0, 1],
+        [0, 0, 0, 0, 1, 1, 1, 1, 1],
+        [0, 0, 0, 0, 1, 0, 1, 0, 0],
+        [1, 1, 1, 1, 1, 1, 1, 0, 0],
+        [2, 0, 0, 0, 1, 0, 0, 0, 0],
+        [1, 0, 0, 0, 1, 0, 0, 0, 0],
+        [1, 0, 0, 0, 1, 0, 0, 0, 0],
+        [1, 1, 1, 1, 1, 0, 0, 0, 0]
     ]
 
 }
@@ -171,14 +193,16 @@ function createTrack(key) {
         for (let j = 0; j < tamMatriz; j++) {
             // pista[i][j];
             // console.log(pista[i][j]);
-            if(pista[i][j] === 1) {
+            if (pista[i][j] === 1) {
                 blocks.push(new Blocks(tam * i + 5, tam * j + 5, z, tamReal, false));
-            } else if(pista[i][j] === 2) {
+            } else if (pista[i][j] === 2) {
                 blocks.push(new Blocks(tam * i + 5, tam * j + 5, z, tamReal, true));
+            } else { // caso vazio, deve estar invisível
+                blocks.push(new Blocks(tam * i + 5, tam * j + 5, z, tamReal, false, false));
             }
 
         }
-        
+
     }
 }
 
@@ -189,7 +213,7 @@ export function changeLane(key, scene) {
     createTrack(key);
     blocks.forEach(block => scene.add(block));
     actualLane = key;
-    
+
     // if (key === 2 && actualLane === 1) {
     //     let start = Math.round(quant + quant / 2) + 1;
     //     let end = Math.round(2 * quant + quant / 2);
@@ -241,51 +265,70 @@ export function changeLane(key, scene) {
 
 //returna true ou false se a posição passada se encontra na psita ou não
 export function isOnLane(position) {
-    let carAbsX = Math.abs(position.x);
-    let carAbsY = Math.abs(position.y);
-    let x = position.x;
-    let y = position.y;
-
-    //pista quadrada
-    if (actualLane === 1) {
-        //verifica retangulo horizontal
-        if (carAbsX >= 0 && carAbsX <= lado && carAbsY >= limiteInterno && carAbsY <= lado) {
-            return true;
-            //verifica retangulo vertical
-        } else if (carAbsX >= limiteInterno && carAbsX <= lado && carAbsY >= 0 && carAbsY <= limiteInterno) {
-            return true;
-        }
-    } else if (actualLane === 2) {
-
-        //verifica retangulo horizontal inferior
-        if (carAbsX >= 0 && carAbsX <= lado && y >= -lado && y <= -limiteInterno) {
-            //console.log("entrei");
-            return true;
-            //verifica retangulo vertical esquerdo
-        } else if (x <= -limiteInterno && x >= -lado && carAbsY >= 0 && carAbsY <= limiteInterno) {
-            return true;
-            //horizontal superior
-        } else if (x <= tamReal && x >= -lado && y >= limiteInterno && y <= lado) {
-            return true;
-            // horizontal meio
-        } else if (x <= lado && x >= -tamReal && y >= -tamReal && y <= tamReal) {
-            return true;
-            // vertical meio
-        } else if (x <= tamReal && x >= -tamReal && y >= -tamReal && y <= lado) {
-            return true;
-        } // vertical direita
-        else if (x <= lado && x >= limiteInterno && y >= -lado && y <= tamReal) {
-            return true;
-        }
+    if (position.x < 0 || position.y < 0) {
+        return false;
     }
+
+    // let carAbsX = position.x % 10;
+    // let carAbsY = position.y % 10;
+
+    let x = parseInt(position.x / 10);
+    let y = parseInt(position.y / 10);
+
+    if (x > 8) return false;
+    // vamos achar a posição na matriz, se existir
+    //console.log(x, y);
+    let onLand = tracks[actualLane][x][y] || 0;
+    //[x][y];
+
+    return onLand == 0 ? false : true;
+
+    // //pista quadrada
+    // if (actualLane === 1) {
+    //     //verifica retangulo horizontal
+    //     if (carAbsX >= 0 && carAbsX <= lado && carAbsY >= limiteInterno && carAbsY <= lado) {
+    //         return true;
+    //         //verifica retangulo vertical
+    //     } else if (carAbsX >= limiteInterno && carAbsX <= lado && carAbsY >= 0 && carAbsY <= limiteInterno) {
+    //         return true;
+    //     }
+    // } else if (actualLane === 2) {
+
+    //     //verifica retangulo horizontal inferior
+    //     if (carAbsX >= 0 && carAbsX <= lado && y >= -lado && y <= -limiteInterno) {
+    //         //console.log("entrei");
+    //         return true;
+    //         //verifica retangulo vertical esquerdo
+    //     } else if (x <= -limiteInterno && x >= -lado && carAbsY >= 0 && carAbsY <= limiteInterno) {
+    //         return true;
+    //         //horizontal superior
+    //     } else if (x <= tamReal && x >= -lado && y >= limiteInterno && y <= lado) {
+    //         return true;
+    //         // horizontal meio
+    //     } else if (x <= lado && x >= -tamReal && y >= -tamReal && y <= tamReal) {
+    //         return true;
+    //         // vertical meio
+    //     } else if (x <= tamReal && x >= -tamReal && y >= -tamReal && y <= lado) {
+    //         return true;
+    //     } // vertical direita
+    //     else if (x <= lado && x >= limiteInterno && y >= -lado && y <= tamReal) {
+    //         return true;
+    //     }
+    // }
 
     return false;
 }
 
-export function changeVisible(visibility) {
-    blocks.forEach(block => block.visible = visibility);
-    plane.visible = visibility;
-    axesHelper.visible = !visibility;
+export function changeVisible(visibility, scene = null) {
+    if (visibility === false) {
+        blocks.forEach(block => block.visible = visibility);
+        plane.visible = visibility;
+        axesHelper.visible = !visibility;
+    } else {
+        changeLane(actualLane, scene)
+        plane.visible = visibility;
+        axesHelper.visible = !visibility;
+    }
 }
 
 function changeColor(obj) {
@@ -318,7 +361,7 @@ export function addHelper(scene) {
 
 
 
-export function controlledRender(renderer, camera, scene) {
+export function controlledRender(renderer, camera, scene, inspMode) {
     var width = window.innerWidth;
     var height = window.innerHeight;
 
@@ -329,14 +372,16 @@ export function controlledRender(renderer, camera, scene) {
     renderer.clear(); // Clean the window
     renderer.render(scene, camera);
 
-    // Set virtual camera viewport 
-    var offset = 20;
-    var offsetX = width - vcHeidth - offset / 2;
-    var offsetY = 2 * height / 3 - offset;
-    renderer.setViewport(offsetX, height - vcHeidth - offsetY, vcWidth, vcHeidth); // Set virtual camera viewport  
-    renderer.setScissor(offsetX, height - vcHeidth - offsetY, vcWidth, vcHeidth); // Set scissor with the same size as the viewport
-    renderer.setScissorTest(true); // Enable scissor to paint only the scissor are (i.e., the small viewport)
-    renderer.setClearColor("rgb(0, 0, 0)"); // Use a darker clear color in the small viewport 
-    renderer.clear(); // Clean the small viewport
-    renderer.render(scene, virtualCamera); // Render scene of the virtual camera
+    if (inspMode) {
+        // Set virtual camera viewport 
+        var offset = 20;
+        var offsetX = width - vcHeidth - offset / 2;
+        var offsetY = 2 * height / 3 - offset;
+        renderer.setViewport(offsetX, height - vcHeidth - offsetY, vcWidth, vcHeidth); // Set virtual camera viewport  
+        renderer.setScissor(offsetX, height - vcHeidth - offsetY, vcWidth, vcHeidth); // Set scissor with the same size as the viewport
+        renderer.setScissorTest(true); // Enable scissor to paint only the scissor are (i.e., the small viewport)
+        renderer.setClearColor("rgb(0, 0, 0)"); // Use a darker clear color in the small viewport 
+        renderer.clear(); // Clean the small viewport
+        renderer.render(scene, virtualCamera); // Render scene of the virtual camera
+    }
 }

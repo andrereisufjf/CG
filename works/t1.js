@@ -45,7 +45,7 @@ var carAux = new THREE.Object3D();
 car.add(carAux);
 carAux.translateY(10);
 var carAuxAxesHelper = new THREE.AxesHelper(12);
-carAuxAxesHelper.visible = false;
+carAuxAxesHelper.visible = true;
 carAux.add(carAuxAxesHelper);
 
 
@@ -56,7 +56,7 @@ window.addEventListener('resize', function() { onWindowResize(camera, renderer) 
 addPlanElements(scene);
 
 //possibilita modo de inspeção
-initMov(modoCamera, getInicialPosition(), camera, scene);
+initMov(modoCamera, getInicialPosition(), camera, scene, camSup, carAux);
 
 
 
@@ -79,12 +79,12 @@ function render() {
     //PARA TESTES
     trackballControls.update();
     definePosition();
-    defineCamPosition(camSup, carAux);
+    defineCamPosition();
     keyboardUpdate();
 
     //teste mini mapa
     requestAnimationFrame(render);
-    controlledRender(renderer, camera, scene);
+    controlledRender(renderer, camera, scene, modoCamera.simulacao);
 
     //renderer.render(scene, camera);
 
