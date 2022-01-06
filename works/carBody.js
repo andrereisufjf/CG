@@ -1,5 +1,5 @@
 import * as THREE from '../build/three.module.js';
-import { createGroundPlane, degreesToRadians } from "../libs/util/util.js";
+import { createGroundPlane, degreesToRadians, radiansToDegrees } from "../libs/util/util.js";
 import { SecondaryBox, initRenderer } from "../libs/util/util.js";
 
 import KeyboardState from '../libs/util/KeyboardState.js';
@@ -18,6 +18,8 @@ var deltaAngle = degreesToRadians(0.4);
 var angleLimit = degreesToRadians(4);
 var scene;
 var camSup, carAux;
+var rotation;
+var variation = 0;
 
 //controle da camera
 var modoCamera;
@@ -62,45 +64,123 @@ var carCg = new THREE.Object3D(); //CG do carro
 var carCgAxesHelper = new THREE.AxesHelper(5);
 carCg.add(carCgAxesHelper);
 carCgAxesHelper.visible = false;
+
 //Fuselagem
+//Base
 var fuselageMaterial = new THREE.MeshPhongMaterial({ color: "grey" });
 fuselageMaterial.side = THREE.DoubleSide; // Show front and back polygons
+
 var fuselageExtrudeSettings = {
     depth: 2.5,
     bevelEnabled: false,
 };
-var fuselageGeometry = new THREE.ExtrudeGeometry(fuselageShape(), fuselageExtrudeSettings);
+
+var fuselageGeometry = new THREE.ExtrudeGeometry(fuselageBaseShape(), fuselageExtrudeSettings);
 fuselageGeometry.rotateZ(degreesToRadians(-90));
 fuselageGeometry.rotateY(degreesToRadians(-90));
+
 var fuselage = new THREE.Mesh(fuselageGeometry, fuselageMaterial);
 fuselage.castShadow = true;
+
+fuselage.translateY(1.5);
+fuselage.translateZ(-1.25);
+
 carCg.add(fuselage);
-//Parabrisas
-var windshieldMaterial = new THREE.MeshLambertMaterial({ color: "black", transparent: true, opacity: 0.8 });
-windshieldMaterial.side = THREE.DoubleSide; // Show front and back polygons
-var windshieldExtrudeSettings = {
+
+//Parte Superior
+
+var fsSupExtrudeSettings = {
+    depth: 0.25,
+    bevelEnabled: false,
+};
+
+//Lado Direito
+var fsSupDMaterial = new THREE.MeshPhongMaterial({ color: "grey" });
+fsSupDMaterial.side = THREE.DoubleSide; // Show front and back polygons
+
+var fsSupDGeometry = new THREE.ExtrudeGeometry(fuselageSupShape(), fsSupExtrudeSettings);
+fsSupDGeometry.rotateZ(degreesToRadians(-90));
+fsSupDGeometry.rotateY(degreesToRadians(-90));
+
+var fsSupD = new THREE.Mesh(fsSupDGeometry, fsSupDMaterial);
+fsSupD.castShadow = true;
+
+fuselage.add(fsSupD);
+
+//Lado Esquerdo
+var fsSupEMaterial = new THREE.MeshPhongMaterial({ color: "grey" });
+fsSupEMaterial.side = THREE.DoubleSide; // Show front and back polygons
+
+var fsSupEGeometry = new THREE.ExtrudeGeometry(fuselageSupShape(), fsSupExtrudeSettings);
+fsSupEGeometry.rotateZ(degreesToRadians(-90));
+fsSupEGeometry.rotateY(degreesToRadians(-90));
+
+var fsSupE = new THREE.Mesh(fsSupEGeometry, fsSupEMaterial);
+fsSupE.castShadow = true;
+
+fsSupE.translateX(-2.25);
+fuselage.add(fsSupE);
+
+//Tampa traseira
+
+var tampaExtrudeSettings = {
     depth: 2.0,
     bevelEnabled: false,
 };
-var windshieldGeometry = new THREE.ExtrudeGeometry(windshieldShape(), windshieldExtrudeSettings);
-windshieldGeometry.rotateZ(degreesToRadians(-90));
-windshieldGeometry.rotateY(degreesToRadians(-90));
-var windshield = new THREE.Mesh(windshieldGeometry, windshieldMaterial);
-windshield.castShadow = true;
-fuselage.add(windshield);
-//Janelas
+
+var tampaMaterial = new THREE.MeshPhongMaterial({ color: "grey" });
+tampaMaterial.side = THREE.DoubleSide; // Show front and back polygons
+
+var tampaGeometry = new THREE.ExtrudeGeometry(tampaShape(), tampaExtrudeSettings);
+tampaGeometry.rotateZ(degreesToRadians(-90));
+tampaGeometry.rotateY(degreesToRadians(-90));
+
+var tampa = new THREE.Mesh(tampaGeometry, tampaMaterial);
+tampa.castShadow = true;
+
+tampa.translateX(-0.25);
+fuselage.add(tampa);
+
+//Vidros
 var windowMaterial = new THREE.MeshLambertMaterial({ color: "black", transparent: true, opacity: 0.8 });
 windowMaterial.side = THREE.DoubleSide; // Show front and back polygons
+
 var windowExtrudeSettings = {
     depth: 2.5,
     bevelEnabled: false,
 };
-var windowGeometry = new THREE.ExtrudeGeometry(windowShape(), windowExtrudeSettings);
+
+var windowGeometry = new THREE.ExtrudeGeometry(vidroShape(), windowExtrudeSettings);
 windowGeometry.rotateZ(degreesToRadians(-90));
 windowGeometry.rotateY(degreesToRadians(-90));
+
 var window = new THREE.Mesh(windowGeometry, windowMaterial);
 window.castShadow = true;
+
 fuselage.add(window);
+
+//parachoque
+
+var parachoqueMaterial = new THREE.MeshPhongMaterial({ color: "black" });
+parachoqueMaterial.side = THREE.DoubleSide; // Show front and back polygons
+
+var parachoqueExtrudeSettings = {
+    depth: 2.65,
+    bevelEnabled: false,
+};
+
+var parachoqueGeometry = new THREE.ExtrudeGeometry(parachoqueShape(), parachoqueExtrudeSettings);
+parachoqueGeometry.rotateX(degreesToRadians(90));
+parachoqueGeometry.rotateZ(degreesToRadians(90));
+
+var parachoque = new THREE.Mesh(parachoqueGeometry, parachoqueMaterial);
+parachoque.castShadow = true;
+
+parachoque.translateX(-2.57);
+parachoque.translateY(0.06);
+parachoque.translateZ(0.02);
+fuselage.add(parachoque);
+
 //Rodas traseiras
 var rightRearWheelGeometry = new THREE.TorusGeometry(0.35, 0.1, 20, 20); //Roda direita do eixo traseiro
 var rightRearWheelMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('black'), });
@@ -168,13 +248,8 @@ export function definePosition() {
     // }
     fuselage.matrixAutoUpdate = false;
     window.matrixAutoUpdate = false;
-
-    windshield.matrixAutoUpdate = false;
-    //airfoil.matrixAutoUpdate = false;
-    //rearAxle.matrixAutoUpdate = false;
     rightRearWheel.matrixAutoUpdate = false;
     leftRearWheel.matrixAutoUpdate = false;
-    //frontAxle.matrixAutoUpdate = false;
     rightFrontWheel.matrixAutoUpdate = false;
     leftFrontWheel.matrixAutoUpdate = false;
     rightRearAxle.matrixAutoUpdate = false;
@@ -189,13 +264,9 @@ export function definePosition() {
 
 
     fuselage.matrix.identity();
-    windshield.matrix.identity();
     window.matrix.identity();
-    //airfoil.matrix.identity();
-    //rearAxle.matrix.identity();
     rightRearWheel.matrix.identity();
     leftRearWheel.matrix.identity();
-    //frontAxle.matrix.identity();
     rightFrontWheel.matrix.identity();
     leftFrontWheel.matrix.identity();
     rightRearAxle.matrix.identity();
@@ -230,33 +301,34 @@ export function definePosition() {
     // Will execute T1 and then R1
     fuselage.matrix.multiply(mat4.makeTranslation(1.25, 0.0, 1.5)); // T1
 
-    // Will execute T1 and then R1
-    windshield.matrix.multiply(mat4.makeTranslation(-0.25, 0.0, 0.0)); // T1
+    rotation = speed * 50
+
     // Will execute T1 and then R1
     rightRearWheel.matrix.multiply(mat4.makeTranslation(1.25, -1.40, 0.45)); // T1
     rightRearWheel.matrix.multiply(mat4.makeRotationX(-Math.PI / 2)); // R1
     rightRearWheel.matrix.multiply(mat4.makeRotationY(-Math.PI / 2)); // R1
-    rightRearWheel.matrix.multiply(mat4.makeRotationZ(-speed * 50)); // R1
+    rightRearWheel.matrix.multiply(mat4.makeRotationZ(rotation)); // R1
+    console.log(speed);
 
     // Will execute T1 and then R1
     leftRearWheel.matrix.multiply(mat4.makeTranslation(-1.25, -1.40, 0.45)); // T1
     leftRearWheel.matrix.multiply(mat4.makeRotationX(-Math.PI / 2)); // R1
     leftRearWheel.matrix.multiply(mat4.makeRotationY(-Math.PI / 2)); // R1
-    leftRearWheel.matrix.multiply(mat4.makeRotationZ(-speed * 50)); // R1
+    leftRearWheel.matrix.multiply(mat4.makeRotationZ(rotation)); // R1
 
     // Will execute T1 and then R1
     rightFrontWheel.matrix.multiply(mat4.makeTranslation(1.25, 1.40, 0.45)); // T1
     rightFrontWheel.matrix.multiply(mat4.makeRotationX(-Math.PI / 2)); // R1
     rightFrontWheel.matrix.multiply(mat4.makeRotationY(-Math.PI / 2)); // R1
     rightFrontWheel.matrix.multiply(mat4.makeRotationY(-angle * 10)); // R1
-    rightFrontWheel.matrix.multiply(mat4.makeRotationZ(-speed * 50)); // R1
+    rightFrontWheel.matrix.multiply(mat4.makeRotationZ(rotation)); // R1
 
     // Will execute T1 and then R1
     leftFrontWheel.matrix.multiply(mat4.makeTranslation(-1.25, 1.40, 0.45)); // T1
     leftFrontWheel.matrix.multiply(mat4.makeRotationX(-Math.PI / 2)); // R1
     leftFrontWheel.matrix.multiply(mat4.makeRotationY(-Math.PI / 2)); // R1
     leftFrontWheel.matrix.multiply(mat4.makeRotationY(-angle * 10)); // R1
-    leftFrontWheel.matrix.multiply(mat4.makeRotationZ(-speed * 50)); // R1
+    leftFrontWheel.matrix.multiply(mat4.makeRotationZ(rotation)); // R1
     // Will execute T1 and then R1
     rightRearAxle.matrix.multiply(mat4.makeTranslation(0, 0, 0)); // T1
     // Will execute T1 and then R1
@@ -564,30 +636,20 @@ export function getTurn() {
 }
 
 //Contorno da fuselagem
-function fuselageShape() {
-    //Contorno da Fuselagem
-    var fuseShape = new THREE.Shape();
-    fuseShape.moveTo(-2.5, 0);
-    fuseShape.lineTo(-1.0, 0.8);
-    fuseShape.lineTo(2.5, 0);
-    fuseShape.lineTo(2.5, -1);
-    fuseShape.lineTo(1.9, -1.0);
-    fuseShape.lineTo(1.8, -0.8);
-    fuseShape.lineTo(1.7, -0.7);
-    fuseShape.lineTo(1.6, -0.6);
-    fuseShape.lineTo(1.3, -0.6);
-    fuseShape.lineTo(1.1, -0.7);
-    fuseShape.lineTo(1.0, -0.8);
-    fuseShape.lineTo(0.9, -1.0);
-    fuseShape.lineTo(-1.0, -1.0);
-    fuseShape.lineTo(-1.1, -0.8);
-    fuseShape.lineTo(-1.2, -0.7);
-    fuseShape.lineTo(-1.3, -0.6);
-    fuseShape.lineTo(-1.6, -0.6);
-    fuseShape.lineTo(-1.8, -0.7);
-    fuseShape.lineTo(-1.9, -0.8);
-    fuseShape.lineTo(-2.0, -1.0);
-    fuseShape.lineTo(-2.5, -1.0);
+function tampaShape() {
+    var tampaShape = new THREE.Shape();
+    tampaShape.moveTo(-1.0, 0.8);
+    tampaShape.lineTo(2.5, 0.0);
+    tampaShape.lineTo(-1.0, 0.72);
+
+    return tampaShape;
+}
+
+function fuselageSupShape() {
+    var fuseSupShape = new THREE.Shape();
+    fuseSupShape.moveTo(-2.5, 0.0);
+    fuseSupShape.lineTo(-1.0, 0.8);
+    fuseSupShape.lineTo(2.5, 0.0);
 
     //Contorno do buraco das janelas
 
@@ -599,23 +661,86 @@ function fuselageShape() {
 
 
 
-    fuseShape.holes.push(windowsPath);
-
-    return fuseShape;
+    fuseSupShape.holes.push(windowsPath);
+    return fuseSupShape;
 }
 
-//Contorno do parabrisa
+function fuselageBaseShape() {
+    //Contorno da Fuselagem
+    var fuseBaseShape = new THREE.Shape();
+    fuseBaseShape.moveTo(-2.5, 0.0);
+    fuseBaseShape.lineTo(2.5, 0);
+    fuseBaseShape.lineTo(2.5, -1);
+    fuseBaseShape.lineTo(1.9, -1.0);
+    fuseBaseShape.lineTo(1.8, -0.8);
+    fuseBaseShape.lineTo(1.7, -0.7);
+    fuseBaseShape.lineTo(1.6, -0.6);
+    fuseBaseShape.lineTo(1.3, -0.6);
+    fuseBaseShape.lineTo(1.1, -0.7);
+    fuseBaseShape.lineTo(1.0, -0.8);
+    fuseBaseShape.lineTo(0.9, -1.0);
+    fuseBaseShape.lineTo(-1.0, -1.0);
+    fuseBaseShape.lineTo(-1.1, -0.8);
+    fuseBaseShape.lineTo(-1.2, -0.7);
+    fuseBaseShape.lineTo(-1.3, -0.6);
+    fuseBaseShape.lineTo(-1.6, -0.6);
+    fuseBaseShape.lineTo(-1.8, -0.7);
+    fuseBaseShape.lineTo(-1.9, -0.8);
+    fuseBaseShape.lineTo(-2.0, -1.0);
+    fuseBaseShape.lineTo(-2.5, -1.0);
+
+    return fuseBaseShape;
+}
+
+function parachoqueShape() {
+    //Contorno da Fuselagem
+    var fuseBaseShape = new THREE.Shape();
+    fuseBaseShape.moveTo(2.6, -0.8);
+    fuseBaseShape.lineTo(2.6, -1);
+    fuseBaseShape.lineTo(1.9, -1.0);
+    fuseBaseShape.lineTo(1.8, -0.8);
+    fuseBaseShape.lineTo(1.7, -0.7);
+    fuseBaseShape.lineTo(1.6, -0.6);
+    fuseBaseShape.lineTo(1.3, -0.6);
+    fuseBaseShape.lineTo(1.1, -0.7);
+    fuseBaseShape.lineTo(1.0, -0.8);
+    fuseBaseShape.lineTo(0.9, -1.0);
+    fuseBaseShape.lineTo(-1.0, -1.0);
+    fuseBaseShape.lineTo(-1.1, -0.8);
+    fuseBaseShape.lineTo(-1.2, -0.7);
+    fuseBaseShape.lineTo(-1.3, -0.6);
+    fuseBaseShape.lineTo(-1.6, -0.6);
+    fuseBaseShape.lineTo(-1.8, -0.7);
+    fuseBaseShape.lineTo(-1.9, -0.8);
+    fuseBaseShape.lineTo(-2.0, -1.0);
+    fuseBaseShape.lineTo(-2.6, -1.0);
+    fuseBaseShape.lineTo(-2.6, -0.8);
+    fuseBaseShape.lineTo(-2.2, -0.8);
+    fuseBaseShape.lineTo(-1.9, -0.4);
+    fuseBaseShape.lineTo(-1.0, -0.4);
+    fuseBaseShape.lineTo(-0.8, -0.8);
+    fuseBaseShape.lineTo(0.7, -0.8);
+    fuseBaseShape.lineTo(1.0, -0.4);
+    fuseBaseShape.lineTo(1.9, -0.4);
+    fuseBaseShape.lineTo(2.1, -0.8);
+
+    return fuseBaseShape;
+}
+
 function windshieldShape() {
     var wsShape = new THREE.Shape();
-    wsShape.moveTo(-2.4, 0.1);
-    wsShape.lineTo(-1.1, 0.8);
-    wsShape.lineTo(-1.0, 0.75);
-    wsShape.lineTo(-2.5, -0.1);
+    wsShape.moveTo(-2.5, 0.0);
+    wsShape.lineTo(-1.0, 0.8);
+    wsShape.lineTo(-1.0, 0.79);
+    wsShape.lineTo(-2.5, -0.01);
+
+    //wsShape.lineTo(-1.0,0.75);
+    //wsShape.lineTo(-2.5,-0.1);
 
     return wsShape;
 }
 
-function windowShape() {
+function vidroShape() {
     var fuseShape = new THREE.Shape();
     fuseShape.moveTo(-2.4, 0.0)
     fuseShape.lineTo(-1.0, 0.72);
