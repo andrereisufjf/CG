@@ -24,6 +24,7 @@ var list = {
 				"Shadow Update":"html/shadowUpdateInfo",				
 			},			
 			"Geometries":  {
+				"Manual Creation": "html/geometriesManualInfo",				
 				"Basic": "html/geometriesBasicInfo",
 				"Lathe": "html/geometriesLatheInfo",
 				"Extrusion": "html/geometriesExtrusionInfo",
@@ -66,7 +67,7 @@ var list = {
 				"First Person": "html/exampleFirstPersonInfo",
 				"Drag Control": "html/exampleDragControlInfo",
 				"Fly Controls":"html/exampleFlyControlInfo",		
-				"Virtual Joystick":"html/exampleJoystickInfo",						
+				"Joystick Elements":"html/exampleJoystickInfo",						
 				"Audio": "html/exampleAudioInfo",
 			},
 		},
