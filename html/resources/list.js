@@ -13,18 +13,24 @@ var list = {
 				"Basic": "html/animationInfo",
 				"Using External Objects": "html/animationExternalObjectsInfo",
 			},
-			"Geometries":  {
-				"Basic": "html/geometriesBasicInfo",
-				"Lathe": "html/geometriesLatheInfo",
-				"Extrusion": "html/geometriesExtrusionInfo",
-				"Convex": "html/geometriesConvexInfo",
-				"Loading External Files": "html/geometriesExternalObjectsInfo",
-			},
 			"Lighting":  {
 				"Types of lights": "html/lightingTypesInfo",
 				"Types of materials": "html/lightingMaterialsInfo",
 				"Spotlight in Details": "html/lightingSpotlightDetailsInfo",				
 			},
+			"Shadows":  {
+				"Shadow Map Types":"html/shadowMapTypesInfo",			
+				"Shadow Map Viewer":"html/shadowMapViewerInfo",
+				"Shadow Update":"html/shadowUpdateInfo",				
+			},			
+			"Geometries":  {
+				"Manual Creation": "html/geometriesManualInfo",				
+				"Basic": "html/geometriesBasicInfo",
+				"Lathe": "html/geometriesLatheInfo",
+				"Extrusion": "html/geometriesExtrusionInfo",
+				"Convex": "html/geometriesConvexInfo",
+				"Loading External Files": "html/geometriesExternalObjectsInfo",
+			},			
 			"Textures":  {
 				"Basic": "html/textureBasicInfo",
 				"Main Options": "html/textureOptionsInfo",
@@ -52,16 +58,17 @@ var list = {
 			},
 		},
 		"Additional Examples":{
+			"Physics":  {
+				"Ammo - Vehicle": "html/ammoVehicleInfo",
+				"Ammo - Breakable Objects": "html/ammoBreakableObjectsInfo",
+			},
 			"Misc":  {
 				"Group Geometry": "html/exampleGroupInfo",
 				"First Person": "html/exampleFirstPersonInfo",
 				"Drag Control": "html/exampleDragControlInfo",
-				"Fly Controls":"html/exampleFlyControlInfo",
-				"Shadow Update":"html/exampleShadowUpdateInfo",
-				"Shadow Map Viewer":"html/exampleShadowMapViewerInfo",
-				"Shadow Map Types":"html/exampleShadowMapTypesInfo",			
+				"Fly Controls":"html/exampleFlyControlInfo",		
+				"Joystick Elements":"html/exampleJoystickInfo",						
 				"Audio": "html/exampleAudioInfo",
-
 			},
 		},
 	},
