@@ -1,9 +1,12 @@
 import * as THREE from '../build/three.module.js';
 import { createGroundPlane, degreesToRadians, radiansToDegrees } from "../libs/util/util.js";
-import { SecondaryBox, initRenderer } from "../libs/util/util.js";
+import { SecondaryBox, initRenderer, createLightSphere } from "../libs/util/util.js";
 import KeyboardState from '../libs/util/KeyboardState.js';
 import { changeLane, changeVisible, isOnLane, atualizarQuadrante, getInicialPosition } from "./plano.js"
 
+import { GUI } from '../build/jsm/libs/dat.gui.module.js';
+
+import { TeapotGeometry } from '../build/jsm/geometries/TeapotGeometry.js';
 
 // To use the keyboard
 var keyboard = new KeyboardState();
@@ -212,7 +215,16 @@ var leftFrontAxleGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.5, 8); //Ra
 var leftFrontAxleMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('grey'), });
 var leftFrontAxle = new THREE.Mesh(leftFrontAxleGeometry, leftFrontAxleMaterial);
 leftFrontWheel.add(leftFrontAxle);
+carCg.castShadow = true;
 const car = carCg;
+
+// // Teapot
+// var geometry = new TeapotGeometry(0.5);
+// var material = new THREE.MeshPhongMaterial({ color: "rgb(255,20,20)", shininess: "200" });
+// material.side = THREE.DoubleSide;
+// var obj = new THREE.Mesh(geometry, material);
+// obj.castShadow = true;
+// obj.position.set(10, 5, 0);
 
 export function createCarBody() {
     return carCg;
@@ -228,6 +240,8 @@ export function initMov(modoCameraAux, inicialPosition, cameraAux, sceneAux, cam
     scene = sceneAux;
     camSup = camSupAux;
     carAux = carAuxParameter;
+    //lightSphere = createLightSphere(scene, 0.5, 10, 10, lightPosition);
+    initLights();
 }
 
 
@@ -315,6 +329,7 @@ export function definePosition() {
     rightFrontAxle.matrix.multiply(mat4.makeTranslation(0, 0, 0)); // T1
     // Will execute T1 and then R1
     leftFrontAxle.matrix.multiply(mat4.makeTranslation(0, 0, 0)); // T1
+
 }
 
 //Configuração do teclado
@@ -323,50 +338,53 @@ export function keyboardUpdate() {
     keyboard.update();
 
 
-    if (modoCamera.simulacao && playing) { // CONTROLE JOGO 
+    if (modoCamera.simulacao) { // CONTROLE JOGO 
 
-        atualizarQuadrante(car.position.x, car.position.y);
+        if (playing) {
+            atualizarQuadrante(car.position.x, car.position.y);
 
-        if (keyboard.pressed("X")) speed = Math.min(speed + 2 * deltaSpeed, speedLimit);
-        if (keyboard.pressed("down")) speed = Math.max(speed - 2 * deltaSpeed, -speedLimit);
-        if (keyboard.pressed("left")) angle = Math.min(angle + deltaAngle, angleLimit);
-        if (keyboard.pressed("right")) angle = Math.max(angle - deltaAngle, -angleLimit);
+            if (keyboard.pressed("X")) speed = Math.min(speed + 2 * deltaSpeed, speedLimit);
+            if (keyboard.pressed("down")) speed = Math.max(speed - 2 * deltaSpeed, -speedLimit);
+            if (keyboard.pressed("left")) angle = Math.min(angle + deltaAngle, angleLimit);
+            if (keyboard.pressed("right")) angle = Math.max(angle - deltaAngle, -angleLimit);
 
-        if (!keyboard.pressed("X") && !keyboard.pressed("down")) {
-            if (speed > 0) {
-                speed = Math.max(speed - deltaSpeed, 0);
-            } else if (speed < 0) {
-                speed = Math.min(speed + deltaSpeed, 0);
+            if (!keyboard.pressed("X") && !keyboard.pressed("down")) {
+                if (speed > 0) {
+                    speed = Math.max(speed - deltaSpeed, 0);
+                } else if (speed < 0) {
+                    speed = Math.min(speed + deltaSpeed, 0);
+                }
             }
-        }
 
-        if (!keyboard.pressed("left") && !keyboard.pressed("right")) {
-            if (angle > 0) {
-                angle = Math.max(angle - deltaAngle, 0);
-            } else if (angle < 0) {
-                angle = Math.min(angle + deltaAngle, 0);
+            if (!keyboard.pressed("left") && !keyboard.pressed("right")) {
+                if (angle > 0) {
+                    angle = Math.max(angle - deltaAngle, 0);
+                } else if (angle < 0) {
+                    angle = Math.min(angle + deltaAngle, 0);
+                }
             }
+
+            if (keyboard.down("1")) {
+                changeLane(1, scene);
+                carInicialParameters();
+            } else if (keyboard.down("2")) {
+                changeLane(2, scene);
+                carInicialParameters();
+            } else if (keyboard.down("3")) {
+                changeLane(3, scene);
+                carInicialParameters();
+            } else if (keyboard.down("4")) {
+                changeLane(4, scene);
+                carInicialParameters();
+            } else if (keyboard.down("5")) { // TESTAR AUMENTAR AS VOLTAS
+                updateTurn();
+            }
+
+            //atualiza a velocidade
+            speedometer.changeText("Velocidade: " + (20 * speed).toFixed(1) + "m/s");
+        } else {
+            speed = 0;
         }
-
-        if (keyboard.down("1")) {
-            changeLane(1, scene);
-            carInicialParameters();
-        } else if (keyboard.down("2")) {
-            changeLane(2, scene);
-            carInicialParameters();
-        } else if (keyboard.down("3")) {
-            changeLane(3, scene);
-            carInicialParameters();
-        } else if (keyboard.down("4")) {
-            changeLane(4, scene);
-            carInicialParameters();
-        } else if (keyboard.down("5")) { // TESTAR AUMENTAR AS VOLTAS
-            updateTurn();
-        }
-
-        //atualiza a velocidade
-        speedometer.changeText("Velocidade: " + (20 * speed).toFixed(1) + "m/s");
-
     } else { // CONTROLE NO MODO DE SIMULAÇÃO
         //xspeed = 0.0;
         if (keyboard.pressed("X")) speed = Math.min(speed + 2 * deltaSpeed, speedLimit);
@@ -414,6 +432,34 @@ export function keyboardUpdate() {
         }
     }
 
+
+    // //TESTE LUZ
+    // if (keyboard.pressed("D")) {
+    //     lightPosition.x += 0.05;
+    //     updateLightPosition(lightPosition);
+    // }
+    // if (keyboard.pressed("A")) {
+    //     lightPosition.x -= 0.05;
+    //     updateLightPosition(lightPosition);
+    // }
+    // if (keyboard.pressed("W")) {
+    //     lightPosition.y += 0.05;
+    //     updateLightPosition(lightPosition);
+    // }
+    // if (keyboard.pressed("S")) {
+    //     lightPosition.y -= 0.05;
+    //     updateLightPosition(lightPosition);
+    // }
+    // if (keyboard.pressed("E")) {
+    //     lightPosition.z -= 0.05;
+    //     updateLightPosition(lightPosition);
+    // }
+    // if (keyboard.pressed("Q")) {
+    //     lightPosition.z += 0.05;
+    //     updateLightPosition(lightPosition);
+    // }
+
+
 }
 
 //seta a pposição da camera baseado no quadrante atual
@@ -442,9 +488,18 @@ export function defineCamPosition() {
         var cwd = new THREE.Vector3();
         carAux.getWorldPosition(cwd);
         camSup.position.set(cwd.x + 30, cwd.y - 30, cwd.z + 30);
+        //TESTE LUZ
+        let lightPositionaAux = new THREE.Vector3(cwd.x + 10, cwd.y - 4, cwd.z + 6.5);
+        updateLightPosition(lightPositionaAux);
+        //updateLightPosition(lightPosition);
+        //console.log(lightPosition)
+        //console.log(cwd);
     } else {
         camera.matrixAutoUpdate = true;
+        //TESTE LUZ
+        updateLightPosition(camera.position);
     }
+
 
 
 }
@@ -469,6 +524,11 @@ function saveParameters() {
     modoInsp.angle = angle;
     angle = 0;
     camSup.position.copy(modoInsp.cameraAuxPosition);
+
+    lightArray[activeLight].visible = false;
+    activeLight = 0; // SPOT
+    lightArray[activeLight].visible = true;
+    ambientLight.visible = false; //desativa a luz ambiente
 }
 
 //restaura os parametros ao sair do modo de insperação
@@ -484,6 +544,10 @@ function restoreParameters() {
     speed = modoInsp.vel;
     angle = modoInsp.angle;
 
+    lightArray[activeLight].visible = false;
+    activeLight = 1; // DIRECIONAL
+    lightArray[activeLight].visible = true;
+    ambientLight.visible = true; // ativa a luz ambiente
 }
 
 
@@ -590,6 +654,7 @@ export function updateTurn() {
         clearInterval(timer);
         secondBox.changeMessage("FIM DE JOGO! Tempo total: " + time.stringifyTime());
         playing = false;
+        speed = 0;
     }
 
 }
@@ -705,3 +770,149 @@ function vidroShape() {
 
     return fuseShape;
 }
+
+
+
+// TESTE ILUMINAÇÃO
+
+//NORMAL - DIRECIONAL
+// INSP - spotlight
+
+// Control available light and set the active light
+var lightArray = new Array();
+var activeLight = 1; // View first Light
+var lightIntensity = 1.0;
+
+//---------------------------------------------------------
+// Default light position, color, ambient color and intensity
+var lightPosition = new THREE.Vector3(45, 5, 0);
+var lightColor = "rgb(255,255,255)";
+var ambientColor = "rgb(50,50,50)";
+
+// Sphere to represent the light
+var lightSphere; // = createLightSphere(scene, 0.05, 10, 10, lightPosition);
+
+//---------------------------------------------------------
+// Create and set all lights. Only Spot and ambient will be visible at first
+var spotLight = new THREE.SpotLight(lightColor, 1.1);
+
+
+// var pointLight = new THREE.PointLight(lightColor);
+// setPointLight(lightPosition);
+
+var dirLight = new THREE.DirectionalLight(lightColor, 0.15);
+
+
+//CRIAÇÃO DA LUZ AMBIENTE
+// More info here: https://threejs.org/docs/#api/en/lights/AmbientLight
+var ambientLight = new THREE.AmbientLight(ambientColor, 0.55);
+
+
+function initLights() {
+    setSpotLight(lightPosition);
+    setDirectionalLighting(lightPosition);
+    scene.add(ambientLight);
+    lightArray[activeLight].visible = true;
+
+    //TESTE SOMBRA
+    //buildInterface();
+    //scene.add(obj);
+}
+
+// Set Spotlight
+// More info here: https://threejs.org/docs/#api/en/lights/SpotLight
+function setSpotLight(position) {
+    spotLight.position.copy(position);
+    spotLight.shadow.mapSize.width = 512;
+    spotLight.shadow.mapSize.height = 512;
+    spotLight.angle = degreesToRadians(40);
+    spotLight.castShadow = true;
+    spotLight.decay = 2;
+    spotLight.penumbra = 0.5;
+    spotLight.name = "Spot Light"
+    spotLight.visible = false;
+
+    scene.add(spotLight);
+    lightArray.push(spotLight);
+}
+
+// Set Directional Light
+// More info here: https://threejs.org/docs/#api/en/lights/DirectionalLight
+function setDirectionalLighting(position) {
+    dirLight.position.copy(position);
+    dirLight.shadow.mapSize.width = 512;
+    dirLight.shadow.mapSize.height = 512;
+    dirLight.castShadow = true;
+
+    dirLight.shadow.camera.near = 1;
+    dirLight.shadow.camera.far = 50;
+    dirLight.shadow.camera.left = -5;
+    dirLight.shadow.camera.right = 5;
+    dirLight.shadow.camera.top = 5;
+    dirLight.shadow.camera.bottom = -5;
+    dirLight.name = "Direction Light";
+    dirLight.visible = false;
+
+    scene.add(dirLight);
+    lightArray.push(dirLight);
+}
+
+// Update light position of the current light
+function updateLightPosition(position) {
+    lightArray[activeLight].target = carCg;
+    lightArray[activeLight].position.copy(position);
+
+    //lightSphere.position.copy(position);
+    //console.log(activeLight, lightArray[activeLight].position, lightSphere.position)
+}
+
+
+//TESTE PARAMETROS
+
+// Update light intensity of the current light
+// function updateLightIntensity() {
+//     lightArray[activeLight].intensity = lightIntensity;
+// }
+
+// function buildInterface() {
+//     //------------------------------------------------------------
+//     // Interface
+//     var controls = new function() {
+//         this.lightIntensity = lightIntensity;
+//         this.lightType = 'Spot'
+//         this.ambientLight = true;
+
+//         this.onEnableAmbientLight = function() {
+//             ambientLight.visible = this.ambientLight;
+//         };
+//         this.onUpdateLightIntensity = function() {
+//             lightIntensity = this.lightIntensity;
+//             updateLightIntensity();
+//         };
+//         this.onChangeLight = function() {
+//             lightArray[activeLight].visible = false;
+//             switch (this.lightType) {
+//                 case 'Spot':
+//                     activeLight = 0;
+//                     break;
+//                 case 'Direction':
+//                     activeLight = 1;
+//                     break;
+//             }
+//             lightArray[activeLight].visible = true;
+//             //updateLightPosition();
+//             updateLightIntensity();
+//         };
+//     };
+
+//     var gui = new GUI();
+//     gui.add(controls, 'lightType', ['Spot', 'Direction'])
+//         .name("Light Type")
+//         .onChange(function(e) { controls.onChangeLight(); });
+//     gui.add(controls, 'lightIntensity', 0, 5)
+//         .name("Light Intensity")
+//         .onChange(function(e) { controls.onUpdateLightIntensity() });
+//     gui.add(controls, 'ambientLight', true)
+//         .name("Ambient Light")
+//         .onChange(function(e) { controls.onEnableAmbientLight() });
+// }

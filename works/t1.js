@@ -13,6 +13,7 @@ import { addPlanElements, getInicialPosition, lado, controlledRender, addHelper 
 var stats = new Stats(); // To show FPS information
 var scene = new THREE.Scene(); // Create main scene
 var renderer = initRenderer(); // View function in util/utils
+renderer.shadowMap.enabled = true;
 
 var camera = initCamera(new THREE.Vector3(0, 0, lado / 3)); // Init camera in this position
 initDefaultBasicLight(scene, true);
@@ -33,7 +34,7 @@ car.name = 'car';
 var camSup = new THREE.Object3D();
 scene.add(camSup);
 var camSupAxesHelper = new THREE.AxesHelper(12);
-camSupAxesHelper.visible = true;
+camSupAxesHelper.visible = false;
 camSup.add(camSupAxesHelper);
 camSup.add(camera);
 scene.add(car);
@@ -41,7 +42,7 @@ var carAux = new THREE.Object3D();
 car.add(carAux);
 carAux.translateY(10);
 var carAuxAxesHelper = new THREE.AxesHelper(12);
-carAuxAxesHelper.visible = true;
+carAuxAxesHelper.visible = false;
 carAux.add(carAuxAxesHelper);
 
 

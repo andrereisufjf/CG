@@ -16,6 +16,7 @@ let actualLane = 1; //pista selecionado
 
 // create the ground plane
 var plane = createPlane();
+plane.receiveShadow = true;
 var axesHelper = new THREE.AxesHelper(12);
 
 // To use the keyboard
@@ -29,23 +30,32 @@ class Blocks {
     constructor(x = 0, y = 0, z, tamBloco, isInicial = false, visibility = true) {
         let color = isInicial ? { color: "rgba(255, 69, 0)" } : { color: "rgba(128, 128, 128)" };
         var cubeGeometry = new THREE.BoxGeometry(tamBloco, tamBloco, 0.3);
-        var cubeMaterial = new THREE.MeshBasicMaterial(color);
+        var cubeMaterial = new THREE.MeshLambertMaterial(color);
         var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
         cube.position.set(x, y, z);
         cube.visible = visibility;
+        cube.receiveShadow = true;
         return cube;
     }
 }
 
 //Cria o plano inferior
 function createPlane() {
-    var planeGeometry = new THREE.PlaneGeometry(lado * 2.1, lado * 2.1);
+    // var planeGeometry = new THREE.PlaneGeometry(lado * 2.1, lado * 2.1);
+    // planeGeometry.translate(45, 45, -2); // To avoid conflict with the axeshelper
+    // var planeMaterial = new THREE.MeshBasicMaterial({
+    //     color: "rgba(255, 160, 122)",
+    //     side: THREE.DoubleSide,
+    // });
+    // return new THREE.Mesh(planeGeometry, planeMaterial);
+
+    var planeGeometry = new THREE.PlaneGeometry(lado * 2.1, lado * 2.1, 10, 10);
     planeGeometry.translate(45, 45, -2); // To avoid conflict with the axeshelper
-    var planeMaterial = new THREE.MeshBasicMaterial({
-        color: "rgba(255, 160, 122)",
-        side: THREE.DoubleSide,
-    });
-    return new THREE.Mesh(planeGeometry, planeMaterial);
+    var planeMaterial = new THREE.MeshLambertMaterial({ color: "rgba(255, 160, 122)", side: THREE.DoubleSide });
+    var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+    plane.receiveShadow = true;
+
+    return plane;
 
 }
 
@@ -252,7 +262,9 @@ export function controlledRender(renderer, camera, scene, inspMode) {
     //Set main viewport
     renderer.setViewport(0, 0, width, height); // Reset viewport    
     renderer.setScissorTest(false); // Disable scissor to paint the entire window
-    renderer.setClearColor("rgb(80, 70, 170)");
+    //renderer.setClearColor("rgb(80, 70, 170)");
+    // deixar fundo preto no modo de insp para melhorar visualização
+    inspMode ? renderer.setClearColor("rgb(80, 70, 170)") : renderer.setClearColor("rgb(0,0,0)");
     renderer.clear(); // Clean the window
     renderer.render(scene, camera);
 
