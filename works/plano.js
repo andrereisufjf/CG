@@ -273,8 +273,11 @@ export function controlledRender(renderer, camera, scene, inspMode) {
         var offset = 20;
         var offsetX = width - vcHeidth - offset / 2;
         var offsetY = 2 * height / 3 - offset;
-        renderer.setViewport(offsetX, height - vcHeidth - offsetY, vcWidth, vcHeidth); // Set virtual camera viewport  
-        renderer.setScissor(offsetX, height - vcHeidth - offsetY, vcWidth, vcHeidth); // Set scissor with the same size as the viewport
+        // renderer.setViewport(offsetX, height - vcHeidth - offsetY, vcWidth, vcHeidth); // Set virtual camera viewport  
+        // renderer.setScissor(offsetX, height - vcHeidth - offsetY, vcWidth, vcHeidth); // Set scissor with the same size as the viewport
+        renderer.setViewport(offset, height - vcHeidth - offset, vcWidth, vcHeidth); // Set virtual camera viewport  
+        renderer.setScissor(offset, height - vcHeidth - offset, vcWidth, vcHeidth); // Set scissor with the same size as the viewport
+
         renderer.setScissorTest(true); // Enable scissor to paint only the scissor are (i.e., the small viewport)
         renderer.setClearColor("rgb(0, 0, 0)"); // Use a darker clear color in the small viewport 
         renderer.clear(); // Clean the small viewport
