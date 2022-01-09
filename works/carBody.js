@@ -1,7 +1,6 @@
 import * as THREE from '../build/three.module.js';
 import { createGroundPlane, degreesToRadians, radiansToDegrees } from "../libs/util/util.js";
 import { SecondaryBox, initRenderer } from "../libs/util/util.js";
-
 import KeyboardState from '../libs/util/KeyboardState.js';
 import { changeLane, changeVisible, isOnLane, atualizarQuadrante, getInicialPosition } from "./plano.js"
 
@@ -160,7 +159,6 @@ window.castShadow = true;
 fuselage.add(window);
 
 //parachoque
-
 var parachoqueMaterial = new THREE.MeshPhongMaterial({ color: "black" });
 parachoqueMaterial.side = THREE.DoubleSide; // Show front and back polygons
 
@@ -226,11 +224,7 @@ export function initMov(modoCameraAux, inicialPosition, cameraAux, sceneAux, cam
     carCg.position.copy(inicialPosition);
     carCg.position.z = 0;
     carCg.rotateZ(degreesToRadians(90));
-    //camera.rotateZ(degreesToRadians(90));
     timer = setInterval(updateTime, 1000);
-    // carCg.add(cameraAux); //AQUI
-    //timer = setInterval(updateTime, 1000);
-    //fuselage.add(cameraAux);
     scene = sceneAux;
     camSup = camSupAux;
     carAux = carAuxParameter;
@@ -240,12 +234,6 @@ export function initMov(modoCameraAux, inicialPosition, cameraAux, sceneAux, cam
 //Update das posições
 export function definePosition() {
 
-    // if (modoCamera.simulacao) {
-    //     //TESTES
-    //     camera.matrixAutoUpdate = false;
-    // } else {
-    //     camera.matrixAutoUpdate = true;
-    // }
     fuselage.matrixAutoUpdate = false;
     window.matrixAutoUpdate = false;
     rightRearWheel.matrixAutoUpdate = false;
@@ -257,11 +245,7 @@ export function definePosition() {
     rightFrontAxle.matrixAutoUpdate = false;
     leftFrontAxle.matrixAutoUpdate = false;
 
-
-
-
     var mat4 = new THREE.Matrix4();
-
 
     fuselage.matrix.identity();
     window.matrix.identity();
@@ -273,9 +257,6 @@ export function definePosition() {
     leftRearAxle.matrix.identity();
     rightFrontAxle.matrix.identity();
     leftFrontAxle.matrix.identity();
-    //camera.matrix.identity();
-
-    // fuselage.translateY(speed);
 
     if (modoCamera.simulacao && playing) {
         carCg.translateY(speed);
@@ -296,11 +277,8 @@ export function definePosition() {
         speedLimit = speedLimitConst;
     }
 
-
-
     // Will execute T1 and then R1
     fuselage.matrix.multiply(mat4.makeTranslation(1.25, 0.0, 1.5)); // T1
-
     rotation = speed * 50
 
     // Will execute T1 and then R1
@@ -308,7 +286,7 @@ export function definePosition() {
     rightRearWheel.matrix.multiply(mat4.makeRotationX(-Math.PI / 2)); // R1
     rightRearWheel.matrix.multiply(mat4.makeRotationY(-Math.PI / 2)); // R1
     rightRearWheel.matrix.multiply(mat4.makeRotationZ(rotation)); // R1
-    console.log(speed);
+    //console.log(speed);
 
     // Will execute T1 and then R1
     leftRearWheel.matrix.multiply(mat4.makeTranslation(-1.25, -1.40, 0.45)); // T1
@@ -388,7 +366,6 @@ export function keyboardUpdate() {
 
         //atualiza a velocidade
         speedometer.changeText("Velocidade: " + (20 * speed).toFixed(1) + "m/s");
-        //cameraMovement();
 
     } else { // CONTROLE NO MODO DE SIMULAÇÃO
         //xspeed = 0.0;
@@ -462,7 +439,6 @@ export function defineCamPosition() {
             camera.matrix.multiply(mat4Cam.makeRotationZ(degreesToRadians(50))); // R1
             camera.matrix.multiply(mat4Cam.makeRotationX(degreesToRadians(50))); // R1
         }
-        //camSup.position.set(carCg.position.x + 30,carCg.position.y - 30,carCg.position.z + 30);
         var cwd = new THREE.Vector3();
         carAux.getWorldPosition(cwd);
         camSup.position.set(cwd.x + 30, cwd.y - 30, cwd.z + 30);
@@ -492,19 +468,14 @@ function saveParameters() {
     speed = 0;
     modoInsp.angle = angle;
     angle = 0;
-
-    //teste camera
     camSup.position.copy(modoInsp.cameraAuxPosition);
 }
 
 //restaura os parametros ao sair do modo de insperação
 function restoreParameters() {
-    //teste camera
     modoInsp.posicaoCam.copy(camera.position);
     modoInsp.rotationCam.copy(camera.rotation);
     modoInsp.cameraUp.copy(camera.up);
-
-    //old
     car.position.copy(modoInsp.posicaoAnterior);
     camera.position.copy(modoInsp.posicaoAntCam);
     camera.up.copy(modoInsp.cameraUpAnt);
@@ -513,13 +484,10 @@ function restoreParameters() {
     speed = modoInsp.vel;
     angle = modoInsp.angle;
 
-
-    //modoInsp.cameraAuxPosition.copy(camSup.position);
 }
 
 
 // CONTROLE DE TEMPO E VELOCIDADE
-
 class InfoBox {
     constructor() {
         this.infoBox = document.createElement('div');
@@ -553,7 +521,6 @@ class InfoBox {
 var speedometer = new InfoBox();
 speedometer.add("Velocidade: " + speed + "m/s");
 speedometer.show();
-//speedometer.changeText("Ok");
 
 var time = {
     minute: 0,
@@ -582,7 +549,6 @@ var time = {
 
     stringify: function() { // retorna as métricas gerais (durante o jogo)
         return "Tempo Total: " + padL(this.minute) + ":" + padL(this.second) + " || " + "Volta Atual: " + padL(this.minuteActual) + ":" + padL(this.secondActual) + " || Melhor Volta: " + this.best + " || Voltas: " + turns;
-        //return padL(this.minute) + ":" + padL(this.second);
     },
 
     updateTurn: function() { // atualiza as variáveis de voltas
@@ -590,7 +556,6 @@ var time = {
         let actual = padL(this.minuteActual) + ":" + padL(this.secondActual);
         if ((actual) < this.best)
             this.best = actual;
-        //console.log(actual < this.best);
         this.secondActual = 0;
         this.minuteActual = 0;
     },
@@ -604,7 +569,6 @@ var time = {
     }
 }
 
-
 //gera o 0 a esquerda, se necessário, por padrão retorna tamanho 2 completado com 0
 function padL(a, b = 2, c = '0') { //string/number, length, char
     return (new Array(b).join(c) + a).slice(-b)
@@ -613,10 +577,8 @@ function padL(a, b = 2, c = '0') { //string/number, length, char
 
 function updateTime() {
     time.updateTime();
-    //time++;
     timeActualTurn++;
     secondBox.changeMessage(time.stringify());
-    //secondBox.changeMessage("Volta Atual: " + timeActualTurn + "s || " + "Tempo: " + time + "s || Voltas: " + turns);
 }
 
 export function updateTurn() {
@@ -629,6 +591,7 @@ export function updateTurn() {
         secondBox.changeMessage("FIM DE JOGO! Tempo total: " + time.stringifyTime());
         playing = false;
     }
+
 }
 
 export function getTurn() {
@@ -652,15 +615,11 @@ function fuselageSupShape() {
     fuseSupShape.lineTo(2.5, 0.0);
 
     //Contorno do buraco das janelas
-
     let windowsPath = new THREE.Path();
     windowsPath.moveTo(-2.4, 0.0);
     windowsPath.lineTo(-1.0, 0.72);
     windowsPath.lineTo(1.5, 0.2);
     windowsPath.lineTo(1.5, 0.0);
-
-
-
     fuseSupShape.holes.push(windowsPath);
     return fuseSupShape;
 }
@@ -733,9 +692,6 @@ function windshieldShape() {
     wsShape.lineTo(-1.0, 0.8);
     wsShape.lineTo(-1.0, 0.79);
     wsShape.lineTo(-2.5, -0.01);
-
-    //wsShape.lineTo(-1.0,0.75);
-    //wsShape.lineTo(-2.5,-0.1);
 
     return wsShape;
 }

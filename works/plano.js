@@ -24,11 +24,6 @@ var axesHelper = new THREE.AxesHelper(12);
 //blocos da pista
 let blocks = [];
 
-//controle de voltas
-//let squares = [];
-let beginIndex = 0;
-let indexAtual = 0;
-
 //Classe dos blocos da corrida
 class Blocks {
     constructor(x = 0, y = 0, z, tamBloco, isInicial = false, visibility = true) {
@@ -37,7 +32,6 @@ class Blocks {
         var cubeMaterial = new THREE.MeshBasicMaterial(color);
         var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
         cube.position.set(x, y, z);
-        // scene.add(cube);
         cube.visible = visibility;
         return cube;
     }
@@ -57,31 +51,6 @@ function createPlane() {
 
 function createBlocks() {
     createTrack(1);
-    // for (let i = -lado; i < lado; i = i + tam) {
-    //     if (i === -tam / 2) {
-    //         beginIndex = indexAtual - 1;
-    //         blocks.push(new Blocks(i + tam / 2, -lado + tam / 2, z, tamReal, true));
-    //     } else {
-    //         blocks.push(new Blocks(i + tam / 2, -lado + tam / 2, z, tamReal, false));
-    //     }
-    //     indexAtual += 1;
-    // }
-
-    // for (let i = -lado + tam; i < lado; i = i + tam) {
-    //     indexAtual += 1;
-    //     blocks.push(new Blocks(lado - tam / 2, i + tam / 2, z, tamReal, false));
-    // }
-
-    // for (let i = lado - tam; i > -lado; i = i - tam) {
-    //     indexAtual += 1;
-    //     blocks.push(new Blocks(i - tam / 2, lado - tam / 2, z, tamReal, false));
-    // }
-
-    // for (let i = lado - tam; i > -lado + tam; i = i - tam) {
-    //     indexAtual += 1;
-    //     blocks.push(new Blocks(-lado + tam / 2, i - tam / 2, z, tamReal, false));
-    // }
-    // indexAtual = beginIndex;
 
 }
 
@@ -102,40 +71,27 @@ export function atualizarQuadrante(x, y) {
     x = parseInt(x / 10);
     y = parseInt(y / 10);
 
-    if (x > 8) return;
+    if (x > 8 || x < 0) return;
     // // vamos achar a posição na matriz, se existir
     let onLand = tracks[actualLane][x][y] || 0;
-    // //[x][y];
-    // //console.log(pista, x, y);
-    // return onLand == 0 ? false : true;
     if (onLand != 0) {
         let index = x * (tam - 1) + y;
         //console.log(index);
         if (index != 45) { // bloco não inicial
-            changeColor(blocks[index]);
+            changeColor(blocks[index], x, y);
         } else if (index == 45) { // bloco inicial
-            //validar se houve uma volta e 
-            //updateTurn();
+            //console.log("inicial");
+            if (count >= tracksMinCount[actualLane]) {
+                //validar se houve uma volta e 
+                updateTurn();
+                //reinicia as variáveis de controle
+                tracksCounter = JSON.parse(JSON.stringify(tracks[actualLane]));
+                count = 0;
+            }
         }
     }
     return;
 
-    // if (x <= ((blocks[indexAtual].position.x) + tamReal / 2) && x >= ((blocks[indexAtual].position.x) - tamReal / 2) && y <= ((blocks[indexAtual].position.y) + tamReal / 2) && y >= ((blocks[indexAtual].position.y) - tamReal / 2)) {
-    //     if (indexAtual !== inicialArrayPosition) {
-
-    //         changeColor(blocks[indexAtual]);
-    //     }
-
-    //     if (indexAtual == 0) {
-    //         indexAtual = blocks.length - 1;
-    //     } else {
-    //         indexAtual = (indexAtual - 1);
-
-    //     }
-    //     if (indexAtual === beginIndex) {
-
-    //     }
-    // }
 }
 
 
@@ -187,6 +143,18 @@ var tracks = {
 
 }
 
+var tracksCounter = JSON.parse(JSON.stringify(tracks[1]));
+var count = 0;
+
+var tracksMinCount = {
+    1: 31,
+    2: 31,
+    3: 31,
+    4: 29
+}
+
+
+
 function createTrack(key) {
     let pista = tracks[key];
     for (let i = 0; i < tamMatriz; i++) {
@@ -214,53 +182,9 @@ export function changeLane(key, scene) {
     blocks.forEach(block => scene.add(block));
     actualLane = key;
 
-    // if (key === 2 && actualLane === 1) {
-    //     let start = Math.round(quant + quant / 2) + 1;
-    //     let end = Math.round(2 * quant + quant / 2);
-    //     let fator = Math.round((end - start) / 2);
+    tracksCounter = JSON.parse(JSON.stringify(tracks[actualLane]));
+    count = 0;
 
-    //     for (let i = start; i < end; i++) {
-    //         let x, y;
-    //         x = blocks[i].position.x;
-    //         y = blocks[i].position.y;
-
-    //         if (x === y) {
-    //             fator = 0;
-    //             blocks[i].position.set(tam * fator, tam * fator, z);
-    //         } else if (x > y) {
-    //             fator--;
-    //             blocks[i].position.set(tam * fator, 0, z);
-    //         } else {
-    //             fator++;
-    //             blocks[i].position.set(0, tam * fator, z);
-    //         }
-    //     }
-    //     actualLane = 2;
-    // } else if (key === 1 && actualLane === 2) {
-    //     let start = Math.round(quant + quant / 2) + 1;
-    //     let end = Math.round(2 * quant + quant / 2);
-
-    //     let fator = Math.round((end - start) / 2);
-
-    //     for (let i = start; i < end; i++) {
-    //         let x, y;
-    //         x = blocks[i].position.x;
-    //         y = blocks[i].position.y;
-
-    //         if (x === y) {
-    //             fator = 0;
-    //             blocks[i].position.set(lado - tam / 2, lado - tam / 2, z);
-    //         } else if (x > y) {
-    //             fator--;
-    //             blocks[i].position.set(lado - tam / 2, lado - tam / 2 - x, z);
-    //         } else {
-    //             fator++;
-    //             blocks[i].position.set(lado - tam / 2 - y, lado - tam / 2, z);
-    //         }
-
-    //     }
-    //     actualLane = 1;
-    // }
 }
 
 //returna true ou false se a posição passada se encontra na psita ou não
@@ -269,54 +193,13 @@ export function isOnLane(position) {
         return false;
     }
 
-    // let carAbsX = position.x % 10;
-    // let carAbsY = position.y % 10;
-
     let x = parseInt(position.x / 10);
     let y = parseInt(position.y / 10);
 
     if (x > 8) return false;
-    // vamos achar a posição na matriz, se existir
-    //console.log(x, y);
     let onLand = tracks[actualLane][x][y] || 0;
-    //[x][y];
 
     return onLand == 0 ? false : true;
-
-    // //pista quadrada
-    // if (actualLane === 1) {
-    //     //verifica retangulo horizontal
-    //     if (carAbsX >= 0 && carAbsX <= lado && carAbsY >= limiteInterno && carAbsY <= lado) {
-    //         return true;
-    //         //verifica retangulo vertical
-    //     } else if (carAbsX >= limiteInterno && carAbsX <= lado && carAbsY >= 0 && carAbsY <= limiteInterno) {
-    //         return true;
-    //     }
-    // } else if (actualLane === 2) {
-
-    //     //verifica retangulo horizontal inferior
-    //     if (carAbsX >= 0 && carAbsX <= lado && y >= -lado && y <= -limiteInterno) {
-    //         //console.log("entrei");
-    //         return true;
-    //         //verifica retangulo vertical esquerdo
-    //     } else if (x <= -limiteInterno && x >= -lado && carAbsY >= 0 && carAbsY <= limiteInterno) {
-    //         return true;
-    //         //horizontal superior
-    //     } else if (x <= tamReal && x >= -lado && y >= limiteInterno && y <= lado) {
-    //         return true;
-    //         // horizontal meio
-    //     } else if (x <= lado && x >= -tamReal && y >= -tamReal && y <= tamReal) {
-    //         return true;
-    //         // vertical meio
-    //     } else if (x <= tamReal && x >= -tamReal && y >= -tamReal && y <= lado) {
-    //         return true;
-    //     } // vertical direita
-    //     else if (x <= lado && x >= limiteInterno && y >= -lado && y <= tamReal) {
-    //         return true;
-    //     }
-    // }
-
-    return false;
 }
 
 export function changeVisible(visibility, scene = null) {
@@ -331,14 +214,19 @@ export function changeVisible(visibility, scene = null) {
     }
 }
 
-function changeColor(obj) {
+function changeColor(obj, x, y) {
     let color = getTurn() % 2 ? "rgb(16, 75, 205)" : "rgba(128, 128, 128)";
     obj.material.color.set(color);
+
+    let passControl = tracksCounter[x][y]
+    if (passControl != 0 && passControl != 8) {
+        tracksCounter[x][y] = 8;
+        count++;
+    }
+
 }
 
-
-//function initAuxCamera() {
-
+//MINI MAPA
 var lookAtVec = new THREE.Vector3(45, 45, 0.0);
 var camPosition = new THREE.Vector3(45, 45, 80);
 var upVec = new THREE.Vector3(0.0, 1.0, 0.0);
@@ -355,10 +243,6 @@ const cameraHelper = new THREE.CameraHelper(virtualCamera);
 export function addHelper(scene) {
     scene.add(cameraHelper);
 }
-
-
-//}
-
 
 
 export function controlledRender(renderer, camera, scene, inspMode) {

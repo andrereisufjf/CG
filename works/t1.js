@@ -19,10 +19,6 @@ initDefaultBasicLight(scene, true);
 camera.name = 'camera';
 var modoCamera = { simulacao: true };
 
-
-
-/** TESTE MINI MAPA */
-
 // Enable mouse rotation, pan, zoom etc.
 var trackballControls = new TrackballControls(camera, renderer.domElement);
 
@@ -58,36 +54,14 @@ addPlanElements(scene);
 //possibilita modo de inspeção
 initMov(modoCamera, getInicialPosition(), camera, scene, camSup, carAux);
 
-
-
-//TESTE MINI MPA
-//addHelper(scene);
-//FIM TESTE MINI MAPA
-
 render();
 
 function render() {
     stats.update(); // Update FPS
-    //OFICIAL
-    // if (!modoCamera.simulacao) {
-    //     trackballControls.update(); // Enable mouse movements
-    // } {
-    //     definePosition();
-    //     keyboardUpdate();
-    // }
-
-    //PARA TESTES
     trackballControls.update();
     definePosition();
     defineCamPosition();
     keyboardUpdate();
-
-    //teste mini mapa
     requestAnimationFrame(render);
     controlledRender(renderer, camera, scene, modoCamera.simulacao);
-
-    //renderer.render(scene, camera);
-
-    //requestAnimationFrame(render);
-    //renderer.render(scene, camera); // Render scene
 }
