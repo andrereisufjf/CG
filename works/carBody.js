@@ -69,10 +69,11 @@ carCgAxesHelper.visible = false;
 
 //Fuselagem
 //Base
-var fuselageMaterial = new THREE.MeshPhongMaterial({ color: "grey" });
-fuselageMaterial.side = THREE.DoubleSide; // Show front and back polygons
+var fuselageMaterial = new THREE.MeshPhongMaterial({color:"grey"});
+fuselageMaterial.side =  THREE.DoubleSide; // Show front and back polygons
 
-var fuselageExtrudeSettings = {
+var fuselageExtrudeSettings =
+{
     depth: 2.5,
     bevelEnabled: false,
 };
@@ -84,8 +85,9 @@ fuselageGeometry.rotateY(degreesToRadians(-90));
 var fuselage = new THREE.Mesh(fuselageGeometry, fuselageMaterial);
 fuselage.castShadow = true;
 
-fuselage.translateY(1.5);
-fuselage.translateZ(-1.25);
+fuselage.translateY(0.0);
+fuselage.translateZ(1.55);
+fuselage.translateX(1.25);
 
 carCg.add(fuselage);
 
@@ -123,25 +125,25 @@ fsSupE.castShadow = true;
 fsSupE.translateX(-2.25);
 fuselage.add(fsSupE);
 
-//Tampa traseira
+//back
 
-var tampaExtrudeSettings = {
+var backExtrudeSettings = {
     depth: 2.0,
     bevelEnabled: false,
 };
 
-var tampaMaterial = new THREE.MeshPhongMaterial({ color: "grey" });
-tampaMaterial.side = THREE.DoubleSide; // Show front and back polygons
+var backMaterial = new THREE.MeshPhongMaterial({ color: "grey" });
+backMaterial.side = THREE.DoubleSide; // Show front and back polygons
 
-var tampaGeometry = new THREE.ExtrudeGeometry(tampaShape(), tampaExtrudeSettings);
-tampaGeometry.rotateZ(degreesToRadians(-90));
-tampaGeometry.rotateY(degreesToRadians(-90));
+var backGeometry = new THREE.ExtrudeGeometry(backShape(), backExtrudeSettings);
+backGeometry.rotateZ(degreesToRadians(-90));
+backGeometry.rotateY(degreesToRadians(-90));
 
-var tampa = new THREE.Mesh(tampaGeometry, tampaMaterial);
-tampa.castShadow = true;
+var back = new THREE.Mesh(backGeometry, backMaterial);
+back.castShadow = true;
 
-tampa.translateX(-0.25);
-fuselage.add(tampa);
+back.translateX(-0.25);
+fuselage.add(back);
 
 //Vidros
 var windowMaterial = new THREE.MeshLambertMaterial({ color: "black", transparent: true, opacity: 0.8 });
@@ -162,10 +164,11 @@ window.castShadow = true;
 fuselage.add(window);
 
 //parachoque
-var parachoqueMaterial = new THREE.MeshPhongMaterial({ color: "black" });
-parachoqueMaterial.side = THREE.DoubleSide; // Show front and back polygons
+var parachoqueMaterial = new THREE.MeshPhongMaterial({color:"black"});
+parachoqueMaterial.side =  THREE.DoubleSide; // Show front and back polygons
 
-var parachoqueExtrudeSettings = {
+var parachoqueExtrudeSettings =
+{
     depth: 2.65,
     bevelEnabled: false,
 };
@@ -175,46 +178,128 @@ parachoqueGeometry.rotateX(degreesToRadians(90));
 parachoqueGeometry.rotateZ(degreesToRadians(90));
 
 var parachoque = new THREE.Mesh(parachoqueGeometry, parachoqueMaterial);
-parachoque.castShadow = true;
+  parachoque.castShadow = true;
 
 parachoque.translateX(-2.57);
-parachoque.translateY(0.06);
-parachoque.translateZ(0.02);
+parachoque.translateY(0.80);
+parachoque.translateZ(0.05);
 fuselage.add(parachoque);
 
-//Rodas traseiras
-var rightRearWheelGeometry = new THREE.TorusGeometry(0.35, 0.1, 20, 20); //Roda direita do eixo traseiro
-var rightRearWheelMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('black'), });
-var rightRearWheel = new THREE.Mesh(rightRearWheelGeometry, rightRearWheelMaterial);
-carCg.add(rightRearWheel);
-var rightRearAxleGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.5, 8); //Raio da roda direita do eixo traseiro
-var rightRearAxleMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('grey'), });
-var rightRearAxle = new THREE.Mesh(rightRearAxleGeometry, rightRearAxleMaterial);
-rightRearWheel.add(rightRearAxle);
-var leftRearWheelGeometry = new THREE.TorusGeometry(0.35, 0.1, 20, 20); //Roda esquerda do eixo traseiro
-var leftRearWheelMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('black'), });
-var leftRearWheel = new THREE.Mesh(rightRearWheelGeometry, rightRearWheelMaterial);
-carCg.add(leftRearWheel);
-var leftRearAxleGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.5, 8); //Raio da roda esquerda do eixo traseiro
-var leftRearAxleMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('grey'), });
-var leftRearAxle = new THREE.Mesh(leftRearAxleGeometry, leftRearAxleMaterial);
-leftRearWheel.add(leftRearAxle);
-var rightFrontWheelGeometry = new THREE.TorusGeometry(0.35, 0.1, 20, 20); //Roda direita do eixo dianteiro
-var rightFrontWheelMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('black'), });
-var rightFrontWheel = new THREE.Mesh(rightFrontWheelGeometry, rightFrontWheelMaterial);
-carCg.add(rightFrontWheel);
-var rightFrontAxleGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.5, 8); //Raio da roda direita do eixo dianteiro
-var rightFrontAxleMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('grey'), });
-var rightFrontAxle = new THREE.Mesh(rightFrontAxleGeometry, rightFrontAxleMaterial);
-rightFrontWheel.add(rightFrontAxle);
-var leftFrontWheelGeometry = new THREE.TorusGeometry(0.35, 0.1, 20, 20); //Roda esquerda do eixo dianteiro
-var leftFrontWheelMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('black'), });
-var leftFrontWheel = new THREE.Mesh(rightFrontWheelGeometry, rightFrontWheelMaterial);
-carCg.add(leftFrontWheel);
-var leftFrontAxleGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.5, 8); //Raio da roda esquerda do eixo tranteiro
-var leftFrontAxleMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('grey'), });
-var leftFrontAxle = new THREE.Mesh(leftFrontAxleGeometry, leftFrontAxleMaterial);
-leftFrontWheel.add(leftFrontAxle);
+//Rodas
+var tireExtrudeSettings =
+{
+    depth: 0.3,
+    bevelEnabled: false,
+};
+var rimExtrudeSettings =
+{
+    depth: 0.05,
+    bevelEnabled: false,
+};
+
+//led Dianteiro
+var ledDianteiroMaterial = new THREE.MeshPhongMaterial({color:"white"});
+ledDianteiroMaterial.side =  THREE.DoubleSide; // Show front and back polygons
+
+var ledDianteiroExtrudeSettings =
+{
+    depth: 2.65,
+    bevelEnabledDianteiro: false,
+};
+
+var ledDianteiroGeometry = new THREE.ExtrudeGeometry(ledDianteiroShape(), fuselageExtrudeSettings);
+var ledDianteiro = new THREE.Mesh(ledDianteiroGeometry, ledDianteiroMaterial);
+ledDianteiro.castShadow = true;
+
+ledDianteiroGeometry.rotateZ(degreesToRadians(-90));
+ledDianteiroGeometry.rotateY(degreesToRadians(-90));
+ledDianteiro.translateZ(-0.40);
+
+fuselage.add(ledDianteiro);
+
+//led Traseiro
+var ledTraseiroMaterial = new THREE.MeshPhongMaterial({color:"red"});
+ledTraseiroMaterial.side =  THREE.DoubleSide; // Show front and back polygons
+
+var ledTraseiroExtrudeSettings =
+{
+    depth: 2.65,
+    bevelEnabledTraseiro: false,
+};
+
+var ledTraseiroGeometry = new THREE.ExtrudeGeometry(ledTraseiroShape(), fuselageExtrudeSettings);
+var ledTraseiro = new THREE.Mesh(ledTraseiroGeometry, ledTraseiroMaterial);
+ledTraseiro.castShadow = true;
+
+ledTraseiroGeometry.rotateZ(degreesToRadians(-90));
+ledTraseiroGeometry.rotateY(degreesToRadians(-90));
+
+fuselage.add(ledTraseiro);
+
+//Rodas
+// Roda traseira direita
+var wheelRR = new THREE.Object3D();
+var rightRearTireGeometry = new THREE.ExtrudeGeometry(tireShape(), tireExtrudeSettings);
+var rightRearTireMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('black'), });
+var rightRearTire = new THREE.Mesh(rightRearTireGeometry, rightRearTireMaterial);
+carCg.add(rightRearTire);
+var rightRearRimGeometry = new THREE.ExtrudeGeometry(rimShape(), rimExtrudeSettings);
+var rightRearRimMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('grey'), });
+var rightRearRim = new THREE.Mesh(rightRearRimGeometry, rightRearRimMaterial);
+wheelRR.position.set(1.25, -1.40, 0.45)
+wheelRR.rotateY(degreesToRadians(-90))
+wheelRR.add(rightRearTire);
+wheelRR.add(rightRearRim);
+carCg.add(wheelRR);
+
+// Roda traseira esquerda
+var wheelLR = new THREE.Object3D();
+var leftRearTireGeometry = new THREE.ExtrudeGeometry(tireShape(), tireExtrudeSettings);
+var leftRearTireMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('black'), });
+var leftRearTire = new THREE.Mesh(rightRearTireGeometry, rightRearTireMaterial);
+var leftRearRimGeometry = new THREE.ExtrudeGeometry(rimShape(), rimExtrudeSettings);
+var leftRearRimMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('grey'), });
+var leftRearRim = new THREE.Mesh(leftRearRimGeometry, leftRearRimMaterial);
+wheelLR.position.set(-1.25, -1.40, 0.45)
+wheelLR.rotateY(degreesToRadians(90))
+wheelLR.add(leftRearTire);
+wheelLR.add(leftRearRim);
+carCg.add(wheelLR);
+
+//Roda dianteira Direita
+var turnAuxFR=new THREE.Object3D();
+var wheelFR = new THREE.Object3D();
+var rightFrontTireGeometry =new THREE.ExtrudeGeometry(tireShape(), tireExtrudeSettings);
+rightFrontTireGeometry.rotateZ(degreesToRadians(90));
+var rightFrontTireMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('black'), });
+var rightFrontTire = new THREE.Mesh(rightFrontTireGeometry, rightFrontTireMaterial);
+carCg.add(rightFrontTire);
+var rightFrontRimGeometry = new THREE.ExtrudeGeometry(rimShape(), rimExtrudeSettings);
+var rightFrontRimMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('grey'), });
+var rightFrontRim = new THREE.Mesh(rightFrontRimGeometry, rightFrontRimMaterial);
+turnAuxFR.add(wheelFR);
+wheelFR.rotateY(degreesToRadians(-90));
+wheelFR.add(rightFrontTire);
+wheelFR.add(rightFrontRim);
+carCg.add(turnAuxFR);
+
+//Roda dianteira esquerda
+var turnAuxFL=new THREE.Object3D();
+var wheelFL = new THREE.Object3D();
+var leftFrontTireGeometry = new THREE.ExtrudeGeometry(tireShape(), tireExtrudeSettings);
+leftFrontTireGeometry.rotateZ(degreesToRadians(90));
+var leftFrontTireMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('black'), });
+var leftFrontTire = new THREE.Mesh(rightFrontTireGeometry, rightFrontTireMaterial);
+carCg.add(leftFrontTire);
+var leftFrontRimGeometry = new THREE.ExtrudeGeometry(rimShape(), rimExtrudeSettings);
+var leftFrontRimMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('grey'), });
+var leftFrontRim = new THREE.Mesh(leftFrontRimGeometry, leftFrontRimMaterial);
+turnAuxFL.add(wheelFL);
+wheelFL.rotateY(degreesToRadians(90));
+wheelFL.add(leftFrontTire);
+wheelFL.add(leftFrontRim);
+carCg.add(turnAuxFL);
+
 carCg.castShadow = true;
 const car = carCg;
 
@@ -248,29 +333,17 @@ export function initMov(modoCameraAux, inicialPosition, cameraAux, sceneAux, cam
 //Update das posições
 export function definePosition() {
 
-    fuselage.matrixAutoUpdate = false;
-    window.matrixAutoUpdate = false;
-    rightRearWheel.matrixAutoUpdate = false;
-    leftRearWheel.matrixAutoUpdate = false;
-    rightFrontWheel.matrixAutoUpdate = false;
-    leftFrontWheel.matrixAutoUpdate = false;
-    rightRearAxle.matrixAutoUpdate = false;
-    leftRearAxle.matrixAutoUpdate = false;
-    rightFrontAxle.matrixAutoUpdate = false;
-    leftFrontAxle.matrixAutoUpdate = false;
+    turnAuxFL.matrixAutoUpdate= false;
+    turnAuxFR.matrixAutoUpdate= false;
+    rightFrontTire.matrixAutoUpdate = false;
+    leftFrontTire.matrixAutoUpdate = false;
 
     var mat4 = new THREE.Matrix4();
 
-    fuselage.matrix.identity();
-    window.matrix.identity();
-    rightRearWheel.matrix.identity();
-    leftRearWheel.matrix.identity();
-    rightFrontWheel.matrix.identity();
-    leftFrontWheel.matrix.identity();
-    rightRearAxle.matrix.identity();
-    leftRearAxle.matrix.identity();
-    rightFrontAxle.matrix.identity();
-    leftFrontAxle.matrix.identity();
+    turnAuxFL.matrix.identity();
+    turnAuxFR.matrix.identity();
+    rightFrontTire.matrix.identity();
+    leftFrontTire.matrix.identity();
 
     if (modoCamera.simulacao && playing) {
         carCg.translateY(speed);
@@ -291,44 +364,22 @@ export function definePosition() {
         speedLimit = speedLimitConst;
     }
 
-    // Will execute T1 and then R1
-    fuselage.matrix.multiply(mat4.makeTranslation(1.25, 0.0, 1.5)); // T1
-    rotation = speed * 50
+    rotation=2*speed;
 
     // Will execute T1 and then R1
-    rightRearWheel.matrix.multiply(mat4.makeTranslation(1.25, -1.40, 0.45)); // T1
-    rightRearWheel.matrix.multiply(mat4.makeRotationX(-Math.PI / 2)); // R1
-    rightRearWheel.matrix.multiply(mat4.makeRotationY(-Math.PI / 2)); // R1
-    rightRearWheel.matrix.multiply(mat4.makeRotationZ(rotation)); // R1
-    //console.log(speed);
-
+    wheelRR.rotation.z+=rotation;
+    
     // Will execute T1 and then R1
-    leftRearWheel.matrix.multiply(mat4.makeTranslation(-1.25, -1.40, 0.45)); // T1
-    leftRearWheel.matrix.multiply(mat4.makeRotationX(-Math.PI / 2)); // R1
-    leftRearWheel.matrix.multiply(mat4.makeRotationY(-Math.PI / 2)); // R1
-    leftRearWheel.matrix.multiply(mat4.makeRotationZ(rotation)); // R1
-
+    wheelLR.rotation.z-=rotation;
     // Will execute T1 and then R1
-    rightFrontWheel.matrix.multiply(mat4.makeTranslation(1.25, 1.40, 0.45)); // T1
-    rightFrontWheel.matrix.multiply(mat4.makeRotationX(-Math.PI / 2)); // R1
-    rightFrontWheel.matrix.multiply(mat4.makeRotationY(-Math.PI / 2)); // R1
-    rightFrontWheel.matrix.multiply(mat4.makeRotationY(-angle * 10)); // R1
-    rightFrontWheel.matrix.multiply(mat4.makeRotationZ(rotation)); // R1
-
+    turnAuxFL.matrix.multiply(mat4.makeTranslation(-1.25, 2.20, 0.45));
+    turnAuxFL.matrix.multiply(mat4.makeRotationZ(angle * 10)); // R1
+    wheelFL.rotation.z-=rotation;
+    
     // Will execute T1 and then R1
-    leftFrontWheel.matrix.multiply(mat4.makeTranslation(-1.25, 1.40, 0.45)); // T1
-    leftFrontWheel.matrix.multiply(mat4.makeRotationX(-Math.PI / 2)); // R1
-    leftFrontWheel.matrix.multiply(mat4.makeRotationY(-Math.PI / 2)); // R1
-    leftFrontWheel.matrix.multiply(mat4.makeRotationY(-angle * 10)); // R1
-    leftFrontWheel.matrix.multiply(mat4.makeRotationZ(rotation)); // R1
-    // Will execute T1 and then R1
-    rightRearAxle.matrix.multiply(mat4.makeTranslation(0, 0, 0)); // T1
-    // Will execute T1 and then R1
-    leftRearAxle.matrix.multiply(mat4.makeTranslation(0, 0, 0)); // T1
-    // Will execute T1 and then R1
-    rightFrontAxle.matrix.multiply(mat4.makeTranslation(0, 0, 0)); // T1
-    // Will execute T1 and then R1
-    leftFrontAxle.matrix.multiply(mat4.makeTranslation(0, 0, 0)); // T1
+    turnAuxFR.matrix.multiply(mat4.makeTranslation(1.25, 2.20, 0.45));
+    turnAuxFR.matrix.multiply(mat4.makeRotationZ(angle * 10)); // R1
+    wheelFR.rotation.z+=rotation;
 
 }
 
@@ -664,112 +715,179 @@ export function getTurn() {
 }
 
 //Contorno da fuselagem
-function tampaShape() {
-    var tampaShape = new THREE.Shape();
-    tampaShape.moveTo(-1.0, 0.8);
-    tampaShape.lineTo(2.5, 0.0);
-    tampaShape.lineTo(-1.0, 0.72);
-
-    return tampaShape;
+//Contorno da fuselagem
+function backShape(){
+    var backShape = new THREE.Shape();
+    backShape.moveTo(-1.0,0.8);
+    backShape.lineTo(2.5,0.0);
+    backShape.lineTo(-1.0,0.72);
+  
+    return backShape;
 }
+function rimShape(){
+    var rimShape = new THREE.Shape();
+    rimShape.moveTo(0.05,0.05);
+    rimShape.lineTo(0.05,0.3);
+    rimShape.lineTo(-0.05,0.3);
+    rimShape.lineTo(-0.05,0.05);
+    rimShape.lineTo(-0.3,0.05);
+    rimShape.lineTo(-0.3,-0.05);
+    rimShape.lineTo(-0.05,-0.05);
+    rimShape.lineTo(-0.05,-0.3);
+    rimShape.lineTo(0.05,-0.3);
+    rimShape.lineTo(0.05,-0.05);
+    rimShape.lineTo(0.3,-0.05);
+    rimShape.lineTo(0.3,0.05);
+    rimShape.lineTo(0.05,0.05);
+    
+    //rimShape.lineTo(0.1,0.1);
 
-function fuselageSupShape() {
+    
+    return rimShape;
+
+}
+function tireShape(){
+
+    var tireShape = new THREE.Shape();
+    tireShape.absarc( 0.0, 0.0, 0.45, 0, Math.PI * 2, false );
+
+    var tirePath = new THREE.Path();
+    tirePath.absellipse( 0, 0, 0.3, 0.3, 0, Math.PI * 2, true );
+
+    tireShape.holes.push( tirePath );
+
+    return tireShape;
+}
+  
+  function fuselageSupShape(){
     var fuseSupShape = new THREE.Shape();
-    fuseSupShape.moveTo(-2.5, 0.0);
-    fuseSupShape.lineTo(-1.0, 0.8);
-    fuseSupShape.lineTo(2.5, 0.0);
-
+    fuseSupShape.moveTo(-2.5,0.0);
+    fuseSupShape.lineTo(-1.0,0.8);
+    fuseSupShape.lineTo(2.5,0.0);
+  
     //Contorno do buraco das janelas
-    let windowsPath = new THREE.Path();
-    windowsPath.moveTo(-2.4, 0.0);
-    windowsPath.lineTo(-1.0, 0.72);
-    windowsPath.lineTo(1.5, 0.2);
-    windowsPath.lineTo(1.5, 0.0);
-    fuseSupShape.holes.push(windowsPath);
-    return fuseSupShape;
-}
-
-function fuselageBaseShape() {
-    //Contorno da Fuselagem
+  
+      let windowsPath= new THREE.Path();
+      windowsPath.moveTo(-2.4,0.0);
+      windowsPath.lineTo(-1.0,0.72);
+      windowsPath.lineTo(1.5,0.2);
+      windowsPath.lineTo(1.5,0.0);
+  
+    
+  
+      fuseSupShape.holes.push( windowsPath );
+      return fuseSupShape;
+  }
+  function fuselageBaseShape()
+  {
     var fuseBaseShape = new THREE.Shape();
-    fuseBaseShape.moveTo(-2.5, 0.0);
-    fuseBaseShape.lineTo(2.5, 0);
-    fuseBaseShape.lineTo(2.5, -1);
-    fuseBaseShape.lineTo(1.9, -1.0);
-    fuseBaseShape.lineTo(1.8, -0.8);
-    fuseBaseShape.lineTo(1.7, -0.7);
-    fuseBaseShape.lineTo(1.6, -0.6);
-    fuseBaseShape.lineTo(1.3, -0.6);
-    fuseBaseShape.lineTo(1.1, -0.7);
-    fuseBaseShape.lineTo(1.0, -0.8);
-    fuseBaseShape.lineTo(0.9, -1.0);
-    fuseBaseShape.lineTo(-1.0, -1.0);
-    fuseBaseShape.lineTo(-1.1, -0.8);
-    fuseBaseShape.lineTo(-1.2, -0.7);
-    fuseBaseShape.lineTo(-1.3, -0.6);
-    fuseBaseShape.lineTo(-1.6, -0.6);
-    fuseBaseShape.lineTo(-1.8, -0.7);
-    fuseBaseShape.lineTo(-1.9, -0.8);
-    fuseBaseShape.lineTo(-2.0, -1.0);
-    fuseBaseShape.lineTo(-2.5, -1.0);
-
-    return fuseBaseShape;
+    fuseBaseShape.moveTo(-2.5,0.0);
+    fuseBaseShape.lineTo(2.5,0);
+    fuseBaseShape.lineTo(2.5,-1);
+    fuseBaseShape.lineTo(1.9,-1.0);
+    fuseBaseShape.lineTo(1.8,-0.8);
+    fuseBaseShape.lineTo(1.7,-0.7);
+    fuseBaseShape.lineTo(1.6,-0.6);
+    fuseBaseShape.lineTo(1.3,-0.6);
+    fuseBaseShape.lineTo(1.1,-0.7);
+    fuseBaseShape.lineTo(1.0,-0.8);
+    fuseBaseShape.lineTo(0.9,-1.0);
+    fuseBaseShape.lineTo(-1.7,-1.0);
+    fuseBaseShape.lineTo(-1.8,-0.8);
+    fuseBaseShape.lineTo(-1.9,-0.7);
+    fuseBaseShape.lineTo(-2.0,-0.6);
+    fuseBaseShape.lineTo(-2.3,-0.6);
+    fuseBaseShape.lineTo(-2.5,-0.7);
+    fuseBaseShape.lineTo(-2.6,-0.8);
+    fuseBaseShape.lineTo(-2.7,-1.0); 
+    fuseBaseShape.lineTo(-3.3,-1.0);
+    fuseBaseShape.lineTo(-3.3,-0.40);
+  
+  return fuseBaseShape;
 }
 
-function parachoqueShape() {
-    //Contorno da Fuselagem
-    var fuseBaseShape = new THREE.Shape();
-    fuseBaseShape.moveTo(2.6, -0.8);
-    fuseBaseShape.lineTo(2.6, -1);
-    fuseBaseShape.lineTo(1.9, -1.0);
-    fuseBaseShape.lineTo(1.8, -0.8);
-    fuseBaseShape.lineTo(1.7, -0.7);
-    fuseBaseShape.lineTo(1.6, -0.6);
-    fuseBaseShape.lineTo(1.3, -0.6);
-    fuseBaseShape.lineTo(1.1, -0.7);
-    fuseBaseShape.lineTo(1.0, -0.8);
-    fuseBaseShape.lineTo(0.9, -1.0);
-    fuseBaseShape.lineTo(-1.0, -1.0);
-    fuseBaseShape.lineTo(-1.1, -0.8);
-    fuseBaseShape.lineTo(-1.2, -0.7);
-    fuseBaseShape.lineTo(-1.3, -0.6);
-    fuseBaseShape.lineTo(-1.6, -0.6);
-    fuseBaseShape.lineTo(-1.8, -0.7);
-    fuseBaseShape.lineTo(-1.9, -0.8);
-    fuseBaseShape.lineTo(-2.0, -1.0);
-    fuseBaseShape.lineTo(-2.6, -1.0);
-    fuseBaseShape.lineTo(-2.6, -0.8);
-    fuseBaseShape.lineTo(-2.2, -0.8);
-    fuseBaseShape.lineTo(-1.9, -0.4);
-    fuseBaseShape.lineTo(-1.0, -0.4);
-    fuseBaseShape.lineTo(-0.8, -0.8);
-    fuseBaseShape.lineTo(0.7, -0.8);
-    fuseBaseShape.lineTo(1.0, -0.4);
-    fuseBaseShape.lineTo(1.9, -0.4);
-    fuseBaseShape.lineTo(2.1, -0.8);
+function ledDianteiroShape(){
+    var ledDianteiroShape = new THREE.Shape();
+    ledDianteiroShape.moveTo(-3.3,0.);
+    ledDianteiroShape.lineTo(-3.32,0);
+    ledDianteiroShape.lineTo(-3.32,-0.05);
+    ledDianteiroShape.lineTo(-3.3,-0.05);
+    
+    return ledDianteiroShape;
+  }
+  function ledTraseiroShape(){
+    var ledTraseiroShape = new THREE.Shape();
+    ledTraseiroShape.moveTo(2.5,0.0);
+    ledTraseiroShape.lineTo(2.52,0.0);
+    ledTraseiroShape.lineTo(2.52,-0.05);
+    ledTraseiroShape.lineTo(2.5,-0.05);
+    return ledTraseiroShape;
+  }
+  
+function parachoqueShape()
+{
+  //Contorno da Fuselagem
+  var parachoqueShape = new THREE.Shape();
+  parachoqueShape.moveTo(2.6,-0.8);
+  parachoqueShape.lineTo(2.6,-1);
+  parachoqueShape.lineTo(1.9,-1.0);
+  parachoqueShape.lineTo(1.8,-0.8);
+  parachoqueShape.lineTo(1.7,-0.7);
+  parachoqueShape.lineTo(1.6,-0.6);
+  parachoqueShape.lineTo(1.3,-0.6);
+  parachoqueShape.lineTo(1.1,-0.7);
+  parachoqueShape.lineTo(1.0,-0.8);
+  parachoqueShape.lineTo(0.9,-1.0);
+  parachoqueShape.lineTo(-1.7,-1.0);
+  parachoqueShape.lineTo(-1.8,-0.8);
+  parachoqueShape.lineTo(-1.9,-0.7);
+  parachoqueShape.lineTo(-2.0,-0.6);
+  parachoqueShape.lineTo(-2.3,-0.6);
+  parachoqueShape.lineTo(-2.5,-0.7);
+  parachoqueShape.lineTo(-2.6,-0.8);
+  parachoqueShape.lineTo(-2.7,-1.0); 
+  parachoqueShape.lineTo(-3.4,-1.0);
+  parachoqueShape.lineTo(-3.4,-0.8);
+  parachoqueShape.lineTo(-2.9,-0.8);
+  parachoqueShape.lineTo(-2.6,-0.4);
+  parachoqueShape.lineTo(-1.7,-0.4);
+  parachoqueShape.lineTo(-1.5,-0.8);
+  parachoqueShape.lineTo(0.7,-0.8);
+  parachoqueShape.lineTo(1.0,-0.4);
+  parachoqueShape.lineTo(1.9,-0.4);
+  parachoqueShape.lineTo(2.1,-0.8);
 
-    return fuseBaseShape;
+return parachoqueShape;
 }
-
-function windshieldShape() {
+  function windshieldShape()
+  {
     var wsShape = new THREE.Shape();
-    wsShape.moveTo(-2.5, 0.0);
-    wsShape.lineTo(-1.0, 0.8);
-    wsShape.lineTo(-1.0, 0.79);
-    wsShape.lineTo(-2.5, -0.01);
-
+      wsShape.moveTo(-2.5,0.0);
+      wsShape.lineTo(-1.0,0.8);
+      wsShape.lineTo(-1.0,0.79);
+      wsShape.lineTo(-2.5,-0.01);
+  
+      //wsShape.lineTo(-1.0,0.75);
+      //wsShape.lineTo(-2.5,-0.1);
+  
     return wsShape;
-}
-
-function vidroShape() {
+  }
+  
+  function vidroShape()
+  {
     var fuseShape = new THREE.Shape();
-    fuseShape.moveTo(-2.4, 0.0)
-    fuseShape.lineTo(-1.0, 0.72);
-    fuseShape.lineTo(1.5, 0.2);
-    fuseShape.lineTo(1.5, 0.0);
-
+      fuseShape.moveTo(-2.4,0.0)
+      fuseShape.lineTo(-1.0,0.72);
+      fuseShape.lineTo(1.5,0.2);
+      fuseShape.lineTo(1.5,0.0);
+  
     return fuseShape;
-}
+  }
+
+
+
+
+
 
 
 
