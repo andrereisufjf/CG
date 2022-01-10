@@ -78,8 +78,12 @@ export function getInicialPosition() {
 
 export function atualizarQuadrante(x, y) {
 
+    if (y < 0) return;
+
     x = parseInt(x / 10);
     y = parseInt(y / 10);
+
+    //console.log(x, y);
 
     if (x > 8 || x < 0) return;
     // // vamos achar a posição na matriz, se existir
