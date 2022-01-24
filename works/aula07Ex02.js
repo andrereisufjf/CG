@@ -13,7 +13,7 @@ var stats = new Stats(); // To show FPS information
 var scene = new THREE.Scene(); // Create main scene
 var renderer = initRenderer(); // View function in util/utils
 var camera = initCamera(new THREE.Vector3(0, -30, 15)); // Init camera in this position
-initDefaultBasicLight(scene);
+initDefaultBasicLight(scene, false, new THREE.Vector3(0, 0, 0));
 
 // Enable mouse rotation, pan, zoom etc.
 var trackballControls = new TrackballControls(camera, renderer.domElement);
@@ -51,7 +51,7 @@ var circle = new THREE.Mesh(circleGeometry, woodTopMaterial);
 var circle2 = new THREE.Mesh(circleGeometry, woodTopMaterial);
 
 // position the cylinder
-cylinder.position.set(0.0, 0.0, 5.0);
+cylinder.position.set(0.0, 0.0, 0.0);
 cylinder.rotation.x = Math.PI / 2;
 circle.position.set(0.0, 5, 0);
 circle.rotation.x = -Math.PI / 2;
