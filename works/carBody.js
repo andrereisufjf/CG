@@ -35,7 +35,7 @@ let cameraModel = 3;
 let timeActualTurn = -1,
     turns = 1,
     timer;
-var secondBox = new SecondaryBox("Iniciando...");
+var secondBox;
 
 //controle da aplicação de retardo
 var inLane = true;
@@ -310,6 +310,11 @@ export function createCarBody() {
 }
 
 export function initMov(modoCameraAux, inicialPosition, cameraAux, sceneAux, camSupAux, carAuxParameter) {
+    // inicia infos de tela
+    secondBox = new SecondaryBox("Iniciando...");
+    speedometer.show();
+
+    //inicia módulo
     modoCamera = modoCameraAux;
     camera = cameraAux;
     carCg.position.copy(inicialPosition);
@@ -321,6 +326,7 @@ export function initMov(modoCameraAux, inicialPosition, cameraAux, sceneAux, cam
     carAux = carAuxParameter;
     //lightSphere = createLightSphere(scene, 0.5, 10, 10, lightPosition);
     initLights();
+
 }
 
 
@@ -339,7 +345,7 @@ export function definePosition() {
     rightFrontTire.matrix.identity();
     leftFrontTire.matrix.identity();
 
-    if (modoCamera.simulacao && playing) {
+    if (modoCamera && modoCamera.simulacao && playing) {
         carCg.translateY(speed);
 
         if (speed >= speedLimit * 0.05) {
@@ -630,7 +636,6 @@ class InfoBox {
 
 var speedometer = new InfoBox();
 speedometer.add("Velocidade: " + speed + "m/s");
-speedometer.show();
 
 var time = {
     minute: 0,
