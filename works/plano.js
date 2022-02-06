@@ -1,18 +1,32 @@
 import * as THREE from '../build/three.module.js';
 import KeyboardState from '../libs/util/KeyboardState.js';
 import { updateTurn, getTurn } from './carBody.js';
+import * as OBJ from './objects.js';
 
 export const lado = 45; //Tamanho do quadrado inferior
 const tam = 10; //Tamanho dos quadrados da pista
-const delta = 0.95; //Distancia entre os quadrados?
+const delta = 1.00; //Distancia entre os quadrados?
 const quant = (2 * lado) / tam - 1; //quantidade de blocos por aresta da pista
 const tamMatriz = 9;
 const z = -0.75; // Z do quadrado
 const inicialArrayPosition = quant / 2; //posição do bloco inicial
 const tamReal = tam * delta; //tamanho real do bloco a ser usado
 const limiteInterno = lado - tam; //limite interior do bloco
-
 let actualLane = 1; //pista selecionado
+var eachObjQty = 10; // Quantidade de cada objeto
+var barPositions = [];
+var boxPositions = [];
+var objects = [];
+export var objectsBox = [];
+
+//Texturas
+//Textura do corpo do barril
+var textureLoader = new THREE.TextureLoader();
+var asphaltTexture = textureLoader.load('./textures/asphalt.jpg');
+var darkAsphaltTexture = textureLoader.load('./textures/darkAsphalt.jpg');
+var landTexture = textureLoader.load('./textures/land.jpg');
+var darkLandTexture = textureLoader.load('./textures/darkLand.jpg');
+var grassTexture = textureLoader.load('./textures/grass.jpg');
 
 // create the ground plane
 var plane = createPlane();
@@ -28,9 +42,16 @@ let blocks = [];
 //Classe dos blocos da corrida
 class Blocks {
     constructor(x = 0, y = 0, z, tamBloco, isInicial = false, visibility = true) {
-        let color = isInicial ? { color: "rgba(255, 69, 0)" } : { color: "rgba(128, 128, 128)" };
+        //let color = isInicial ? { color: "rgba(255, 69, 0)" } : { color: "rgba(128, 128, 128)" };
         var cubeGeometry = new THREE.BoxGeometry(tamBloco, tamBloco, 0.3);
-        var cubeMaterial = new THREE.MeshLambertMaterial(color);
+        var cubeMaterial = new THREE.MeshLambertMaterial();
+
+        if (Math.random() > 0.2) {
+            cubeMaterial.map = asphaltTexture;
+        } else {
+            cubeMaterial.map = landTexture;
+        }
+
         var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
         cube.position.set(x, y, z);
         cube.visible = visibility;
@@ -50,8 +71,8 @@ function createPlane() {
     // return new THREE.Mesh(planeGeometry, planeMaterial);
 
     var planeGeometry = new THREE.PlaneGeometry(lado * 2.1, lado * 2.1, 10, 10);
-    planeGeometry.translate(45, 45, -2); // To avoid conflict with the axeshelper
-    var planeMaterial = new THREE.MeshLambertMaterial({ color: "rgba(255, 160, 122)", side: THREE.DoubleSide });
+    planeGeometry.translate(45, 45, -0.8); // To avoid conflict with the axeshelper
+    var planeMaterial = new THREE.MeshLambertMaterial({ map: grassTexture, side: THREE.DoubleSide });
     var plane = new THREE.Mesh(planeGeometry, planeMaterial);
     plane.receiveShadow = true;
 
@@ -68,8 +89,57 @@ export function addPlanElements(scene) {
     createBlocks();
     blocks.forEach(block => scene.add(block));
     scene.add(plane);
+    addObjects(scene)
     axesHelper.visible = false;
     scene.add(axesHelper);
+}
+
+function addObjects(scene) {
+    objectsBox = [];
+    //Adicionando Barris
+
+    for (let i = 0; i < eachObjQty; i++) {
+
+        var randomBlocks = [Math.floor(Math.random() * tamMatriz), Math.floor(Math.random() * tamMatriz)];
+
+        while (tracks[actualLane][randomBlocks[0]][randomBlocks[1]] != 1) {
+            randomBlocks = [Math.floor(Math.random() * tamMatriz), Math.floor(Math.random() * tamMatriz)];
+        }
+
+        barPositions[i] = [randomBlocks[0] * (tam) + pertObjPos(), randomBlocks[1] * (tam) + pertObjPos()]
+        var barrel = OBJ.buildBarrel(barPositions[i]);
+        objects.push(barrel);
+        objectsBox.push(new THREE.Box3().setFromObject(barrel));
+        scene.add(barrel);
+
+    }
+
+    //Adicionando Caixas
+
+    for (let i = 0; i < eachObjQty; i++) {
+
+        var randomBlocks = [Math.floor(Math.random() * tamMatriz), Math.floor(Math.random() * tamMatriz)];
+
+        while (tracks[actualLane][randomBlocks[0]][randomBlocks[1]] != 1) {
+            randomBlocks = [Math.floor(Math.random() * tamMatriz), Math.floor(Math.random() * tamMatriz)];
+        }
+
+        boxPositions[i] = [randomBlocks[0] * (tam) + pertObjPos(), randomBlocks[1] * (tam) + pertObjPos()]
+        var box = OBJ.buildBox(boxPositions[i]);
+        objects.push(box);
+        objectsBox.push(new THREE.Box3().setFromObject(box));
+        scene.add(box);
+    }
+}
+
+//Perturba a posição do objeto no quadrante para que ele nao fique sempre no meio
+function pertObjPos() {
+
+    if (Math.random < 0.5) {
+        return 5 * (1 + Math.random());
+    } else {
+        return 5 * (1 - Math.random());
+    }
 }
 
 export function getInicialPosition() {
@@ -92,7 +162,7 @@ export function atualizarQuadrante(x, y) {
         let index = x * (tam - 1) + y;
         //console.log(index);
         if (index != 45) { // bloco não inicial
-            changeColor(blocks[index], x, y);
+            changeTexture(blocks[index], x, y);
         } else if (index == 45) { // bloco inicial
             //console.log("inicial");
             if (count >= tracksMinCount[actualLane]) {
@@ -190,14 +260,23 @@ function createTrack(key) {
 
 
 export function changeLane(key, scene) {
+    //recria os blocos
     blocks.forEach(block => block.visible = false);
     blocks = [];
+
+    //recria os objetos
+    objects.forEach(obj => obj.visible = false);
+    objects = [];
+
     createTrack(key);
     blocks.forEach(block => scene.add(block));
     actualLane = key;
 
     tracksCounter = JSON.parse(JSON.stringify(tracks[actualLane]));
     count = 0;
+
+    //recria os blocks
+    addObjects(scene);
 
 }
 
@@ -219,6 +298,7 @@ export function isOnLane(position) {
 export function changeVisible(visibility, scene = null) {
     if (visibility === false) {
         blocks.forEach(block => block.visible = visibility);
+        objects.forEach(obj => obj.visible = visibility);
         plane.visible = visibility;
         axesHelper.visible = !visibility;
     } else {
@@ -228,9 +308,24 @@ export function changeVisible(visibility, scene = null) {
     }
 }
 
-function changeColor(obj, x, y) {
-    let color = getTurn() % 2 ? "rgb(16, 75, 205)" : "rgba(128, 128, 128)";
-    obj.material.color.set(color);
+function changeTexture(obj, x, y) {
+    //let texture = getTurn() % 2 ? "rgb(16, 75, 205)" : "rgba(128, 128, 128)";
+    //console.log(obj.material.map == darkAsphaltTexture);
+
+    if (getTurn() % 2) {
+        if (obj.material.map == asphaltTexture || obj.material.map == darkAsphaltTexture) {
+            obj.material.map = darkAsphaltTexture;
+        } else {
+            obj.material.map = darkLandTexture;
+        }
+    } else {
+        if (obj.material.map == darkAsphaltTexture || obj.material.map == asphaltTexture) {
+            obj.material.map = asphaltTexture;
+        } else {
+            obj.material.map = landTexture;
+        }
+    }
+    //obj.material.color.set(color);
 
     let passControl = tracksCounter[x][y]
     if (passControl != 0 && passControl != 8) {

@@ -10,6 +10,9 @@ import {
 import { createCarBody, definePosition, keyboardUpdate, initMov, defineCamPosition } from "./carBody.js"
 import { addPlanElements, getInicialPosition, lado, controlledRender, addHelper } from "./plano.js"
 
+
+const deltaCarAux = 4;
+
 var stats = new Stats(); // To show FPS information
 var scene = new THREE.Scene(); // Create main scene
 var renderer = initRenderer(); // View function in util/utils
@@ -34,16 +37,16 @@ car.name = 'car';
 var camSup = new THREE.Object3D();
 scene.add(camSup);
 var camSupAxesHelper = new THREE.AxesHelper(12);
-camSupAxesHelper.visible = false;
+camSupAxesHelper.visible = true;
 camSup.add(camSupAxesHelper);
 camSup.add(camera);
 scene.add(car);
 var carAux = new THREE.Object3D();
 car.add(carAux);
-carAux.translateY(10);
-var carAuxAxesHelper = new THREE.AxesHelper(12);
-carAuxAxesHelper.visible = false;
-carAux.add(carAuxAxesHelper);
+carAux.translateY(deltaCarAux);
+var carAuxAxesHelper = new THREE.AxesHelper(3);
+carAuxAxesHelper.visible = true;
+//carAux.add(carAuxAxesHelper);
 
 
 // Listen window size changes

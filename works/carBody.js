@@ -2,7 +2,7 @@ import * as THREE from '../build/three.module.js';
 import { createGroundPlane, degreesToRadians, radiansToDegrees } from "../libs/util/util.js";
 import { SecondaryBox, initRenderer, createLightSphere } from "../libs/util/util.js";
 import KeyboardState from '../libs/util/KeyboardState.js';
-import { changeLane, changeVisible, isOnLane, atualizarQuadrante, getInicialPosition } from "./plano.js"
+import { changeLane, changeVisible, isOnLane, atualizarQuadrante, getInicialPosition, objectsBox } from "./plano.js"
 
 import { GUI } from '../build/jsm/libs/dat.gui.module.js';
 
@@ -15,6 +15,8 @@ var speed = 0.0;
 var deltaSpeed = 0.003;
 var speedLimit = 0.50;
 var speedLimitConst = speedLimit; // usado para evitar acesso e operações simultaneas em speedLimit ao controlar a saida da pista
+var speedLimitWithColision = 0.1 * speedLimitConst;
+var speedLimitOutSideLane = 0.5 * speedLimitConst;
 var angle = 0.0;
 var deltaAngle = degreesToRadians(0.4);
 var angleLimit = degreesToRadians(4);
@@ -22,6 +24,36 @@ var scene;
 var camSup, carAux;
 var rotation;
 var variation = 0;
+var deltaMovCam = {
+    "x": 15,
+    "y": -15,
+    "z": 15,
+    "rotX": 50,
+    "rotZ": 50,
+
+    // teste modo he/she/it
+    // "x": 25,
+    // "y": 0,
+    // "z": 5,
+    // "rotX": 80,
+    // "rotZ": 90,
+
+    reset: function() { // retorna o tempo total 
+        this.x = this.y = this.z = 15;
+        this.y *= -1;
+        this.rotX = this.rotZ = 50;
+    },
+
+    set: function(x, y, z, rotX, rotZ) { // retorna o tempo total 
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.rotX = rotX;
+        this.rotZ = rotZ;
+    },
+};
+var camMode = 1;
+var joyStickMode = false;
 
 //controle da camera
 var modoCamera;
@@ -40,6 +72,7 @@ var secondBox;
 //controle da aplicação de retardo
 var inLane = true;
 var alterSpeed = false;
+var alterColisionSpeed = false;
 
 //controla se o jogo está rodando
 var playing = true;
@@ -83,7 +116,6 @@ fuselageGeometry.rotateY(degreesToRadians(-90));
 
 var fuselage = new THREE.Mesh(fuselageGeometry, fuselageMaterial);
 fuselage.castShadow = true;
-
 fuselage.translateY(0.0);
 fuselage.translateZ(1.55);
 fuselage.translateX(1.25);
@@ -213,6 +245,7 @@ ledDianteiro.translateZ(-0.40);
 fuselage.add(ledDianteiro);
 
 //led Traseiro
+var ledTraseiro = new THREE.Mesh(ledTraseiroGeometry, ledTraseiroMaterial);
 var ledTraseiroMaterial = new THREE.MeshPhongMaterial({ color: "red" });
 ledTraseiroMaterial.side = THREE.DoubleSide; // Show front and back polygons
 
@@ -222,7 +255,6 @@ var ledTraseiroExtrudeSettings = {
 };
 
 var ledTraseiroGeometry = new THREE.ExtrudeGeometry(ledTraseiroShape(), fuselageExtrudeSettings);
-var ledTraseiro = new THREE.Mesh(ledTraseiroGeometry, ledTraseiroMaterial);
 ledTraseiro.castShadow = true;
 
 ledTraseiroGeometry.rotateZ(degreesToRadians(-90));
@@ -231,28 +263,33 @@ ledTraseiroGeometry.rotateY(degreesToRadians(-90));
 fuselage.add(ledTraseiro);
 
 //Rodas
+
+
+
 // Roda traseira direita
 var wheelRR = new THREE.Object3D();
 var rightRearTireGeometry = new THREE.ExtrudeGeometry(tireShape(), tireExtrudeSettings);
-var rightRearTireMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('black'), });
+var rightRearTireMaterial = new THREE.MeshPhongMaterial({ color: "black" });
 var rightRearTire = new THREE.Mesh(rightRearTireGeometry, rightRearTireMaterial);
 carCg.add(rightRearTire);
-var rightRearRimGeometry = new THREE.ExtrudeGeometry(rimShape(), rimExtrudeSettings);
-var rightRearRimMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('grey'), });
+var rightRearRimGeometry = new THREE.CircleGeometry(0.3, 100);
+var rightRearRimMaterial = new THREE.MeshPhongMaterial();
 var rightRearRim = new THREE.Mesh(rightRearRimGeometry, rightRearRimMaterial);
+rightRearRimMaterial.side = THREE.DoubleSide;
 wheelRR.position.set(1.25, -1.40, 0.45)
 wheelRR.rotateY(degreesToRadians(-90))
 wheelRR.add(rightRearTire);
 wheelRR.add(rightRearRim);
 carCg.add(wheelRR);
 
-// Roda traseira esquerda
+// Roda traseira esquerda raio 0.3
 var wheelLR = new THREE.Object3D();
 var leftRearTireGeometry = new THREE.ExtrudeGeometry(tireShape(), tireExtrudeSettings);
-var leftRearTireMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('black'), });
+var leftRearTireMaterial = new THREE.MeshPhongMaterial({ color: "black" });
 var leftRearTire = new THREE.Mesh(rightRearTireGeometry, rightRearTireMaterial);
-var leftRearRimGeometry = new THREE.ExtrudeGeometry(rimShape(), rimExtrudeSettings);
-var leftRearRimMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('grey'), });
+var leftRearRimGeometry = new THREE.CircleGeometry(0.3, 100);
+var leftRearRimMaterial = new THREE.MeshPhongMaterial();
+leftRearRimMaterial.side = THREE.DoubleSide;
 var leftRearRim = new THREE.Mesh(leftRearRimGeometry, leftRearRimMaterial);
 wheelLR.position.set(-1.25, -1.40, 0.45)
 wheelLR.rotateY(degreesToRadians(90))
@@ -265,12 +302,13 @@ var turnAuxFR = new THREE.Object3D();
 var wheelFR = new THREE.Object3D();
 var rightFrontTireGeometry = new THREE.ExtrudeGeometry(tireShape(), tireExtrudeSettings);
 rightFrontTireGeometry.rotateZ(degreesToRadians(90));
-var rightFrontTireMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('black'), });
+var rightFrontTireMaterial = new THREE.MeshPhongMaterial({ color: "black" });
 var rightFrontTire = new THREE.Mesh(rightFrontTireGeometry, rightFrontTireMaterial);
 carCg.add(rightFrontTire);
-var rightFrontRimGeometry = new THREE.ExtrudeGeometry(rimShape(), rimExtrudeSettings);
-var rightFrontRimMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('grey'), });
+var rightFrontRimGeometry = new THREE.CircleGeometry(0.3, 100);
+var rightFrontRimMaterial = new THREE.MeshPhongMaterial();
 var rightFrontRim = new THREE.Mesh(rightFrontRimGeometry, rightFrontRimMaterial);
+rightFrontRimMaterial.side = THREE.DoubleSide;
 turnAuxFR.add(wheelFR);
 wheelFR.rotateY(degreesToRadians(-90));
 wheelFR.add(rightFrontTire);
@@ -282,17 +320,20 @@ var turnAuxFL = new THREE.Object3D();
 var wheelFL = new THREE.Object3D();
 var leftFrontTireGeometry = new THREE.ExtrudeGeometry(tireShape(), tireExtrudeSettings);
 leftFrontTireGeometry.rotateZ(degreesToRadians(90));
-var leftFrontTireMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('black'), });
+var leftFrontTireMaterial = new THREE.MeshPhongMaterial({ color: "black" });
 var leftFrontTire = new THREE.Mesh(rightFrontTireGeometry, rightFrontTireMaterial);
 carCg.add(leftFrontTire);
-var leftFrontRimGeometry = new THREE.ExtrudeGeometry(rimShape(), rimExtrudeSettings);
-var leftFrontRimMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('grey'), });
+var leftFrontRimGeometry = new THREE.CircleGeometry(0.3, 100);
+var leftFrontRimMaterial = new THREE.MeshPhongMaterial();
 var leftFrontRim = new THREE.Mesh(leftFrontRimGeometry, leftFrontRimMaterial);
+leftFrontRimMaterial.side = THREE.DoubleSide;
 turnAuxFL.add(wheelFL);
 wheelFL.rotateY(degreesToRadians(90));
 wheelFL.add(leftFrontTire);
 wheelFL.add(leftFrontRim);
 carCg.add(turnAuxFL);
+
+createTextures();
 
 carCg.castShadow = true;
 const car = carCg;
@@ -307,6 +348,51 @@ const car = carCg;
 
 export function createCarBody() {
     return carCg;
+}
+
+function createTextures() {
+    //Texturas Back Prof: 2.0
+    var textureLoader = new THREE.TextureLoader();
+    var rimTexture = textureLoader.load('./textures/rim.jpg');
+    var backTexture = textureLoader.load('./textures/persiana.jpg');
+    var plateTexture = textureLoader.load('./textures/plate.jpg');
+
+    // Roda traseira esquerda
+    var backPlaneTextureGeometry = new THREE.PlaneGeometry(3.0, 2.0)
+    var backPlaneTextureMaterial = new THREE.MeshPhongMaterial({ map: backTexture });
+    var backPlaneTexture = new THREE.Mesh(backPlaneTextureGeometry, backPlaneTextureMaterial);
+    backPlaneTexture.rotation.z = degreesToRadians(90)
+    backPlaneTexture.rotation.x = degreesToRadians(13)
+    backPlaneTexture.position.set(-1.0, -1.00, 0.35)
+    back.add(backPlaneTexture);
+
+    leftRearRimMaterial.map = rimTexture;
+    leftFrontRimMaterial.map = rimTexture;
+    rightRearRimMaterial.map = rimTexture;
+    rightFrontRimMaterial.map = rimTexture;
+
+    //Placa dianteira
+    var frontPlateTextureGeometry = new THREE.PlaneGeometry(0.9, 0.3)
+    var frontPlateTextureMaterial = new THREE.MeshPhongMaterial({ map: plateTexture });
+    frontPlateTextureMaterial.side = THREE.DoubleSide;
+    var frontPlateTexture = new THREE.Mesh(frontPlateTextureGeometry, frontPlateTextureMaterial);
+    frontPlateTexture.rotation.x = degreesToRadians(-90)
+    frontPlateTexture.rotation.z = degreesToRadians(180)
+    frontPlateTexture.position.set(1.25, 2.62, -0.9)
+    parachoque.add(frontPlateTexture);
+
+    //Placa dianteira
+    var rearPlateTextureGeometry = new THREE.PlaneGeometry(0.9, 0.3)
+    var rearPlateTextureMaterial = new THREE.MeshPhongMaterial({ map: plateTexture });
+    rearPlateTextureMaterial.side = THREE.DoubleSide;
+    var rearPlateTexture = new THREE.Mesh(rearPlateTextureGeometry, rearPlateTextureMaterial);
+    rearPlateTexture.rotation.x = degreesToRadians(90)
+    rearPlateTexture.position.set(1.25, -3.42, -0.9)
+    parachoque.add(rearPlateTexture);
+
+
+
+
 }
 
 export function initMov(modoCameraAux, inicialPosition, cameraAux, sceneAux, camSupAux, carAuxParameter) {
@@ -350,14 +436,19 @@ export function definePosition() {
 
         if (speed >= speedLimit * 0.05) {
             carCg.rotateZ(angle);
+            //camSup.rotateZ(angle / 100);
         } else if (speed < -speedLimit * 0.05) {
             carCg.rotateZ(-angle);
+            //camSup.rotateZ(-angle / 100);
         }
+
+        //verifica a colisão
+        checkCollision();
     }
 
     inLane = isOnLane(car.position); // verifica se o carro está na pista
     if (!inLane && !alterSpeed) { // se o carro estiver fora e o retardo não tive sido aplicado
-        speedLimit = 0.5 * speedLimitConst;
+        speedLimit = speedLimitOutSideLane;
         alterSpeed = true;
     } else if (inLane && alterSpeed) { //se o carro voltou pra pista é preciso restaurar o controle de retardo
         alterSpeed = false;
@@ -381,6 +472,39 @@ export function definePosition() {
     turnAuxFR.matrix.multiply(mat4.makeRotationZ(angle * 10)); // R1
     wheelFR.rotation.z += rotation;
 
+}
+
+function checkCollision() {
+    //console.log("entrei");
+    let carBB = new THREE.Box3().setFromObject(carCg);
+    //let boxesCollision = false;
+    let collision = objectsBox.some(function(objBB) {
+        // if (self.body.BBox.intersectsBox(mesh.BBox)) {
+        //     boxesCollision = true;
+        //     console.log("Colisão");
+        //     return true;
+        // }
+        // self.body.BBoxHelper.update();
+        //console.log("func");
+        if (objBB.intersectsBox(carBB)) {
+            console.log("COLISÃO");
+            speedLimit = speedLimitWithColision;
+            alterColisionSpeed = true;
+            return true;
+        }
+
+
+    });
+
+    if (!collision && alterColisionSpeed) {
+        speedLimit = speedLimitConst;
+        alterColisionSpeed = false;
+    }
+
+
+    // if (boxesCollision) {
+    //     this.body.position.copy(this.tmpPosition); // last position
+    // }
 }
 
 //Configuração do teclado
@@ -461,6 +585,51 @@ export function keyboardUpdate() {
     }
 
     if (keyboard.down("space")) {
+
+        /** MODO DE CAMERA
+         *  1- Normal
+         *  2- He/She/It
+         *  3- Inspeção
+         */
+
+
+        switch (camMode) {
+            case 1:
+                camMode++;
+                deltaMovCam.set(25, 0, 5, 80, 90);
+                var cwd = new THREE.Vector3();
+                carAux.getWorldPosition(cwd);
+                camSup.position.set(cwd.x + deltaMovCam.x, cwd.y + deltaMovCam.y, cwd.z + deltaMovCam.z);
+                return; // paleativo por preguiça
+                break; // por prevenção
+            case 2:
+                if (joyStickMode) {
+                    camMode = 1;
+                    deltaMovCam.reset();
+                    return;
+                } else {
+                    camMode++;
+                }
+                break;
+            case 3:
+                camMode = 1;
+                deltaMovCam.reset();
+                break;
+        }
+
+        // não deixa entrar no modo de inspeção para o modo celular
+        if (joyStickMode && camMode == 3) {
+            camMode = 1;
+        }
+
+        //console.log("Modo de camera a ser ativado: " + camMode);
+
+        // if (camMode == 2) {
+        //     // trocar camera
+        //     camMode.set(15, -15, 15);
+        //     return; 
+        // }
+
         modoCamera.simulacao = !modoCamera.simulacao;
         if (modoCamera.simulacao) { // sai do modo de inspeção e retoma parametros
 
@@ -528,27 +697,35 @@ function carInicialParameters() {
 
 //Traslação da camera de acordo com o movimento do carro
 export function defineCamPosition() {
-    if (modoCamera.simulacao) { //
+    if (modoCamera.simulacao) { // fora modo simu
         camera.matrixAutoUpdate = false;
         var mat4Cam = new THREE.Matrix4();
         camera.matrix.identity();
         // Will execute T1 and then R1
-        if (modoCamera.simulacao) {
-            camera.matrix.multiply(mat4Cam.makeRotationZ(degreesToRadians(50))); // R1
-            camera.matrix.multiply(mat4Cam.makeRotationX(degreesToRadians(50))); // R1
-        }
+        //if (modoCamera.simulacao) {
+        camera.matrix.multiply(mat4Cam.makeRotationZ(degreesToRadians(deltaMovCam.rotZ))); // R1
+        camera.matrix.multiply(mat4Cam.makeRotationX(degreesToRadians(deltaMovCam.rotX))); // R1
+        //}
+
         var cwd = new THREE.Vector3();
         carAux.getWorldPosition(cwd);
-        camSup.position.set(cwd.x + 30, cwd.y - 30, cwd.z + 30);
+
+        // TESTE PARA MODO HE/SHE/IT
+        // if (camMode == 2) {
+        //     camSup.position.set(cwd.x, cwd.y, cwd.z);
+        // } else { // MODO 1 - NORMAL
+        camSup.position.set(cwd.x + deltaMovCam.x, cwd.y + deltaMovCam.y, cwd.z + deltaMovCam.z);
+        //}
+
         //TESTE LUZ
         let lightPositionaAux = new THREE.Vector3(cwd.x + 10, cwd.y - 4, cwd.z + 6.5);
         updateLightPosition(lightPositionaAux);
+
         //updateLightPosition(lightPosition);
         //console.log(lightPosition)
         //console.log(cwd);
-    } else {
+    } else { // modo simulação
         camera.matrixAutoUpdate = true;
-        //TESTE LUZ
         updateLightPosition(camera.position);
     }
 
@@ -723,29 +900,6 @@ function backShape() {
     backShape.lineTo(-1.0, 0.72);
 
     return backShape;
-}
-
-function rimShape() {
-    var rimShape = new THREE.Shape();
-    rimShape.moveTo(0.05, 0.05);
-    rimShape.lineTo(0.05, 0.3);
-    rimShape.lineTo(-0.05, 0.3);
-    rimShape.lineTo(-0.05, 0.05);
-    rimShape.lineTo(-0.3, 0.05);
-    rimShape.lineTo(-0.3, -0.05);
-    rimShape.lineTo(-0.05, -0.05);
-    rimShape.lineTo(-0.05, -0.3);
-    rimShape.lineTo(0.05, -0.3);
-    rimShape.lineTo(0.05, -0.05);
-    rimShape.lineTo(0.3, -0.05);
-    rimShape.lineTo(0.3, 0.05);
-    rimShape.lineTo(0.05, 0.05);
-
-    //rimShape.lineTo(0.1,0.1);
-
-
-    return rimShape;
-
 }
 
 function tireShape() {
