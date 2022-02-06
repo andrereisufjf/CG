@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.13.0/css/all.css">
+
+
+<head>
+    <title>T1 Grupo 07- CG - Mobile Version</title>
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../html/resources/default.css">
+    <link rel="stylesheet" href="../libs/other/buttons.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        body {
+            font-family: Monospace;
+            text-align: center;
+        }
+        
+        #joystickWrapper1 {
+            pointer-events: auto;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            display: block;
+            touch-action: manipulation;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="joystickWrapper1"></div>
+
+    <button style="bottom:45px; right: 120px;" id="A" class="video-game-button"> <i class="fas fa-rocket"></i> </button>
+
+    <button style="bottom:45px; right: 20px;" id="B" class="video-game-button"><i class="fas fa-hand-paper"></i></button>
+
+    <button style="bottom:45px; right: 250px;" id="C" class="video-game-button"> <i class="fas fa-exchange-alt"></i></button>
+
+    <button style="top:10px; right: 15px; width: 1emp; line-height: 1.4em; font-size: 10pt; background-color: #cccccc; background-image:none" id="full" class="video-game-button">[ ]</button>
+
+    <div id="webgl-output">
+        <script src="../libs/other/ammo.wasm.js"></script>
+        <script src="../libs/other/nipplejs.js"></script>
+        <script type="module" src="t1JoyStick.js"></script>
+    </div>
+
+</body>
+
+</html>

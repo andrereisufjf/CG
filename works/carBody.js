@@ -7,6 +7,14 @@ import { changeLane, changeVisible, isOnLane, atualizarQuadrante, getInicialPosi
 import { GUI } from '../build/jsm/libs/dat.gui.module.js';
 
 import { TeapotGeometry } from '../build/jsm/geometries/TeapotGeometry.js';
+// TESTE JOY
+import { Buttons } from "../libs/other/buttons.js";
+var buttons = new Buttons(onButtonDown, onButtonUp);
+var pressedA = false;
+var pressedB = false;
+
+// actions
+var actions = {};
 
 // To use the keyboard
 var keyboard = new KeyboardState();
@@ -1137,6 +1145,62 @@ function updateLightPosition(position) {
 
     //lightSphere.position.copy(position);
     //console.log(activeLight, lightArray[activeLight].position, lightSphere.position)
+}
+
+
+//TESTE JOY
+
+export function activeJoyStickMode() {
+    joyStickMode = true;
+    addJoysticks();
+}
+
+function addJoysticks() {
+    // Details in the link bellow:
+    // https://yoannmoi.net/nipplejs/
+
+    let joystickL = nipplejs.create({
+        zone: document.getElementById('joystickWrapper1'),
+        mode: 'static',
+        lockX: true, // only move on the Y axis				
+        position: { top: '-100px', left: '80px' }
+    });
+
+    joystickL.on('move', function(evt, data) {
+        const steer = data.vector.x;
+        actions.left = actions.right = false;
+        if (steer > 0) actions.right = true;
+        if (steer < 0) actions.left = true;
+    })
+
+    joystickL.on('end', function(evt) {
+        actions.left = actions.right = false;
+    })
+}
+
+function onButtonDown(event) {
+    switch (event.target.id) {
+        case "A":
+            actions.braking = false;
+            actions.acceleration = true;
+            break;
+        case "B":
+            actions.braking = true;
+            actions.acceleration = false;
+            break;
+        case "C":
+            actions.braking = true;
+            actions.acceleration = false;
+            break;
+        case "full":
+            buttons.setFullScreen();
+            break;
+    }
+}
+
+function onButtonUp(event) {
+    actions.acceleration = false;
+    actions.braking = false;
 }
 
 
