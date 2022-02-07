@@ -7,14 +7,17 @@ import { changeLane, changeVisible, isOnLane, atualizarQuadrante, getInicialPosi
 import { GUI } from '../build/jsm/libs/dat.gui.module.js';
 
 import { TeapotGeometry } from '../build/jsm/geometries/TeapotGeometry.js';
+
 // TESTE JOY
 import { Buttons } from "../libs/other/buttons.js";
 var buttons = new Buttons(onButtonDown, onButtonUp);
 var pressedA = false;
 var pressedB = false;
 
-// actions
+// actions - JSON
 var actions = {};
+
+// FIM TESTE JOY
 
 // To use the keyboard
 var keyboard = new KeyboardState();
@@ -518,14 +521,59 @@ function checkCollision() {
 //Configuração do teclado
 export function keyboardUpdate() {
 
-    keyboard.update();
+    if (!joyStickMode) {
+        keyboard.update();
 
 
-    if (modoCamera.simulacao) { // CONTROLE JOGO 
+        if (modoCamera.simulacao) { // CONTROLE JOGO 
 
-        if (playing) {
-            atualizarQuadrante(car.position.x, car.position.y);
+            if (playing) {
+                atualizarQuadrante(car.position.x, car.position.y);
 
+                if (keyboard.pressed("X")) speed = Math.min(speed + 2 * deltaSpeed, speedLimit);
+                if (keyboard.pressed("down")) speed = Math.max(speed - 2 * deltaSpeed, -speedLimit);
+                if (keyboard.pressed("left")) angle = Math.min(angle + deltaAngle, angleLimit);
+                if (keyboard.pressed("right")) angle = Math.max(angle - deltaAngle, -angleLimit);
+
+                if (!keyboard.pressed("X") && !keyboard.pressed("down")) {
+                    if (speed > 0) {
+                        speed = Math.max(speed - deltaSpeed, 0);
+                    } else if (speed < 0) {
+                        speed = Math.min(speed + deltaSpeed, 0);
+                    }
+                }
+
+                if (!keyboard.pressed("left") && !keyboard.pressed("right")) {
+                    if (angle > 0) {
+                        angle = Math.max(angle - deltaAngle, 0);
+                    } else if (angle < 0) {
+                        angle = Math.min(angle + deltaAngle, 0);
+                    }
+                }
+
+                if (keyboard.down("1")) {
+                    changeLane(1, scene);
+                    carInicialParameters();
+                } else if (keyboard.down("2")) {
+                    changeLane(2, scene);
+                    carInicialParameters();
+                } else if (keyboard.down("3")) {
+                    changeLane(3, scene);
+                    carInicialParameters();
+                } else if (keyboard.down("4")) {
+                    changeLane(4, scene);
+                    carInicialParameters();
+                } else if (keyboard.down("5")) { // TESTAR AUMENTAR AS VOLTAS
+                    updateTurn();
+                }
+
+                //atualiza a velocidade
+                speedometer.changeText("Velocidade: " + (20 * speed).toFixed(1) + "m/s");
+            } else {
+                speed = 0;
+            }
+        } else { // CONTROLE NO MODO DE SIMULAÇÃO
+            //xspeed = 0.0;
             if (keyboard.pressed("X")) speed = Math.min(speed + 2 * deltaSpeed, speedLimit);
             if (keyboard.pressed("down")) speed = Math.max(speed - 2 * deltaSpeed, -speedLimit);
             if (keyboard.pressed("left")) angle = Math.min(angle + deltaAngle, angleLimit);
@@ -546,53 +594,14 @@ export function keyboardUpdate() {
                     angle = Math.min(angle + deltaAngle, 0);
                 }
             }
-
-            if (keyboard.down("1")) {
-                changeLane(1, scene);
-                carInicialParameters();
-            } else if (keyboard.down("2")) {
-                changeLane(2, scene);
-                carInicialParameters();
-            } else if (keyboard.down("3")) {
-                changeLane(3, scene);
-                carInicialParameters();
-            } else if (keyboard.down("4")) {
-                changeLane(4, scene);
-                carInicialParameters();
-            } else if (keyboard.down("5")) { // TESTAR AUMENTAR AS VOLTAS
-                updateTurn();
-            }
-
-            //atualiza a velocidade
-            speedometer.changeText("Velocidade: " + (20 * speed).toFixed(1) + "m/s");
-        } else {
-            speed = 0;
-        }
-    } else { // CONTROLE NO MODO DE SIMULAÇÃO
-        //xspeed = 0.0;
-        if (keyboard.pressed("X")) speed = Math.min(speed + 2 * deltaSpeed, speedLimit);
-        if (keyboard.pressed("down")) speed = Math.max(speed - 2 * deltaSpeed, -speedLimit);
-        if (keyboard.pressed("left")) angle = Math.min(angle + deltaAngle, angleLimit);
-        if (keyboard.pressed("right")) angle = Math.max(angle - deltaAngle, -angleLimit);
-
-        if (!keyboard.pressed("X") && !keyboard.pressed("down")) {
-            if (speed > 0) {
-                speed = Math.max(speed - deltaSpeed, 0);
-            } else if (speed < 0) {
-                speed = Math.min(speed + deltaSpeed, 0);
-            }
         }
 
-        if (!keyboard.pressed("left") && !keyboard.pressed("right")) {
-            if (angle > 0) {
-                angle = Math.max(angle - deltaAngle, 0);
-            } else if (angle < 0) {
-                angle = Math.min(angle + deltaAngle, 0);
-            }
-        }
+    } else {
+        updateAction();
     }
 
-    if (keyboard.down("space")) {
+    //console.log(actions.exchange);
+    if (keyboard.down("space") || actions.exchange) {
 
         /** MODO DE CAMERA
          *  1- Normal
@@ -660,7 +669,71 @@ export function keyboardUpdate() {
         }
     }
 
+    function updateAction() {
+        if (playing) {
+            atualizarQuadrante(car.position.x, car.position.y);
 
+            //console.log(actions.acceleration)
+
+            if (actions.acceleration) speed = Math.min(speed + 2 * deltaSpeed, speedLimit);
+            if (actions.braking) speed = Math.max(speed - 2 * deltaSpeed, -speedLimit);
+            if (actions.left) angle = Math.min(angle + deltaAngle, angleLimit);
+            if (actions.right) angle = Math.max(angle - deltaAngle, -angleLimit);
+
+            if (!actions.acceleration && !actions.braking) {
+                if (speed > 0) {
+                    speed = Math.max(speed - deltaSpeed, 0);
+                } else if (speed < 0) {
+                    speed = Math.min(speed + deltaSpeed, 0);
+                }
+            }
+
+            if (!actions.active) {
+                if (angle > 0) {
+                    angle = Math.max(angle - deltaAngle, 0);
+                } else if (angle < 0) {
+                    angle = Math.min(angle + deltaAngle, 0);
+                }
+            }
+
+            //atualiza a velocidade
+            speedometer.changeText("Velocidade: " + (20 * speed).toFixed(1) + "m/s");
+        } else {
+            speed = 0;
+        }
+
+        //console.log(actions.active);
+
+        // if (actions.acceleration) {
+        //     if (speed < -1)
+        //         breakingForce = maxBreakingForce;
+        //     else engineForce = maxEngineForce;
+        // }
+        // if (actions.braking) {
+        //     if (speed > 1)
+        //         breakingForce = maxBreakingForce;
+        //     else engineForce = -maxEngineForce / 2;
+        // }
+        // if (actions.left) {
+        //     if (vehicleSteering < steeringClamp)
+        //         vehicleSteering += steeringIncrement;
+        // } else {
+        //     if (actions.right) {
+        //         if (vehicleSteering > -steeringClamp)
+        //             vehicleSteering -= steeringIncrement;
+        //     } else {
+        //         if (vehicleSteering < -steeringIncrement)
+        //             vehicleSteering += steeringIncrement;
+        //         else {
+        //             if (vehicleSteering > steeringIncrement)
+        //                 vehicleSteering -= steeringIncrement;
+        //             else {
+        //                 vehicleSteering = 0;
+        //             }
+        //         }
+        //     }
+        // }
+    }
     // //TESTE LUZ
     // if (keyboard.pressed("D")) {
     //     lightPosition.x += 0.05;
@@ -1152,6 +1225,7 @@ function updateLightPosition(position) {
 
 export function activeJoyStickMode() {
     joyStickMode = true;
+    deltaAngle = degreesToRadians(0.2);
     addJoysticks();
 }
 
@@ -1167,6 +1241,7 @@ function addJoysticks() {
     });
 
     joystickL.on('move', function(evt, data) {
+        actions.active = true;
         const steer = data.vector.x;
         actions.left = actions.right = false;
         if (steer > 0) actions.right = true;
@@ -1175,6 +1250,7 @@ function addJoysticks() {
 
     joystickL.on('end', function(evt) {
         actions.left = actions.right = false;
+        actions.active = false;
     })
 }
 
@@ -1189,7 +1265,8 @@ function onButtonDown(event) {
             actions.acceleration = false;
             break;
         case "C":
-            actions.braking = true;
+            actions.exchange = true;
+            actions.braking = false;
             actions.acceleration = false;
             break;
         case "full":
@@ -1201,6 +1278,7 @@ function onButtonDown(event) {
 function onButtonUp(event) {
     actions.acceleration = false;
     actions.braking = false;
+    actions.exchange = false
 }
 
 
