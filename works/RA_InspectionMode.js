@@ -49,9 +49,9 @@ var arToolkitSource = new ARjs.Source({
     // to read from the webcam
     sourceType: 'webcam',
 
-    // to read from an image
-    // sourceType: 'image',
-    // sourceUrl: '../assets/AR/kanjiScene.jpg',
+    // // to read from an image
+    sourceType: 'image',
+    sourceUrl: '../assets/AR/kanjiScene.jpg',
 
     // to read from a video
     // sourceType : 'video',
@@ -119,50 +119,40 @@ scene.visible = false
 var light = initDefaultSpotlight(scene, new THREE.Vector3(-5, 5, 5));
 light.castShadow = true;
 
-// var geometry = new THREE.PlaneGeometry(2, 2);
-// var material = new THREE.MeshLambertMaterial({
-//     transparent: true,
-//     opacity: 0.3,
-//     side: THREE.DoubleSide
-// });
-
-// var plano = new THREE.Mesh(geometry, material);
-// plano.rotateX(degreesToRadians(-90));
-// plano.receiveShadow = true;
-// scene.add(plano);
-
-//loadGLTFFile('./animation/', 'scene.gltf');
-
-// function loadGLTFFile(modelPath, modelName) {
-//     var loader = new GLTFLoader();
-//     loader.load(modelPath + modelName, function(gltf) {
-//         var obj = gltf.scene;
-//         obj.traverse(function(child) {
-//             if (child) {
-//                 child.castShadow = true;
-//             }
-//         });
-//         obj.traverse(function(node) {
-//             if (node.material) node.material.side = THREE.DoubleSide;
-//         });
-
-//         obj = normalizeAndRescale(obj, 2);
-//         obj.receiveShadow = true;
-//         scene.add(obj);
-
-//         // Create animationMixer and push it in the array of mixers
-//         var mixerLocal = new THREE.AnimationMixer(obj);
-//         mixerLocal.clipAction(gltf.animations[0]).play();
-//         mixer.push(mixerLocal);
-//     }, onProgress, onError);
-// }
-
 function normalizeAndRescale(obj, newScale) {
     var scale = getMaxSize(obj); // Available in 'utils.js'
     obj.scale.set(newScale * (1.0 / scale),
         newScale * (1.0 / scale),
         newScale * (1.0 / scale));
     return obj;
+}
+
+var lightColor = "rgb(255,255,255)";
+var spotLight = new THREE.SpotLight(lightColor, 1.1);
+
+setSpotLight(camera.position)
+
+function setSpotLight(position) {
+    spotLight.position.copy(position);
+    spotLight.shadow.mapSize.width = 512;
+    spotLight.shadow.mapSize.height = 512;
+    spotLight.angle = degreesToRadians(40);
+    spotLight.castShadow = true;
+    spotLight.decay = 2;
+    spotLight.penumbra = 0.5;
+    spotLight.name = "Spot Light"
+    spotLight.visible = true;
+
+    scene.add(spotLight);
+    //lightArray.push(spotLight);
+}
+
+function defineCamPosition() {
+    //console.log("entrei");
+    camera.matrixAutoUpdate = true;
+    spotLight.target = car;
+    spotLight.position.copy(camera.position);
+
 }
 
 // function onError() {};
@@ -185,6 +175,9 @@ function showInformation() {
     // Use this to show information onscreen
     var controls = new InfoBox();
     controls.add("Grupo 07");
+    controls.addParagraph();
+    controls.add("A visualização pelo WebCam pode ser realizada " +
+        "comentando a linha 53 e 54.");
     controls.show();
 }
 
@@ -194,6 +187,7 @@ requestAnimationFrame(function animate(nowMsec) {
     var lastTimeMsec = null;
     // keep looping
     requestAnimationFrame(animate);
+    defineCamPosition();
     // measure time
     lastTimeMsec = lastTimeMsec || nowMsec - 1000 / 60
     var deltaMsec = Math.min(200, nowMsec - lastTimeMsec)
