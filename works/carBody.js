@@ -8,17 +8,6 @@ import { GUI } from '../build/jsm/libs/dat.gui.module.js';
 
 import { TeapotGeometry } from '../build/jsm/geometries/TeapotGeometry.js';
 
-// TESTE JOY
-import { Buttons } from "../libs/other/buttons.js";
-var buttons = new Buttons(onButtonDown, onButtonUp);
-var pressedA = false;
-var pressedB = false;
-
-// actions - JSON
-var actions = {};
-
-// FIM TESTE JOY
-
 // To use the keyboard
 var keyboard = new KeyboardState();
 
@@ -64,7 +53,18 @@ var deltaMovCam = {
     },
 };
 var camMode = 1;
+
+
+//joyStick
 var joyStickMode = false;
+import { Buttons } from "../libs/other/buttons.js";
+var buttons = new Buttons(onButtonDown, onButtonUp);
+var lastTime = 0;
+
+// actions - JSON
+var actions = {};
+actions.exchange = false;
+// Fim Joy
 
 //controle da camera
 var modoCamera;
@@ -600,38 +600,40 @@ export function keyboardUpdate() {
         updateAction();
     }
 
-    //console.log(actions.exchange);
-    if (keyboard.down("space") || actions.exchange) {
+    //console.log("cond: " + (actions.exchange && time.second > lastTime));
+    if (keyboard.down("space") || (actions.exchange && time.second > lastTime)) {
 
         /** MODO DE CAMERA
          *  1- Normal
          *  2- He/She/It
          *  3- Inspeção
          */
+        if (joyStickMode) {
+            lastTime = (time.second < 58 ? time.second : 0) + 1;
 
-
-        switch (camMode) {
-            case 1:
-                camMode++;
-                deltaMovCam.set(25, 0, 5, 80, 90);
-                var cwd = new THREE.Vector3();
-                carAux.getWorldPosition(cwd);
-                camSup.position.set(cwd.x + deltaMovCam.x, cwd.y + deltaMovCam.y, cwd.z + deltaMovCam.z);
-                return; // paleativo por preguiça
-                break; // por prevenção
-            case 2:
-                if (joyStickMode) {
+            switch (camMode) {
+                case 1:
+                    camMode++;
+                    deltaMovCam.set(25, 0, 5, 80, 90);
+                    var cwd = new THREE.Vector3();
+                    carAux.getWorldPosition(cwd);
+                    camSup.position.set(cwd.x + deltaMovCam.x, cwd.y + deltaMovCam.y, cwd.z + deltaMovCam.z);
+                    return; // paleativo por preguiça
+                    break; // por prevenção
+                case 2:
+                    if (joyStickMode) {
+                        camMode = 1;
+                        deltaMovCam.reset();
+                        return;
+                    } else {
+                        camMode++;
+                    }
+                    break;
+                case 3:
                     camMode = 1;
                     deltaMovCam.reset();
-                    return;
-                } else {
-                    camMode++;
-                }
-                break;
-            case 3:
-                camMode = 1;
-                deltaMovCam.reset();
-                break;
+                    break;
+            }
         }
 
         // não deixa entrar no modo de inspeção para o modo celular
@@ -668,100 +670,103 @@ export function keyboardUpdate() {
             speedometer.changeText("MODO DE INSPEÇÃO");
         }
     }
+}
 
-    function updateAction() {
-        if (playing) {
-            atualizarQuadrante(car.position.x, car.position.y);
+function updateAction() {
+    if (playing) {
+        atualizarQuadrante(car.position.x, car.position.y);
 
-            //console.log(actions.acceleration)
+        //console.log(actions.acceleration)
 
-            if (actions.acceleration) speed = Math.min(speed + 2 * deltaSpeed, speedLimit);
-            if (actions.braking) speed = Math.max(speed - 2 * deltaSpeed, -speedLimit);
-            if (actions.left) angle = Math.min(angle + deltaAngle, angleLimit);
-            if (actions.right) angle = Math.max(angle - deltaAngle, -angleLimit);
+        if (actions.acceleration) speed = Math.min(speed + 2 * deltaSpeed, speedLimit);
+        if (actions.braking) speed = Math.max(speed - 2 * deltaSpeed, -speedLimit);
+        if (actions.left) angle = Math.min(angle + deltaAngle, angleLimit);
+        if (actions.right) angle = Math.max(angle - deltaAngle, -angleLimit);
 
-            if (!actions.acceleration && !actions.braking) {
-                if (speed > 0) {
-                    speed = Math.max(speed - deltaSpeed, 0);
-                } else if (speed < 0) {
-                    speed = Math.min(speed + deltaSpeed, 0);
-                }
+        if (!actions.acceleration && !actions.braking) {
+            if (speed > 0) {
+                speed = Math.max(speed - deltaSpeed, 0);
+            } else if (speed < 0) {
+                speed = Math.min(speed + deltaSpeed, 0);
             }
-
-            if (!actions.active) {
-                if (angle > 0) {
-                    angle = Math.max(angle - deltaAngle, 0);
-                } else if (angle < 0) {
-                    angle = Math.min(angle + deltaAngle, 0);
-                }
-            }
-
-            //atualiza a velocidade
-            speedometer.changeText("Velocidade: " + (20 * speed).toFixed(1) + "m/s");
-        } else {
-            speed = 0;
         }
 
-        //console.log(actions.active);
+        if (!actions.active) {
+            if (angle > 0) {
+                angle = Math.max(angle - deltaAngle, 0);
+            } else if (angle < 0) {
+                angle = Math.min(angle + deltaAngle, 0);
+            }
+        }
 
-        // if (actions.acceleration) {
-        //     if (speed < -1)
-        //         breakingForce = maxBreakingForce;
-        //     else engineForce = maxEngineForce;
-        // }
-        // if (actions.braking) {
-        //     if (speed > 1)
-        //         breakingForce = maxBreakingForce;
-        //     else engineForce = -maxEngineForce / 2;
-        // }
-        // if (actions.left) {
-        //     if (vehicleSteering < steeringClamp)
-        //         vehicleSteering += steeringIncrement;
-        // } else {
-        //     if (actions.right) {
-        //         if (vehicleSteering > -steeringClamp)
-        //             vehicleSteering -= steeringIncrement;
-        //     } else {
-        //         if (vehicleSteering < -steeringIncrement)
-        //             vehicleSteering += steeringIncrement;
-        //         else {
-        //             if (vehicleSteering > steeringIncrement)
-        //                 vehicleSteering -= steeringIncrement;
-        //             else {
-        //                 vehicleSteering = 0;
-        //             }
-        //         }
-        //     }
-        // }
+        //atualiza a velocidade
+        speedometer.changeText("Velocidade: " + (20 * speed).toFixed(1) + "m/s");
+        //console.log(actions.exchange);
+    } else {
+        speed = 0;
     }
-    // //TESTE LUZ
-    // if (keyboard.pressed("D")) {
-    //     lightPosition.x += 0.05;
-    //     updateLightPosition(lightPosition);
-    // }
-    // if (keyboard.pressed("A")) {
-    //     lightPosition.x -= 0.05;
-    //     updateLightPosition(lightPosition);
-    // }
-    // if (keyboard.pressed("W")) {
-    //     lightPosition.y += 0.05;
-    //     updateLightPosition(lightPosition);
-    // }
-    // if (keyboard.pressed("S")) {
-    //     lightPosition.y -= 0.05;
-    //     updateLightPosition(lightPosition);
-    // }
-    // if (keyboard.pressed("E")) {
-    //     lightPosition.z -= 0.05;
-    //     updateLightPosition(lightPosition);
-    // }
-    // if (keyboard.pressed("Q")) {
-    //     lightPosition.z += 0.05;
-    //     updateLightPosition(lightPosition);
-    // }
-
-
 }
+//console.log(actions.active);
+
+// if (actions.acceleration) {
+//     if (speed < -1)
+//         breakingForce = maxBreakingForce;
+//     else engineForce = maxEngineForce;
+// }
+// if (actions.braking) {
+//     if (speed > 1)
+//         breakingForce = maxBreakingForce;
+//     else engineForce = -maxEngineForce / 2;
+// }
+// if (actions.left) {
+//     if (vehicleSteering < steeringClamp)
+//         vehicleSteering += steeringIncrement;
+// } else {
+//     if (actions.right) {
+//         if (vehicleSteering > -steeringClamp)
+//             vehicleSteering -= steeringIncrement;
+//     } else {
+//         if (vehicleSteering < -steeringIncrement)
+//             vehicleSteering += steeringIncrement;
+//         else {
+//             if (vehicleSteering > steeringIncrement)
+//                 vehicleSteering -= steeringIncrement;
+//             else {
+//                 vehicleSteering = 0;
+//             }
+//         }
+//     }
+// }
+
+
+// //TESTE LUZ
+// if (keyboard.pressed("D")) {
+//     lightPosition.x += 0.05;
+//     updateLightPosition(lightPosition);
+// }
+// if (keyboard.pressed("A")) {
+//     lightPosition.x -= 0.05;
+//     updateLightPosition(lightPosition);
+// }
+// if (keyboard.pressed("W")) {
+//     lightPosition.y += 0.05;
+//     updateLightPosition(lightPosition);
+// }
+// if (keyboard.pressed("S")) {
+//     lightPosition.y -= 0.05;
+//     updateLightPosition(lightPosition);
+// }
+// if (keyboard.pressed("E")) {
+//     lightPosition.z -= 0.05;
+//     updateLightPosition(lightPosition);
+// }
+// if (keyboard.pressed("Q")) {
+//     lightPosition.z += 0.05;
+//     updateLightPosition(lightPosition);
+// }
+
+
+
 
 //seta a pposição da camera baseado no quadrante atual
 
@@ -1225,7 +1230,7 @@ function updateLightPosition(position) {
 
 export function activeJoyStickMode() {
     joyStickMode = true;
-    deltaAngle = degreesToRadians(0.2);
+    deltaAngle = degreesToRadians(0.1);
     addJoysticks();
 }
 
@@ -1265,7 +1270,19 @@ function onButtonDown(event) {
             actions.acceleration = false;
             break;
         case "C":
-            actions.exchange = true;
+
+
+            //actions.exchange = true;
+            //console.log("teste " + time.second + " " + lastTime);
+            // controla a troca de camera
+            if (!actions.exchange && time.second > lastTime) {
+                //console.log("entrei");
+                actions.exchange = true;
+                // lastTime = (time.second < 58 ? time.second : 0) + 4;
+
+            } else {
+                actions.exchange = false;
+            }
             actions.braking = false;
             actions.acceleration = false;
             break;
