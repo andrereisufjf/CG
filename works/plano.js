@@ -1,6 +1,6 @@
 import * as THREE from '../build/three.module.js';
 import KeyboardState from '../libs/util/KeyboardState.js';
-import { updateTurn, getTurn } from './carBody.js';
+import { updateTurn, getTurn, cameraHeSheItActived } from './carBody.js';
 import * as OBJ from './objects.js';
 
 export const lado = 45; //Tamanho do quadrado inferior
@@ -361,7 +361,7 @@ export function addHelper(scene) {
 }
 
 
-export function controlledRender(renderer, camera, scene, inspMode) {
+export function controlledRender(renderer, camera, scene, inspMode, cameraHeSheIt) {
     var width = window.innerWidth;
     var height = window.innerHeight;
 
@@ -372,7 +372,9 @@ export function controlledRender(renderer, camera, scene, inspMode) {
     // deixar fundo preto no modo de insp para melhorar visualização
     inspMode ? renderer.setClearColor("rgb(80, 70, 170)") : renderer.setClearColor("rgb(0,0,0)");
     renderer.clear(); // Clean the window
-    renderer.render(scene, camera);
+
+    // valida qual render usar
+    cameraHeSheItActived ? renderer.render(scene, cameraHeSheIt) : renderer.render(scene, camera);
 
     if (inspMode) {
         // Set virtual camera viewport 

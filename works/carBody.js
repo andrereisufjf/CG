@@ -71,6 +71,7 @@ var modoCamera;
 
 //camera
 var camera;
+export var cameraHeSheItActived = false;
 let oldcameraModel = -1;
 let cameraModel = 3;
 
@@ -614,31 +615,34 @@ export function keyboardUpdate() {
          */
         if (joyStickMode) {
             lastTime = (time.second < 58 ? time.second : 0) + 1;
+        }
 
-            switch (camMode) {
-                case 1:
-                    camMode++;
-                    deltaMovCam.set(25, 0, 5, 80, 90);
-                    var cwd = new THREE.Vector3();
-                    carAux.getWorldPosition(cwd);
-                    camSup.position.set(cwd.x + deltaMovCam.x, cwd.y + deltaMovCam.y, cwd.z + deltaMovCam.z);
-                    return; // paleativo por preguiça
-                    break; // por prevenção
-                case 2:
-                    if (joyStickMode) {
-                        camMode = 1;
-                        deltaMovCam.reset();
-                        return;
-                    } else {
-                        camMode++;
-                    }
-                    break;
-                case 3:
+        switch (camMode) {
+            case 1:
+                camMode++;
+                cameraHeSheItActived = true;
+                // deltaMovCam.set(25, 0, 5, 80, 90);
+                // var cwd = new THREE.Vector3();
+                // carAux.getWorldPosition(cwd);
+                // camSup.position.set(cwd.x + deltaMovCam.x, cwd.y + deltaMovCam.y, cwd.z + deltaMovCam.z);
+                return; // paleativo por preguiça
+                break; // por prevenção
+            case 2:
+                cameraHeSheItActived = false;
+                if (joyStickMode) {
                     camMode = 1;
                     deltaMovCam.reset();
-                    break;
-            }
+                    return;
+                } else {
+                    camMode++;
+                }
+                break;
+            case 3:
+                camMode = 1;
+                deltaMovCam.reset();
+                break;
         }
+
 
         // não deixa entrar no modo de inspeção para o modo celular
         if (joyStickMode && camMode == 3) {
