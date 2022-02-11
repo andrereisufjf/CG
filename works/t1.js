@@ -56,7 +56,7 @@ car.add(cameraHeSheIt);
 var camSup = new THREE.Object3D();
 scene.add(camSup);
 var camSupAxesHelper = new THREE.AxesHelper(12);
-camSupAxesHelper.visible = true;
+camSupAxesHelper.visible = false;
 camSup.add(camSupAxesHelper);
 camSup.add(camera);
 scene.add(car);
