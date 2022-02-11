@@ -6,6 +6,7 @@ import {
     onWindowResize,
     initDefaultBasicLight,
     initCamera,
+    degreesToRadians,
 } from "../libs/util/util.js";
 import { createCarBody, definePosition, keyboardUpdate, initMov, defineCamPosition, activeJoyStickMode } from "./carBody.js"
 import { addPlanElements, getInicialPosition, lado, controlledRender, addHelper } from "./plano.js"
@@ -22,6 +23,10 @@ var camera = initCamera(new THREE.Vector3(0, 0, lado / 3)); // Init camera in th
 initDefaultBasicLight(scene, true);
 camera.name = 'camera';
 var modoCamera = { simulacao: true };
+
+// TESTE - SecondCamera
+var cameraHeSheIt = initCamera(new THREE.Vector3(0, 0, lado / 3)); // Init camera in this position
+cameraHeSheIt.name = 'cameraTerceiraPessoa';
 
 // Enable mouse rotation, pan, zoom etc.
 var trackballControls = new TrackballControls(camera, renderer.domElement);
@@ -48,6 +53,20 @@ var carAuxAxesHelper = new THREE.AxesHelper(3);
 carAuxAxesHelper.visible = true;
 //carAux.add(carAuxAxesHelper);
 
+// teste camera terceira pessoa
+//cameraHeSheIt.rotateZ(degreesToRadians(20));
+cameraHeSheIt.translateY(-20);
+cameraHeSheIt.translateZ(-10);
+cameraHeSheIt.rotateX(degreesToRadians(80));
+//cameraHeSheIt.position.set(25, 0, 5);
+carAux.add(cameraHeSheIt);
+//degreesToRadians(80)
+//deltaMovCam.set(25, 0, 5, 80, 90);
+// camera.matrix.multiply(mat4Cam.makeRotationZ(degreesToRadians(deltaMovCam.rotZ))); // R1
+// camera.matrix.multiply(mat4Cam.makeRotationX(degreesToRadians(deltaMovCam.rotX))); // R1
+// fim teste
+
+
 
 // Listen window size changes
 window.addEventListener('resize', function() { onWindowResize(camera, renderer) }, false);
@@ -59,7 +78,7 @@ addPlanElements(scene);
 activeJoyStickMode();
 
 //possibilita modo de inspeção
-initMov(modoCamera, getInicialPosition(), camera, scene, camSup, carAux);
+initMov(modoCamera, getInicialPosition(), camera, scene, camSup, carAux, cameraHeSheIt);
 
 render();
 
@@ -70,5 +89,5 @@ function render() {
     defineCamPosition();
     keyboardUpdate();
     requestAnimationFrame(render);
-    controlledRender(renderer, camera, scene, modoCamera.simulacao);
+    controlledRender(renderer, camera, scene, modoCamera.simulacao, cameraHeSheIt);
 }

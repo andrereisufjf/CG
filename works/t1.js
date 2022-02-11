@@ -28,7 +28,6 @@ var modoCamera = { simulacao: true };
 var cameraHeSheIt = initCamera(new THREE.Vector3(0, 0, lado / 3)); // Init camera in this position
 cameraHeSheIt.name = 'cameraTerceiraPessoa';
 
-
 // Enable mouse rotation, pan, zoom etc.
 var trackballControls = new TrackballControls(camera, renderer.domElement);
 
@@ -39,19 +38,6 @@ scene.add(axesHelper);
 
 var car = createCarBody();
 car.name = 'car';
-
-// teste camera terceira pessoa
-//cameraHeSheIt.rotateZ(degreesToRadians(20));
-cameraHeSheIt.translateY(-20);
-cameraHeSheIt.translateZ(-10);
-cameraHeSheIt.rotateX(degreesToRadians(80));
-//cameraHeSheIt.position.set(25, 0, 5);
-car.add(cameraHeSheIt);
-//degreesToRadians(80)
-//deltaMovCam.set(25, 0, 5, 80, 90);
-// camera.matrix.multiply(mat4Cam.makeRotationZ(degreesToRadians(deltaMovCam.rotZ))); // R1
-// camera.matrix.multiply(mat4Cam.makeRotationX(degreesToRadians(deltaMovCam.rotX))); // R1
-// fim teste
 
 var camSup = new THREE.Object3D();
 scene.add(camSup);
@@ -67,6 +53,19 @@ var carAuxAxesHelper = new THREE.AxesHelper(3);
 carAuxAxesHelper.visible = true;
 //carAux.add(carAuxAxesHelper);
 
+// teste camera terceira pessoa
+//cameraHeSheIt.rotateZ(degreesToRadians(20));
+cameraHeSheIt.translateY(-20);
+cameraHeSheIt.translateZ(-10);
+cameraHeSheIt.rotateX(degreesToRadians(80));
+//cameraHeSheIt.position.set(25, 0, 5);
+carAux.add(cameraHeSheIt);
+//degreesToRadians(80)
+//deltaMovCam.set(25, 0, 5, 80, 90);
+// camera.matrix.multiply(mat4Cam.makeRotationZ(degreesToRadians(deltaMovCam.rotZ))); // R1
+// camera.matrix.multiply(mat4Cam.makeRotationX(degreesToRadians(deltaMovCam.rotX))); // R1
+// fim teste
+
 // Listen window size changes
 window.addEventListener('resize', function() { onWindowResize(camera, renderer) }, false);
 
@@ -74,7 +73,7 @@ window.addEventListener('resize', function() { onWindowResize(camera, renderer) 
 addPlanElements(scene);
 
 //possibilita modo de inspeção
-initMov(modoCamera, getInicialPosition(), camera, scene, camSup, carAux);
+initMov(modoCamera, getInicialPosition(), camera, scene, camSup, carAux, cameraHeSheIt);
 
 render();
 

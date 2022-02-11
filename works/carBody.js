@@ -24,6 +24,7 @@ var scene;
 var camSup, carAux;
 var rotation;
 var variation = 0;
+var cameraHeSheIt;
 var deltaMovCam = {
     "x": 15,
     "y": -15,
@@ -408,7 +409,7 @@ function createTextures() {
 
 }
 
-export function initMov(modoCameraAux, inicialPosition, cameraAux, sceneAux, camSupAux, carAuxParameter) {
+export function initMov(modoCameraAux, inicialPosition, cameraAux, sceneAux, camSupAux, carAuxParameter, cameraHeSheItAux) {
     // inicia infos de tela
     secondBox = new SecondaryBox("Iniciando...");
     speedometer.show();
@@ -423,6 +424,7 @@ export function initMov(modoCameraAux, inicialPosition, cameraAux, sceneAux, cam
     scene = sceneAux;
     camSup = camSupAux;
     carAux = carAuxParameter;
+    cameraHeSheIt = cameraHeSheItAux;
     //lightSphere = createLightSphere(scene, 0.5, 10, 10, lightPosition);
     initLights();
 
@@ -452,6 +454,7 @@ export function definePosition() {
             //camSup.rotateZ(angle / 100);
         } else if (speed < -speedLimit * 0.05) {
             carCg.rotateZ(-angle);
+            // cameraHeSheIt.rotateY(angle / 3);
             //camSup.rotateZ(-angle / 100);
         }
 
