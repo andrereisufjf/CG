@@ -108,8 +108,9 @@ var modoInsp = {
 
 var carCg = new THREE.Object3D(); //CG do carro
 var carCgAxesHelper = new THREE.AxesHelper(5);
-carCg.add(carCgAxesHelper);
 carCgAxesHelper.visible = false;
+//carCg.add(carCgAxesHelper);
+
 
 //Fuselagem
 //Base
@@ -488,6 +489,10 @@ export function definePosition() {
 function checkCollision() {
     //console.log("entrei");
     let carBB = new THREE.Box3().setFromObject(carCg);
+
+    const box = new THREE.BoxHelper(carCg, 0xffff00);
+    scene.add(box);
+
     //let boxesCollision = false;
     let collision = objectsBox.some(function(objBB) {
         // if (self.body.BBox.intersectsBox(mesh.BBox)) {
@@ -498,12 +503,11 @@ function checkCollision() {
         // self.body.BBoxHelper.update();
         //console.log("func");
         if (objBB.intersectsBox(carBB)) {
-            console.log("COLISÃO");
+            //onsole.log("COLISÃO");
             speedLimit = speedLimitWithColision;
             alterColisionSpeed = true;
             return true;
         }
-
 
     });
 
@@ -926,7 +930,8 @@ var time = {
     },
 
     stringify: function() { // retorna as métricas gerais (durante o jogo)
-        return "Tempo Total: " + padL(this.minute) + ":" + padL(this.second) + " || " + "Volta Atual: " + padL(this.minuteActual) + ":" + padL(this.secondActual) + " || Melhor Volta: " + this.best + " || Voltas: " + turns;
+        return joyStickMode ? " Total: " + padL(this.minute) + ":" + padL(this.second) + " || " + "Atual: " + padL(this.minuteActual) + ":" + padL(this.secondActual) + " || Melhor: " + this.best + " || Voltas: " + turns :
+            "Tempo Total: " + padL(this.minute) + ":" + padL(this.second) + " || " + "Volta Atual: " + padL(this.minuteActual) + ":" + padL(this.secondActual) + " || Melhor Volta: " + this.best + " || Voltas: " + turns;
     },
 
     updateTurn: function() { // atualiza as variáveis de voltas

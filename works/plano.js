@@ -18,6 +18,7 @@ var barPositions = [];
 var boxPositions = [];
 var objects = [];
 export var objectsBox = [];
+let boxHelperActive = false;
 
 //Texturas
 //Textura do corpo do barril
@@ -112,6 +113,9 @@ function addObjects(scene) {
         objectsBox.push(new THREE.Box3().setFromObject(barrel));
         scene.add(barrel);
 
+        if (boxHelperActive)
+            scene.add(new THREE.BoxHelper(barrel, 0xffff00));
+
     }
 
     //Adicionando Caixas
@@ -129,6 +133,9 @@ function addObjects(scene) {
         objects.push(box);
         objectsBox.push(new THREE.Box3().setFromObject(box));
         scene.add(box);
+
+        if (boxHelperActive)
+            scene.add(new THREE.BoxHelper(box, 0xffff00));
     }
 }
 

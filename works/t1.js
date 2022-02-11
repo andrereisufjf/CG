@@ -48,7 +48,6 @@ var carAuxAxesHelper = new THREE.AxesHelper(3);
 carAuxAxesHelper.visible = true;
 //carAux.add(carAuxAxesHelper);
 
-
 // Listen window size changes
 window.addEventListener('resize', function() { onWindowResize(camera, renderer) }, false);
 
