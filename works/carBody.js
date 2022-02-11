@@ -490,8 +490,8 @@ function checkCollision() {
     //console.log("entrei");
     let carBB = new THREE.Box3().setFromObject(carCg);
 
-    const box = new THREE.BoxHelper(carCg, 0xffff00);
-    scene.add(box);
+    // const box = new THREE.BoxHelper(carCg, 0xffff00);
+    // scene.add(box);
 
     //let boxesCollision = false;
     let collision = objectsBox.some(function(objBB) {
