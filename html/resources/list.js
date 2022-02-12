@@ -35,6 +35,7 @@ var list = {
 				"Basic": "html/textureBasicInfo",
 				"Main Options": "html/textureOptionsInfo",
 				"Textured External Objects": "html/textureExternalObjectsInfo",
+				"UV Mapping":"html/textureUVMappingInfo",
 			},
 			"Raytracing":  {
 				"Example 1": "html/raytracingExample1Info",
@@ -68,8 +69,12 @@ var list = {
 				"Drag Control": "html/exampleDragControlInfo",
 				"Fly Controls":"html/exampleFlyControlInfo",		
 				"Joystick Elements":"html/exampleJoystickInfo",						
-				"Audio": "html/exampleAudioInfo",
 			},
+			"Auxiliary":  {
+				"Loading Screen": "html/exampleLoadingScreenInfo",
+				"Audio": "html/exampleAudioInfo",				
+			},
+
 		},
 	},
 };
