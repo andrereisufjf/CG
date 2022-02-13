@@ -16,7 +16,7 @@ export function buildBarrel(pos){
     cylinderMaterial.side =  THREE.DoubleSide;
     var cylinder = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
     cylinder.castShadow = true;
-    cylinder.position.set(pos[0], pos[1], 0.8);
+    cylinder.position.set(pos[0], pos[1], 0.2);
     cylinder.rotateX(degreesToRadians(90))
     cylinder.material.map = cylinderTexture;
     
@@ -43,8 +43,8 @@ export function buildBarrel(pos){
     bottomCircle.rotateX(degreesToRadians(90))
     bottomCircle.material.map = circleTexture;
     cylinder.add(bottomCircle)
-
-
+    
+    
     return cylinder;
 }
 
@@ -52,15 +52,16 @@ export function buildBox(pos){
     //Textura do corpo do barril
     var textureLoader = new THREE.TextureLoader();
     var boxTexture  = textureLoader.load('./textures/woodBox.jpg');
-
+    
     // Cilindro
     var boxGeometry = new THREE.BoxGeometry(boxSize,boxSize,boxSize)
     var boxMaterial = new THREE.MeshPhongMaterial();
     boxMaterial.side =  THREE.DoubleSide;
     var box = new THREE.Mesh(boxGeometry, boxMaterial);
-    box.position.set(pos[0], pos[1], boxSize/2);
+    box.castShadow = true;
+    box.position.set(pos[0], pos[1], 0.0);
     box.rotateX(degreesToRadians(90))
     box.material.map = boxTexture;
-   
+    
     return box;
 }

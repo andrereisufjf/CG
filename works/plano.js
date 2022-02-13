@@ -13,21 +13,27 @@ const inicialArrayPosition = quant / 2; //posição do bloco inicial
 const tamReal = tam * delta; //tamanho real do bloco a ser usado
 const limiteInterno = lado - tam; //limite interior do bloco
 let actualLane = 1; //pista selecionado
-var eachObjQty = 10; // Quantidade de cada objeto
-var barPositions = [];
-var boxPositions = [];
+var objPerTrack = 10; // Quantidade de cada objeto
+var barPositions = []; //Vetor de posição dos barris
+var boxPositions = []; //Vetor de posição das caixas
 var objects = [];
 export var objectsBox = [];
 let boxHelperActive = false;
 
-//Texturas
-//Textura do corpo do barril
+//Texturas da pista
 var textureLoader = new THREE.TextureLoader();
-var asphaltTexture = textureLoader.load('./textures/asphalt.jpg');
-var darkAsphaltTexture = textureLoader.load('./textures/darkAsphalt.jpg');
-var landTexture = textureLoader.load('./textures/land.jpg');
-var darkLandTexture = textureLoader.load('./textures/darkLand.jpg');
-var grassTexture = textureLoader.load('./textures/grass.jpg');
+var trackTextures = [textureLoader.load('./textures/asphalt.jpg'),
+textureLoader.load('./textures/land.jfif'),
+textureLoader.load('./textures/metalFloor.jpg'),
+textureLoader.load('./textures/trackRock.png')];
+
+//Texturas do terreno
+var planeTextures = [textureLoader.load('./textures/dune.jfif'),
+                     textureLoader.load('./textures/grass.jpg'),
+                     textureLoader.load('./textures/rock.jpg'),
+                     textureLoader.load('./textures/gravel.jpg')];
+
+var skyTexture  = textureLoader.load('./textures/sky.jpg');
 
 // create the ground plane
 var plane = createPlane();
@@ -43,15 +49,12 @@ let blocks = [];
 //Classe dos blocos da corrida
 class Blocks {
     constructor(x = 0, y = 0, z, tamBloco, isInicial = false, visibility = true) {
-        //let color = isInicial ? { color: "rgba(255, 69, 0)" } : { color: "rgba(128, 128, 128)" };
+
         var cubeGeometry = new THREE.BoxGeometry(tamBloco, tamBloco, 0.3);
         var cubeMaterial = new THREE.MeshLambertMaterial();
 
-        if (Math.random() > 0.2) {
-            cubeMaterial.map = asphaltTexture;
-        } else {
-            cubeMaterial.map = landTexture;
-        }
+        cubeMaterial.map = trackTextures[actualLane-1];
+        plane.material.map = planeTextures[actualLane-1];
 
         var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
         cube.position.set(x, y, z);
@@ -63,22 +66,13 @@ class Blocks {
 
 //Cria o plano inferior
 function createPlane() {
-    // var planeGeometry = new THREE.PlaneGeometry(lado * 2.1, lado * 2.1);
-    // planeGeometry.translate(45, 45, -2); // To avoid conflict with the axeshelper
-    // var planeMaterial = new THREE.MeshBasicMaterial({
-    //     color: "rgba(255, 160, 122)",
-    //     side: THREE.DoubleSide,
-    // });
-    // return new THREE.Mesh(planeGeometry, planeMaterial);
-
-    var planeGeometry = new THREE.PlaneGeometry(lado * 2.1, lado * 2.1, 10, 10);
-    planeGeometry.translate(45, 45, -0.8); // To avoid conflict with the axeshelper
-    var planeMaterial = new THREE.MeshLambertMaterial({ map: grassTexture, side: THREE.DoubleSide });
+    var planeGeometry = new THREE.CircleGeometry(100,100,100)
+    planeGeometry.translate(45, 45, -0.7);
+    var planeMaterial = new THREE.MeshLambertMaterial({ map: planeTextures[actualLane-1], side: THREE.DoubleSide });
     var plane = new THREE.Mesh(planeGeometry, planeMaterial);
     plane.receiveShadow = true;
 
     return plane;
-
 }
 
 function createBlocks() {
@@ -86,20 +80,38 @@ function createBlocks() {
 
 }
 
+//Cria o cenario
 export function addPlanElements(scene) {
     createBlocks();
     blocks.forEach(block => scene.add(block));
     scene.add(plane);
-    addObjects(scene)
+    addObjects(scene);
+    createSkyDome(scene);
     axesHelper.visible = false;
     scene.add(axesHelper);
 }
 
+//Criação do Sky Dome
+function createSkyDome(scene){
+ 
+    var skyDomeGeometry = new THREE.SphereGeometry(100,100,100)
+    var skyDomeMaterial =  new THREE.MeshPhongMaterial({map: skyTexture});
+    skyDomeMaterial.side = THREE.DoubleSide;
+    var skyDome = new THREE.Mesh(skyDomeGeometry,skyDomeMaterial);
+    
+    skyDome.translateX(45)
+    skyDome.translateY(45)
+
+    scene.add(skyDome);
+
+}
+
+//Adiciona objetos ao cenario
 function addObjects(scene) {
     objectsBox = [];
-    //Adicionando Barris
 
-    for (let i = 0; i < eachObjQty; i++) {
+    //Adicionando Barris
+    for (let i = 0; i < objPerTrack; i++) {
 
         var randomBlocks = [Math.floor(Math.random() * tamMatriz), Math.floor(Math.random() * tamMatriz)];
 
@@ -119,8 +131,7 @@ function addObjects(scene) {
     }
 
     //Adicionando Caixas
-
-    for (let i = 0; i < eachObjQty; i++) {
+    for (let i = 0; i < objPerTrack; i++) {
 
         var randomBlocks = [Math.floor(Math.random() * tamMatriz), Math.floor(Math.random() * tamMatriz)];
 
@@ -153,25 +164,21 @@ export function getInicialPosition() {
     return new THREE.Vector3(lado + tam, 5, 0);
 }
 
-export function atualizarQuadrante(x, y) {
+export function activateBlock(x, y) {
 
     if (y < 0) return;
 
     x = parseInt(x / 10);
     y = parseInt(y / 10);
 
-    //console.log(x, y);
-
     if (x > 8 || x < 0) return;
     // // vamos achar a posição na matriz, se existir
     let onLand = tracks[actualLane][x][y] || 0;
     if (onLand != 0) {
         let index = x * (tam - 1) + y;
-        //console.log(index);
         if (index != 45) { // bloco não inicial
             changeTexture(blocks[index], x, y);
         } else if (index == 45) { // bloco inicial
-            //console.log("inicial");
             if (count >= tracksMinCount[actualLane]) {
                 //validar se houve uma volta e 
                 updateTurn();
@@ -185,7 +192,7 @@ export function atualizarQuadrante(x, y) {
 
 }
 
-
+//
 var tracks = {
     1: [
         [1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -250,8 +257,7 @@ function createTrack(key) {
     let pista = tracks[key];
     for (let i = 0; i < tamMatriz; i++) {
         for (let j = 0; j < tamMatriz; j++) {
-            // pista[i][j];
-            // console.log(pista[i][j]);
+
             if (pista[i][j] === 1) {
                 blocks.push(new Blocks(tam * i + 5, tam * j + 5, z, tamReal, false));
             } else if (pista[i][j] === 2) {
@@ -275,9 +281,9 @@ export function changeLane(key, scene) {
     objects.forEach(obj => obj.visible = false);
     objects = [];
 
+    actualLane = key;
     createTrack(key);
     blocks.forEach(block => scene.add(block));
-    actualLane = key;
 
     tracksCounter = JSON.parse(JSON.stringify(tracks[actualLane]));
     count = 0;
@@ -316,23 +322,6 @@ export function changeVisible(visibility, scene = null) {
 }
 
 function changeTexture(obj, x, y) {
-    //let texture = getTurn() % 2 ? "rgb(16, 75, 205)" : "rgba(128, 128, 128)";
-    //console.log(obj.material.map == darkAsphaltTexture);
-
-    if (getTurn() % 2) {
-        if (obj.material.map == asphaltTexture || obj.material.map == darkAsphaltTexture) {
-            obj.material.map = darkAsphaltTexture;
-        } else {
-            obj.material.map = darkLandTexture;
-        }
-    } else {
-        if (obj.material.map == darkAsphaltTexture || obj.material.map == asphaltTexture) {
-            obj.material.map = asphaltTexture;
-        } else {
-            obj.material.map = landTexture;
-        }
-    }
-    //obj.material.color.set(color);
 
     let passControl = tracksCounter[x][y]
     if (passControl != 0 && passControl != 8) {
@@ -368,7 +357,7 @@ export function controlledRender(renderer, camera, scene, inspMode, cameraHeSheI
     //Set main viewport
     renderer.setViewport(0, 0, width, height); // Reset viewport    
     renderer.setScissorTest(false); // Disable scissor to paint the entire window
-    //renderer.setClearColor("rgb(80, 70, 170)");
+
     // deixar fundo preto no modo de insp para melhorar visualização
     inspMode ? renderer.setClearColor("rgb(80, 70, 170)") : renderer.setClearColor("rgb(0,0,0)");
     renderer.clear(); // Clean the window
@@ -381,8 +370,7 @@ export function controlledRender(renderer, camera, scene, inspMode, cameraHeSheI
         var offset = 20;
         var offsetX = width - vcHeidth - offset / 2;
         var offsetY = 2 * height / 3 - offset;
-        // renderer.setViewport(offsetX, height - vcHeidth - offsetY, vcWidth, vcHeidth); // Set virtual camera viewport  
-        // renderer.setScissor(offsetX, height - vcHeidth - offsetY, vcWidth, vcHeidth); // Set scissor with the same size as the viewport
+       
         renderer.setViewport(offset, height - vcHeidth - offset, vcWidth, vcHeidth); // Set virtual camera viewport  
         renderer.setScissor(offset, height - vcHeidth - offset, vcWidth, vcHeidth); // Set scissor with the same size as the viewport
 

@@ -8,12 +8,10 @@ import {
     initDefaultSpotlight
 } from "../libs/util/util.js";
 
-//import { createCarBody, definePosition, keyboardUpdate, initMov, defineCamPosition } from "./carBody.js"
 import { createCarBody, definePosition } from "./carBody.js"
 
 var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(640, 480);
-//renderer.shadowMap.type = THREE.VSMShadowMap;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.shadowMap.enabled = true;
 
@@ -35,11 +33,9 @@ showInformation();
 //criação do carro
 var car = createCarBody();
 car.name = 'car';
-//car.scale.set(0.3, 0.3, 0.3);
 car = normalizeAndRescale(car, 2);
 car.rotateX(-degreesToRadians(90));
 car.rotateZ(-degreesToRadians(90));
-//console.log(car.scale);
 scene.add(car);
 
 definePosition();
@@ -81,7 +77,6 @@ function onResize() {
 // initialize arToolkitContext
 //
 // create atToolkitContext
-//var arToolkitContext = new THREEx.ArToolkitContext({
 var arToolkitContext = new ARjs.Context({
     cameraParametersUrl: '../libs/AR/data/camera_para.dat',
     detectionMode: 'mono',
@@ -144,7 +139,6 @@ function setSpotLight(position) {
     spotLight.visible = true;
 
     scene.add(spotLight);
-    //lightArray.push(spotLight);
 }
 
 function defineCamPosition() {
@@ -154,14 +148,6 @@ function defineCamPosition() {
     spotLight.position.copy(camera.position);
 
 }
-
-// function onError() {};
-
-// function onProgress(xhr, model) {
-//     if (xhr.lengthComputable) {
-//         var percentComplete = xhr.loaded / xhr.total * 100;
-//     }
-// }
 
 //----------------------------------------------------------------------------
 // Render the whole thing on the page

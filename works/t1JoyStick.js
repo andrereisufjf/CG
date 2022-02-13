@@ -42,7 +42,7 @@ car.name = 'car';
 var camSup = new THREE.Object3D();
 scene.add(camSup);
 var camSupAxesHelper = new THREE.AxesHelper(12);
-camSupAxesHelper.visible = true;
+camSupAxesHelper.visible = false;
 camSup.add(camSupAxesHelper);
 camSup.add(camera);
 scene.add(car);
@@ -54,17 +54,10 @@ carAuxAxesHelper.visible = true;
 //carAux.add(carAuxAxesHelper);
 
 // teste camera terceira pessoa
-//cameraHeSheIt.rotateZ(degreesToRadians(20));
 cameraHeSheIt.translateY(-20);
 cameraHeSheIt.translateZ(-10);
 cameraHeSheIt.rotateX(degreesToRadians(80));
-//cameraHeSheIt.position.set(25, 0, 5);
 carAux.add(cameraHeSheIt);
-//degreesToRadians(80)
-//deltaMovCam.set(25, 0, 5, 80, 90);
-// camera.matrix.multiply(mat4Cam.makeRotationZ(degreesToRadians(deltaMovCam.rotZ))); // R1
-// camera.matrix.multiply(mat4Cam.makeRotationX(degreesToRadians(deltaMovCam.rotX))); // R1
-// fim teste
 
 
 

@@ -2,7 +2,7 @@ import * as THREE from '../build/three.module.js';
 import { createGroundPlane, degreesToRadians, radiansToDegrees } from "../libs/util/util.js";
 import { SecondaryBox, initRenderer, createLightSphere } from "../libs/util/util.js";
 import KeyboardState from '../libs/util/KeyboardState.js';
-import { changeLane, changeVisible, isOnLane, atualizarQuadrante, getInicialPosition, objectsBox } from "./plano.js"
+import { changeLane, changeVisible, isOnLane, activateBlock, getInicialPosition, objectsBox } from "./plano.js"
 
 import { GUI } from '../build/jsm/libs/dat.gui.module.js';
 
@@ -15,7 +15,7 @@ var speed = 0.0;
 var deltaSpeed = 0.003;
 var speedLimit = 0.50;
 var speedLimitConst = speedLimit; // usado para evitar acesso e operações simultaneas em speedLimit ao controlar a saida da pista
-var speedLimitWithColision = 0.1 * speedLimitConst;
+var speedLimitWithColision = 0.8 * speedLimitConst;
 var speedLimitOutSideLane = 0.5 * speedLimitConst;
 var angle = 0.0;
 var deltaAngle = degreesToRadians(0.4);
@@ -31,13 +31,6 @@ var deltaMovCam = {
     "z": 15,
     "rotX": 50,
     "rotZ": 50,
-
-    // teste modo he/she/it
-    // "x": 25,
-    // "y": 0,
-    // "z": 5,
-    // "rotX": 80,
-    // "rotZ": 90,
 
     reset: function() { // retorna o tempo total 
         this.x = this.y = this.z = 15;
@@ -98,7 +91,7 @@ var modoInsp = {
     rotationAntObj: new THREE.Euler(), //rotação anterior ao modo de inspeção
     rotationCam: new THREE.Euler(0.50, 0, 0),
     rotationAntCam: new THREE.Euler(),
-    posicaoCam: new THREE.Vector3(0, -40, 50),
+    posicaoCam: new THREE.Vector3(0, -30, 30),
     posicaoAntCam: new THREE.Vector3(),
     cameraUp: new THREE.Vector3(0, 1, 0), // camera up padrao de inspeção
     cameraUpAnt: new THREE.Vector3(), //camera up anterior ao modo de inspeção
@@ -111,11 +104,8 @@ var modoInsp = {
 var carCg = new THREE.Object3D(); //CG do carro
 var carCgAxesHelper = new THREE.AxesHelper(5);
 carCgAxesHelper.visible = false;
-//carCg.add(carCgAxesHelper);
-
 
 //Fuselagem
-//Base
 var fuselageMaterial = new THREE.MeshPhongMaterial({ color: "grey" });
 fuselageMaterial.side = THREE.DoubleSide; // Show front and back polygons
 
@@ -192,7 +182,7 @@ fuselage.add(back);
 
 //Vidros
 var windowMaterial = new THREE.MeshLambertMaterial({ color: "black", transparent: true, opacity: 0.8 });
-windowMaterial.side = THREE.DoubleSide; // Show front and back polygons
+windowMaterial.side = THREE.DoubleSide;
 
 var windowExtrudeSettings = {
     depth: 2.5,
@@ -210,7 +200,7 @@ fuselage.add(window);
 
 //parachoque
 var parachoqueMaterial = new THREE.MeshPhongMaterial({ color: "black" });
-parachoqueMaterial.side = THREE.DoubleSide; // Show front and back polygons
+parachoqueMaterial.side = THREE.DoubleSide;
 
 var parachoqueExtrudeSettings = {
     depth: 2.65,
@@ -352,14 +342,6 @@ createTextures();
 carCg.castShadow = true;
 const car = carCg;
 
-// // Teapot
-// var geometry = new TeapotGeometry(0.5);
-// var material = new THREE.MeshPhongMaterial({ color: "rgb(255,20,20)", shininess: "200" });
-// material.side = THREE.DoubleSide;
-// var obj = new THREE.Mesh(geometry, material);
-// obj.castShadow = true;
-// obj.position.set(10, 5, 0);
-
 export function createCarBody() {
     return carCg;
 }
@@ -425,7 +407,6 @@ export function initMov(modoCameraAux, inicialPosition, cameraAux, sceneAux, cam
     camSup = camSupAux;
     carAux = carAuxParameter;
     cameraHeSheIt = cameraHeSheItAux;
-    //lightSphere = createLightSphere(scene, 0.5, 10, 10, lightPosition);
     initLights();
 
 }
@@ -451,11 +432,8 @@ export function definePosition() {
 
         if (speed >= speedLimit * 0.05) {
             carCg.rotateZ(angle);
-            //camSup.rotateZ(angle / 100);
         } else if (speed < -speedLimit * 0.05) {
             carCg.rotateZ(-angle);
-            // cameraHeSheIt.rotateY(angle / 3);
-            //camSup.rotateZ(-angle / 100);
         }
 
         //verifica a colisão
@@ -463,9 +441,14 @@ export function definePosition() {
     }
 
     inLane = isOnLane(car.position); // verifica se o carro está na pista
-    if (!inLane && !alterSpeed) { // se o carro estiver fora e o retardo não tive sido aplicado
-        speedLimit = speedLimitOutSideLane;
-        alterSpeed = true;
+    if (!inLane) { // se o carro estiver fora e o retardo não tive sido aplicado
+        if (!alterSpeed) {
+            speedLimit = speedLimitOutSideLane;
+            alterSpeed = true;
+        } else if (speedLimit != speedLimitOutSideLane) {
+            speedLimit = speedLimitOutSideLane;
+        }
+
     } else if (inLane && alterSpeed) { //se o carro voltou pra pista é preciso restaurar o controle de retardo
         alterSpeed = false;
         speedLimit = speedLimitConst;
@@ -494,20 +477,10 @@ function checkCollision() {
     //console.log("entrei");
     let carBB = new THREE.Box3().setFromObject(carCg);
 
-    // const box = new THREE.BoxHelper(carCg, 0xffff00);
-    // scene.add(box);
-
     //let boxesCollision = false;
     let collision = objectsBox.some(function(objBB) {
-        // if (self.body.BBox.intersectsBox(mesh.BBox)) {
-        //     boxesCollision = true;
-        //     console.log("Colisão");
-        //     return true;
-        // }
-        // self.body.BBoxHelper.update();
-        //console.log("func");
+
         if (objBB.intersectsBox(carBB)) {
-            //onsole.log("COLISÃO");
             speedLimit = speedLimitWithColision;
             alterColisionSpeed = true;
             return true;
@@ -516,14 +489,10 @@ function checkCollision() {
     });
 
     if (!collision && alterColisionSpeed) {
+        console.log("entrei");
         speedLimit = speedLimitConst;
         alterColisionSpeed = false;
     }
-
-
-    // if (boxesCollision) {
-    //     this.body.position.copy(this.tmpPosition); // last position
-    // }
 }
 
 //Configuração do teclado
@@ -536,7 +505,7 @@ export function keyboardUpdate() {
         if (modoCamera.simulacao) { // CONTROLE JOGO 
 
             if (playing) {
-                atualizarQuadrante(car.position.x, car.position.y);
+                activateBlock(car.position.x, car.position.y);
 
                 if (keyboard.pressed("X")) speed = Math.min(speed + 2 * deltaSpeed, speedLimit);
                 if (keyboard.pressed("down")) speed = Math.max(speed - 2 * deltaSpeed, -speedLimit);
@@ -608,7 +577,6 @@ export function keyboardUpdate() {
         updateAction();
     }
 
-    //console.log("cond: " + (actions.exchange && time.second > lastTime));
     if (keyboard.down("space") || (actions.exchange && time.second > lastTime)) {
 
         /** MODO DE CAMERA
@@ -624,10 +592,6 @@ export function keyboardUpdate() {
             case 1:
                 camMode++;
                 cameraHeSheItActived = true;
-                // deltaMovCam.set(25, 0, 5, 80, 90);
-                // var cwd = new THREE.Vector3();
-                // carAux.getWorldPosition(cwd);
-                // camSup.position.set(cwd.x + deltaMovCam.x, cwd.y + deltaMovCam.y, cwd.z + deltaMovCam.z);
                 return; // paleativo por preguiça
                 break; // por prevenção
             case 2:
@@ -651,14 +615,6 @@ export function keyboardUpdate() {
         if (joyStickMode && camMode == 3) {
             camMode = 1;
         }
-
-        //console.log("Modo de camera a ser ativado: " + camMode);
-
-        // if (camMode == 2) {
-        //     // trocar camera
-        //     camMode.set(15, -15, 15);
-        //     return; 
-        // }
 
         modoCamera.simulacao = !modoCamera.simulacao;
         if (modoCamera.simulacao) { // sai do modo de inspeção e retoma parametros
@@ -685,9 +641,7 @@ export function keyboardUpdate() {
 
 function updateAction() {
     if (playing) {
-        atualizarQuadrante(car.position.x, car.position.y);
-
-        //console.log(actions.acceleration)
+        activateBlock(car.position.x, car.position.y);
 
         if (actions.acceleration) speed = Math.min(speed + 2 * deltaSpeed, speedLimit);
         if (actions.braking) speed = Math.max(speed - 2 * deltaSpeed, -speedLimit);
@@ -712,84 +666,20 @@ function updateAction() {
 
         //atualiza a velocidade
         speedometer.changeText("Velocidade: " + (20 * speed).toFixed(1) + "m/s");
-        //console.log(actions.exchange);
+
     } else {
         speed = 0;
     }
 }
-//console.log(actions.active);
-
-// if (actions.acceleration) {
-//     if (speed < -1)
-//         breakingForce = maxBreakingForce;
-//     else engineForce = maxEngineForce;
-// }
-// if (actions.braking) {
-//     if (speed > 1)
-//         breakingForce = maxBreakingForce;
-//     else engineForce = -maxEngineForce / 2;
-// }
-// if (actions.left) {
-//     if (vehicleSteering < steeringClamp)
-//         vehicleSteering += steeringIncrement;
-// } else {
-//     if (actions.right) {
-//         if (vehicleSteering > -steeringClamp)
-//             vehicleSteering -= steeringIncrement;
-//     } else {
-//         if (vehicleSteering < -steeringIncrement)
-//             vehicleSteering += steeringIncrement;
-//         else {
-//             if (vehicleSteering > steeringIncrement)
-//                 vehicleSteering -= steeringIncrement;
-//             else {
-//                 vehicleSteering = 0;
-//             }
-//         }
-//     }
-// }
-
-
-// //TESTE LUZ
-// if (keyboard.pressed("D")) {
-//     lightPosition.x += 0.05;
-//     updateLightPosition(lightPosition);
-// }
-// if (keyboard.pressed("A")) {
-//     lightPosition.x -= 0.05;
-//     updateLightPosition(lightPosition);
-// }
-// if (keyboard.pressed("W")) {
-//     lightPosition.y += 0.05;
-//     updateLightPosition(lightPosition);
-// }
-// if (keyboard.pressed("S")) {
-//     lightPosition.y -= 0.05;
-//     updateLightPosition(lightPosition);
-// }
-// if (keyboard.pressed("E")) {
-//     lightPosition.z -= 0.05;
-//     updateLightPosition(lightPosition);
-// }
-// if (keyboard.pressed("Q")) {
-//     lightPosition.z += 0.05;
-//     updateLightPosition(lightPosition);
-// }
-
-
-
 
 //seta a pposição da camera baseado no quadrante atual
-
 function carInicialParameters() {
     speed = 0;
     angle = 0;
     carCg.position.copy(getInicialPosition());
-    //carCg.rotateZ(degreesToRadians(90));
     carCg.rotation.z = 1.57;
     turns = 1;
     time.reset();
-    //FALTA ARRUMAR A ROTAÇÃO
 }
 
 //Traslação da camera de acordo com o movimento do carro
@@ -798,36 +688,23 @@ export function defineCamPosition() {
         camera.matrixAutoUpdate = false;
         var mat4Cam = new THREE.Matrix4();
         camera.matrix.identity();
-        // Will execute T1 and then R1
-        //if (modoCamera.simulacao) {
-        camera.matrix.multiply(mat4Cam.makeRotationZ(degreesToRadians(deltaMovCam.rotZ))); // R1
-        camera.matrix.multiply(mat4Cam.makeRotationX(degreesToRadians(deltaMovCam.rotX))); // R1
-        //}
+
+        camera.matrix.multiply(mat4Cam.makeRotationZ(degreesToRadians(deltaMovCam.rotZ)));
+        camera.matrix.multiply(mat4Cam.makeRotationX(degreesToRadians(deltaMovCam.rotX)));
 
         var cwd = new THREE.Vector3();
         carAux.getWorldPosition(cwd);
 
-        // TESTE PARA MODO HE/SHE/IT
-        // if (camMode == 2) {
-        //     camSup.position.set(cwd.x, cwd.y, cwd.z);
-        // } else { // MODO 1 - NORMAL
         camSup.position.set(cwd.x + deltaMovCam.x, cwd.y + deltaMovCam.y, cwd.z + deltaMovCam.z);
-        //}
 
         //TESTE LUZ
         let lightPositionaAux = new THREE.Vector3(cwd.x + 10, cwd.y - 4, cwd.z + 6.5);
         updateLightPosition(lightPositionaAux);
 
-        //updateLightPosition(lightPosition);
-        //console.log(lightPosition)
-        //console.log(cwd);
     } else { // modo simulação
         camera.matrixAutoUpdate = true;
         updateLightPosition(camera.position);
     }
-
-
-
 }
 
 //salva os parametros ao entrar no modo de insperação e seta os valores padrões
@@ -990,7 +867,6 @@ export function getTurn() {
 }
 
 //Contorno da fuselagem
-//Contorno da fuselagem
 function backShape() {
     var backShape = new THREE.Shape();
     backShape.moveTo(-1.0, 0.8);
@@ -1121,9 +997,6 @@ function windshieldShape() {
     wsShape.lineTo(-1.0, 0.79);
     wsShape.lineTo(-2.5, -0.01);
 
-    //wsShape.lineTo(-1.0,0.75);
-    //wsShape.lineTo(-2.5,-0.1);
-
     return wsShape;
 }
 
@@ -1136,12 +1009,6 @@ function vidroShape() {
 
     return fuseShape;
 }
-
-
-
-
-
-
 
 
 // TESTE ILUMINAÇÃO
@@ -1184,10 +1051,6 @@ function initLights() {
     setDirectionalLighting(lightPosition);
     scene.add(ambientLight);
     lightArray[activeLight].visible = true;
-
-    //TESTE SOMBRA
-    //buildInterface();
-    //scene.add(obj);
 }
 
 // Set Spotlight
@@ -1233,8 +1096,6 @@ function updateLightPosition(position) {
     lightArray[activeLight].target = carCg;
     lightArray[activeLight].position.copy(position);
 
-    //lightSphere.position.copy(position);
-    //console.log(activeLight, lightArray[activeLight].position, lightSphere.position)
 }
 
 
@@ -1283,14 +1144,8 @@ function onButtonDown(event) {
             break;
         case "C":
 
-
-            //actions.exchange = true;
-            //console.log("teste " + time.second + " " + lastTime);
-            // controla a troca de camera
             if (!actions.exchange && time.second > lastTime) {
-                //console.log("entrei");
                 actions.exchange = true;
-                // lastTime = (time.second < 58 ? time.second : 0) + 4;
 
             } else {
                 actions.exchange = false;
@@ -1309,54 +1164,3 @@ function onButtonUp(event) {
     actions.braking = false;
     actions.exchange = false
 }
-
-
-//TESTE PARAMETROS
-
-// Update light intensity of the current light
-// function updateLightIntensity() {
-//     lightArray[activeLight].intensity = lightIntensity;
-// }
-
-// function buildInterface() {
-//     //------------------------------------------------------------
-//     // Interface
-//     var controls = new function() {
-//         this.lightIntensity = lightIntensity;
-//         this.lightType = 'Spot'
-//         this.ambientLight = true;
-
-//         this.onEnableAmbientLight = function() {
-//             ambientLight.visible = this.ambientLight;
-//         };
-//         this.onUpdateLightIntensity = function() {
-//             lightIntensity = this.lightIntensity;
-//             updateLightIntensity();
-//         };
-//         this.onChangeLight = function() {
-//             lightArray[activeLight].visible = false;
-//             switch (this.lightType) {
-//                 case 'Spot':
-//                     activeLight = 0;
-//                     break;
-//                 case 'Direction':
-//                     activeLight = 1;
-//                     break;
-//             }
-//             lightArray[activeLight].visible = true;
-//             //updateLightPosition();
-//             updateLightIntensity();
-//         };
-//     };
-
-//     var gui = new GUI();
-//     gui.add(controls, 'lightType', ['Spot', 'Direction'])
-//         .name("Light Type")
-//         .onChange(function(e) { controls.onChangeLight(); });
-//     gui.add(controls, 'lightIntensity', 0, 5)
-//         .name("Light Intensity")
-//         .onChange(function(e) { controls.onUpdateLightIntensity() });
-//     gui.add(controls, 'ambientLight', true)
-//         .name("Ambient Light")
-//         .onChange(function(e) { controls.onEnableAmbientLight() });
-// }
